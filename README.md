@@ -1,2 +1,3 @@
-# Text-Classification-Using-Neural-Networks
-4th Year Final Year Project
+# Text Classification Using Neural Networks and the Word2Vec Methodology
+
+Final Year Project - University of Limerick

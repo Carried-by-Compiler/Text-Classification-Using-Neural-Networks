@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec160f97-8c9a-4c7d-8d9a-b5f574dbb78e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NN.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/neuralnet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NN.py" beforeDir="false" afterPath="$PROJECT_DIR$/NN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,46 +17,71 @@
     <session id="-1810133289">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="2" />
+          <entry key="project.closed" value="8" />
           <entry key="project.open.time.10" value="1" />
+          <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.22" value="1" />
+          <entry key="project.open.time.23" value="1" />
+          <entry key="project.open.time.24" value="1" />
+          <entry key="project.open.time.3" value="1" />
           <entry key="project.open.time.4" value="1" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.open.time.9" value="1" />
+          <entry key="project.opened" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="4" />
+          <entry key="py" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="4" />
+          <entry key="Python" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="4409" />
+          <entry key="py" value="14118" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="4409" />
+          <entry key="Python" value="14118" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/NN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="637">
-              <caret line="32" column="60" selection-start-line="32" selection-start-column="60" selection-end-line="32" selection-end-column="60" />
+            <state relative-caret-position="500">
+              <caret line="52" column="62" selection-start-line="52" selection-start-column="62" selection-end-line="52" selection-end-column="62" />
               <folding>
-                <marker date="1537219161457" expanded="true" signature="41:42" ph="..." />
-                <marker date="1537219161457" expanded="true" signature="41:47" ph="..." />
-                <marker date="1537219161457" expanded="true" signature="85:94" ph="..." />
+                <marker date="1537399180691" expanded="true" signature="41:42" ph="..." />
+                <marker date="1537399180691" expanded="true" signature="41:47" ph="..." />
+                <marker date="1537399180691" expanded="true" signature="171:180" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/neuralnet.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1200">
+              <caret line="60" column="51" selection-start-line="60" selection-start-column="51" selection-end-line="60" selection-end-column="51" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <marker date="1537435216864" expanded="true" signature="96:97" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="96:102" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="145:147" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="145:151" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="145:155" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="729:739" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="729:1274" ph="..." />
+                <marker date="1537435216864" expanded="true" signature="1307:1317" ph="..." />
               </folding>
             </state>
           </provider>
@@ -64,12 +90,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="18" column="16" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="16" />
+            <state relative-caret-position="440">
+              <caret line="23" column="35" selection-start-line="23" selection-start-column="35" selection-end-line="23" selection-end-column="35" />
               <folding>
-                <element signature="e#0#28#0" expanded="true" />
-                <marker date="1537218389330" expanded="true" signature="47:49" ph="..." />
-                <marker date="1537218389330" expanded="true" signature="48:49" ph="..." />
+                <marker date="1537445443701" expanded="true" signature="54:56" ph="..." />
+                <marker date="1537445443701" expanded="true" signature="55:56" ph="..." />
               </folding>
             </state>
           </provider>
@@ -86,6 +111,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+      <find>array</find>
+      <find>matrix</find>
+      <find>weights_to_output</find>
+      <find>prin</find>
+      <find>Print</find>
+      <find>errors_output</find>
       <find>print</find>
     </findStrings>
   </component>
@@ -97,8 +128,9 @@
       <list>
         <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/experiment.py" />
-        <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/NN.py" />
+        <option value="$PROJECT_DIR$/neuralnet.py" />
+        <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
   </component>
@@ -114,7 +146,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -130,6 +161,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -226,22 +258,21 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="878" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24917382" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2485129" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" x="0" y="23" width="1536" height="841" id="Run" order="2" type="WINDOWED" weight="0.32952183" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3986577" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32952183" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32885906" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32885906" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32885906" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32885906" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -253,26 +284,43 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app.py" />
     <entry file="file://$PROJECT_DIR$/experiment.py" />
-    <entry file="file://$PROJECT_DIR$/main.py">
+    <entry file="file://$PROJECT_DIR$/NN.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="18" column="16" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="16" />
+        <state relative-caret-position="500">
+          <caret line="52" column="62" selection-start-line="52" selection-start-column="62" selection-end-line="52" selection-end-column="62" />
           <folding>
-            <element signature="e#0#28#0" expanded="true" />
-            <marker date="1537218389330" expanded="true" signature="47:49" ph="..." />
-            <marker date="1537218389330" expanded="true" signature="48:49" ph="..." />
+            <marker date="1537399180691" expanded="true" signature="41:42" ph="..." />
+            <marker date="1537399180691" expanded="true" signature="41:47" ph="..." />
+            <marker date="1537399180691" expanded="true" signature="171:180" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/NN.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="637">
-          <caret line="32" column="60" selection-start-line="32" selection-start-column="60" selection-end-line="32" selection-end-column="60" />
+        <state relative-caret-position="440">
+          <caret line="23" column="35" selection-start-line="23" selection-start-column="35" selection-end-line="23" selection-end-column="35" />
           <folding>
-            <marker date="1537219161457" expanded="true" signature="41:42" ph="..." />
-            <marker date="1537219161457" expanded="true" signature="41:47" ph="..." />
-            <marker date="1537219161457" expanded="true" signature="85:94" ph="..." />
+            <marker date="1537445443701" expanded="true" signature="54:56" ph="..." />
+            <marker date="1537445443701" expanded="true" signature="55:56" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuralnet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1200">
+          <caret line="60" column="51" selection-start-line="60" selection-start-column="51" selection-end-line="60" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1537435216864" expanded="true" signature="96:97" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="96:102" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="145:147" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="145:151" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="145:155" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="729:739" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="729:1274" ph="..." />
+            <marker date="1537435216864" expanded="true" signature="1307:1317" ph="..." />
           </folding>
         </state>
       </provider>
