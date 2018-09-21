@@ -11,14 +11,12 @@ Such content may include:
 - Research Material 
 
 ## TO-DO List
-***
 
 - [ ] Mathematics behind Gradient Descent and Backpropogation (See research material list)
 - [ ] Word2Vec
 - [ ] Find Datasets  
 
 ## Research Material
-***
 
 - [YouTube Videos / Playlists](#youtube)
 - [Websites](#websites)
@@ -54,6 +52,7 @@ Such content may include:
 
 
 ### Books<a name="books"></a>
+***
 
 - [Neural Networks and Deep Learning (Online)](http://neuralnetworksanddeeplearning.com/index.html)
 
