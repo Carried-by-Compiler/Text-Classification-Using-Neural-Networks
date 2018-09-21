@@ -13,9 +13,9 @@ Such content may include:
 ## TO-DO List
 ***
 
-- [] Mathematics behind Gradient Descent and Backpropogation (See research material list)
-- [] Word2Vec
-- [] Find Datasets
+- [ ] Mathematics behind Gradient Descent and Backpropogation (See research material list)
+- [ ] Word2Vec
+- [ ] Find Datasets  
 
 ## Research Material
 ***
