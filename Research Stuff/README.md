@@ -7,16 +7,16 @@ Such content may include:
 
 # Table of Contents
 
-- To-Do List
-- Research Material 
+- [To-Do List](#todo)
+- [Research Material](#research)
 
-## TO-DO List
+## TO-DO List<a name="todo"></a>
 
 - [ ] Mathematics behind Gradient Descent and Backpropogation (See research material list)
 - [ ] Word2Vec
 - [ ] Find Datasets  
 
-## Research Material
+## Research Material<a name="research"></a>
 
 - [YouTube Videos / Playlists](#youtube)
 - [Websites](#websites)
