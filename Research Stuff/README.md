@@ -48,7 +48,11 @@ Such content may include:
 
 - [Vector Representation of Words | TensorFlow](https://www.tensorflow.org/tutorials/representation/word2vec)
 
-  Contains information on **Word2Vec**
+  Contains general information on word embeddings
+
+- [Word2Vec Tutorial - The Skip-Gram Model](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/)
+
+  Looks at **Word2Vec** in more detail
 
 
 ### Books<a name="books"></a>
