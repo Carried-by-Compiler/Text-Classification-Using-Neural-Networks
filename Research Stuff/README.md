@@ -1,6 +1,7 @@
 This folder is used for contents related to experimentation and research.  
 
 Such content may include:
+
 - sample programs
 - experimentation files
 - research notes and ideas
@@ -9,12 +10,13 @@ Such content may include:
 
 - [To-Do List](#todo)
 - [Research Material](#research)
+- [Possible Datasets](#datasets)
 
 ## TO-DO List<a name="todo"></a>
 
 - [ ] Mathematics behind Gradient Descent and Backpropogation (See research material list)
-- [ ] Word2Vec
-- [ ] Find Datasets  
+- [X] Word2Vec - The Skip-gram Model
+- [X] Find Datasets  
 
 ## Research Material<a name="research"></a>
 
@@ -23,6 +25,7 @@ Such content may include:
 - [Books](#books)
 
 ### YouTube Videos / Playlists<a name="youtube"></a>
+
 ***
 
 - 3Blue1Brown - [Neural Networks](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
@@ -38,6 +41,7 @@ Such content may include:
   Contains videos on linear regression and the mathematics of gradial descent
 
 ### Websites<a name="websites"></a>
+
 ***
 
 - [Machine Learning with Python: Neural Networks from Scratch in Python](https://www.python-course.eu/neural_networks.php)
@@ -56,6 +60,7 @@ Such content may include:
 
 
 ### Books<a name="books"></a>
+
 ***
 
 - [Neural Networks and Deep Learning (Online)](http://neuralnetworksanddeeplearning.com/index.html)
