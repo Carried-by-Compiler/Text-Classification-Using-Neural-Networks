@@ -56,7 +56,11 @@ Such content may include:
 
 - [Word2Vec Tutorial - The Skip-Gram Model](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/)
 
-  Looks at **Word2Vec** in more detail
+  Looks at **Word2Vec** in more detailS
+
+- [Google's Word2Vec Implementation](https://github.com/dav/word2vec)
+
+  [Click here](https://code.google.com/archive/p/word2vec/) for Google's training data source & implementation explaination
 
 
 ### Books<a name="books"></a>
