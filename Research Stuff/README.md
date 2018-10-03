@@ -50,6 +50,8 @@ Such content may include:
 
 - [Artificial neural network - Wikipedia](https://en.wikipedia.org/wiki/Artificial_neural_network)
 
+- [Mikolov et al Paper on Word2Vec](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)
+
 - [Vector Representation of Words | TensorFlow](https://www.tensorflow.org/tutorials/representation/word2vec)
 
   Contains general information on word embeddings
@@ -61,6 +63,8 @@ Such content may include:
 - [Google's Word2Vec Implementation](https://github.com/dav/word2vec)
 
   [Click here](https://code.google.com/archive/p/word2vec/) for Google's training data source & implementation explaination
+
+- [Word2Vec | Skymind](https://skymind.ai/wiki/word2vec)
 
 
 ### Books<a name="books"></a>
