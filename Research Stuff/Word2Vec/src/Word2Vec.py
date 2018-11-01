@@ -33,6 +33,7 @@ if __name__ == "__main__":
         sentence += line
 
     # TODO: Create a file accessor to create sentences from a file
+    # TODO: Research iterators and generators to help output sentences
     splitSentence = sentence.split(".")
     print(splitSentence[0] + "\n" + splitSentence[1])
 

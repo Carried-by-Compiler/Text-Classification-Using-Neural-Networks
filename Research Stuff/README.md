@@ -17,8 +17,8 @@ Such content may include:
 - [ ] Mathematics behind Gradient Descent and Backpropogation (See research material list)
 - [X] Word2Vec - The Skip-gram Model
 - [X] Find Datasets  
-- [ ] Create Neural Network report
-- [ ] Create Word2Vec report
+- [ ] Create Final Year Interim Report
+- [ ] Code up Word2Vec Implementation
 
 ## Research Material<a name="research"></a>
 
@@ -68,6 +68,15 @@ Such content may include:
 
 - [Word2Vec | Skymind](https://skymind.ai/wiki/word2vec)
 
+- [Word2Vec Tutorial | RADIM ŘEHŮŘEK](https://rare-technologies.com/word2vec-tutorial/)
+
+  Contains explanation on some of the Gensim API
+
+- [How to Develop Word Embeddings in Python with Gensim](https://machinelearningmastery.com/develop-word-embeddings-python-gensim/)
+
+- [Generating a Word2Vec model from a block of Text using Gensim (Python)](https://codesachin.wordpress.com/2015/10/09/generating-a-word2vec-model-from-a-block-of-text-using-gensim-python/)
+
+  Mentions the Wikipedia API as a source of text
 
 ### Books<a name="books"></a>
 
