@@ -17,6 +17,8 @@ Such content may include:
 - [ ] Mathematics behind Gradient Descent and Backpropogation (See research material list)
 - [X] Word2Vec - The Skip-gram Model
 - [X] Find Datasets  
+- [ ] Create Neural Network report
+- [ ] Create Word2Vec report
 
 ## Research Material<a name="research"></a>
 
