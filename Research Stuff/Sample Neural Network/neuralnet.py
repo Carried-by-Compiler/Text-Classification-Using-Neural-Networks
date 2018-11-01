@@ -27,11 +27,12 @@ class NeuralNetwork:
         # Convert input to column vector
         inputs = np.array(inputs, ndmin=2).T
 
-        # Computer guesses an answer
+        # Compute hidden node activations
         hidden_values = np.dot(self.weights_to_hidden, inputs)
         hidden_values = np.add(hidden_values, self.biases_hidden)
         hidden_values = activation_function(hidden_values)
 
+        #Computer output node activations
         output_values = np.dot(self.weights_to_output, hidden_values)
         output_values = np.add(output_values, self.biases_output)
         output_values = activation_function(output_values)
