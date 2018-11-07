@@ -1,0 +1,630 @@
+Data Structures and Algorithms for Simplifying Reversible Circuits
+
+Reversible logic is motivated by low-power design, quantum circuits, and nanotechnology. We develop
+a compact representation of small reversible circuits to generate and store optimal circuits for
+all 40,320 three-input reversible functions, and millions of four-input circuits. This allows implementing
+a function optimally in constant time for use in the peephole optimization of larger circuits
+produced by existing techniques, and guarantees that every three-bit subcircuit is optimal. To generate
+subcircuits, we use a graph-based data structure and algorithms for circuit restructuring.
+Finally, we demonstrate a suboptimal circuit for which peephole optimization fails.
+Categories and Subject Descriptors: B.6.3 [Logic Design]: Design Aids; B.6.1 [Logic Design]: Design Styles
+General Terms: Algorithms, Reversible Logic, Logic Synthesis Design Optimization, Algorithms, Data Structures
+Additional Key Words and Phrases: Circuit simplification, optimal subcircuit, circuit libraries
+
+1. INTRODUCTION
+Many modern computational problems are inherently reversible in nature,
+meaning that information present in the input must be conserved by the
+This work was supported by the Undergraduate Summer Research Program at the University of
+Michigan, the DARPA QuIST program, and the NSF. The views and conclusions contained herein
+are those of the authors and should not be interpreted as representing official policies or endorsements
+of employers or funding agencies.
+Authors’ addresses: A. K. Prasad, Amazon.com, Inc., 12th Ave. South, Suite 1200, Seattle, WA
+98144-2734; email: akprasad@gmail.com; V. V. Shende, I. L. Markov, J. P. Hayes, Department of
+EECS, University of Michigan, 2260 Hayward St., Ann Arbor, MI 48109-2121; email: vivek.vijay.
+shende@gmail.com; {imarkov, jhayes}@eecs.umich.edu; K. N. Patel, Qualcomm, Inc., 645 Campbell
+Technology Parkway, Suite 200, Campbell, CA 95008; email: kpatel@qualcomm.com.
+Permission to make digital or hard copies of part or all of this work for personal or classroom use is
+granted without fee provided that copies are not made or distributed for profit or direct commercial
+advantage and that copies show this notice on the first page or initial screen of a display along
+with the full citation. Copyrights for components of this work owned by others than ACM must be
+honored. Abstracting with credit is permitted. To copy otherwise, to republish, to post on servers,
+to redistribute to lists, or to use any component of this work in other works requires prior specific
+permission and/or a fee. Permissions may be requested from Publications Dept., ACM, Inc., 2 Penn
+Plaza, Suite 701, New York, NY 10121-0701 USA, fax +1 (212) 869-0481, or permissions@acm.org.
+C 2006 ACM 1550-4832/06/1000-0277 $5.00
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006, Pages 277–293.
+278 • A. K. Prasad et al.
+Fig. 1. A reversible NCT-circuit with 144 transistors and no power rails, implemented in static
+CMOS by Desoete and de Vos [2002]. Simplifying such a circuit would reduce the required space,
+whereas in quantum computing technologies, the targets for improvement would be timing, locality
+of qubit couplings, probability of decoherence, and the required degree of error correction.
+computation and recoverable from the output. Some fields where such
+problems arise include cryptography, digital signal processing, and communications
+[McGregor and Lee 2001; Shende et al. 2003].
+Irreversible circuits necessarily dissipate heat to compensate for the loss of
+information they incur [Bennett 1973]. Recent work from Intel [Zhirnov et al.
+2003] derives physical limits for irreversible computation by systems that use
+electrons and energy barriers to store and manipulate binary values. Due to
+power-density constraints, these limits are likely to halt transistor shrinkage
+for all major circuit types and technologies by 2021. A potential solution is
+to recycle information and energy. To this end, reversible and asymptotically
+energy-lossless circuits have been proposed [Younis and Knight 1994], but their
+delay can be arbitrarily large. Independently, Desoete and de Vos [2002] have
+built several reversible circuits of up to 384 transistors, powered only by their
+input signals. Figure 1 shows one of their circuits as seen through a scanning
+electron microscope.
+Another novel computing technology that circumvents physical limits cited
+in Zhirnov et al. [2003], namely, quantum circuits, also requires complete reversibility.
+Quantum circuits and algorithms offer additional benefits in terms
+of asymptotic runtime. While purely quantum gates are necessary to achieve
+quantum speedup, variants of conventional reversible gates are also commonly
+used in quantum algorithms [Barenco et al. 1995]. For example, the
+textbook implementation of Grover’s quantum search algorithm uses many
+NCT (NOT, CNOT, and TOFFOLI) gates [Nielsen and Chuang 2000]. Hence,
+efficient synthesis with such gates is an important step towards quantum
+computation.
+Toffoli [1980] showed that the NCT gate library is universal for the synthesis
+of reversible Boolean circuits. This has been recently extended to show that all
+even permutations can be synthesized with no temporary storage lines, and that
+odd permutations require exactly one extra line [Shende et al. 2003; De Vos et al.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 279
+2002]. Optimal circuits for all three-bit reversible functions can be found in several
+minutes by dynamic programming [Shende et al. 2003]. This algorithm also
+synthesizes optimal four-bit circuits reasonably quickly, but does not scale much
+further. More scalable constructive synthesis algorithms [Miller et al. 2003;
+Agrawal and Jha 2004; Kerntopf 2004] tend to produce suboptimal circuits
+even on three bits, which suggests iterative optimization based on local search.
+The work in Iwama et al. [2002] describes a small set of local transformation
+rules for NCT-circuits, but focuses on transforming circuits into a canonical
+form, rather than on reducing circuit size. A circuit simplifier proposed
+in Maslov et al. [2003a, 2003b] tries to match a small set of precomputed
+reducible circuit templates to subcircuits. Even with such simplification
+techniques, the only work to report optimal circuits for all three-bit functions
+so far is Shende et al. [2003]. Our work extends such optimal methods in
+order to postprocess circuits produced by other techniques, so as to guarantee
+optimal gate counts in all three-bit subcircuits, and a large number of four-bit
+subcircuits. This can be contrasted with template-based simplification, which
+does not guarantee optimal subcircuits, but rather seeks to reduce larger subcircuits
+that could be beyond the reach of optimal methods. As our empirical
+results show, the two approaches are complementary and should be employed
+together.
+The method we present reduces the cost of a given circuit, for example, the
+number of gates, without increasing the number of circuit inputs (no temporary
+storage or constant inputs). This is motivated in part by quantum computing
+applications, where qubits are relatively expensive and gates are relatively
+inexpensive. We also develop an exceptionally compact bit-based storage mechanism
+for small optimal circuits that supports finding an optimal implementation
+for a given function in O(1) time. Such lookup libraries scale to millions
+of optimal circuits and can be constructed with surprising efficiency. When
+traversing a given large reversible circuit, optimal libraries allow us to verify
+that the three- and four-bit subcircuits are implemented optimally. When a suboptimal
+subcircuit is found, it is replaced by an equivalent optimal subcircuit
+from the library. Such improvements alter only a few gates at a time, while preserving
+the overall circuit function. They can also be batched so that the overall
+runtime scales linearly, making it possible to reduce even very large circuits.
+With appropriate data structures, this technique is very fast in practice. Unlike
+previous work, it does not leave out any suboptimal three-bit subcircuits. Analogy
+can be made with peephole optimization in compilers [McKeeman 1965],
+where only a few lines of code are optimized at a time. While such methods
+are well-known for simplifying irreversible circuits (e.g., the LSS system from
+IBM [Darringer et al. 1984]), our approach can restructure a reversible circuit
+on-the-fly in order to find larger reducible subcircuits.
+The remainder of the article is structured as follows. The necessary background
+is given in Section 2. Section 3 introduces our compact data structure
+for reversible circuits. This data structure is used in Section 4, which discusses
+the generation of circuit libraries for use in the reduction procedure. Section 5
+discusses the reduction procedure itself. We examine empirical results and exhibit
+theoretical limitations to peephole optimization in Section 6. Conclusions
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+280 • A. K. Prasad et al.
+Fig. 2. A reversible circuit of width four composed of seven NCT gates.
+Fig. 3. Sample reversible circuit equivalences.
+are given in Section 7. The Appendix provides further arguments to support
+our empirical observations.
+2. BACKGROUND AND BASIC DEFINITIONS
+A logic gate is reversible if and only if it computes a bijective function. Therefore,
+a reversible gate must have the same number of inputs as outputs, which we
+call its width, and the same applies to reversible circuits. In a (combinational)
+reversible circuit, all gates are reversible, and there is no fanout or feedback.
+Because the number of wires entering and leaving a gate is the same, we
+may think of wires not as stretching merely from one gate to another, but
+going through the whole circuit, with gates appearing on them from time to
+time. Alternatively, we can think of wires as bits in a register on which we
+can perform reversible operations, but cannot physically move anywhere—this
+formulation corresponds to the quantum computing context.
+The NCT gate library. The gates used in our reversible circuits are members
+of a larger family introduced by Toffoli [1980]. The k-controlled NOT gate, or
+k-CNOT, has width k + 1. It leaves the first k inputs unchanged, and inverts
+the last iff all others are one. The first three k-CNOT gates have special names.
+The 0-CNOT is an inverter, or NOT gate (N). The 1-CNOT is called simply a
+CNOT gate (C), and the 2-CNOT is called a TOFFOLI gate (T). These three
+gates compose the NCT library, and a reversible circuit with only these gates
+is called a NCT-circuit. Our circuits will all be NCT-circuits: The NCT gate
+library is universal [Toffoli 1980], and these gates appear often in quantum
+computation [Nielsen and Chuang 2000].
+We draw NCT-circuits as arrays of horizontal lines, representing wires, in
+which gates are represented by standard symbols [Feynman 1985]. The ⊕ symbols
+represent inverters and the • symbols represent controls. A vertical line
+connecting controls to an inverter means that an inversion is applied iff all control
+lines carry ones. A sample circuit containing NCT gates is depicted in Figure
+2. We use the ∼= symbol to indicate that two circuits compute the same function.
+For example, the left- and righthand circuits in Figure 3 both compute the same
+function as a single C gate. Such pairs of equivalent circuits are useful in optimization;
+we can replace the larger with the smaller to effect a circuit reduction.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 281
+Representing circuits by graphs. We can model the gates in a reversible circuit
+by vertices, and wires by directed edges (more than one edge may connect two
+vertices). If the gates are reversible, each vertex must have as many edges
+entering as leaving. Since no feedback is allowed, such graphs must be acyclic.
+The graph of a reversible circuit can be viewed as a partial ordering of gates:
+For gates G, H in C, we say that G >C H (or equivalently, H <C G) if there
+exists a nontrivial path from H to G in the graph representing C. When C is
+clear from the context, we write G > H.
+3. DATA STRUCTURES FOR REPRESENTING REVERSIBLE CIRCUITS
+In electronic design automation, it is common to represent logic circuits as
+graphs or hypergraphs. However, we found that the regularity and ordering
+intrinsic to reversible circuits facilitate a more compact array-based representation
+(encoding) that is also more convenient for our purposes. In conventional
+circuit representations, all connections between individual gates are enumerated,
+and each gate stores indices of its incident connections. However, in a
+reversible circuit, we can distinguish a small number of wires going all the
+way through the circuit. In our encoding of a reversible circuit, these indices
+are maintained at individual gates, and the gates are stored in an array in an
+arbitrarily chosen topological order. Overlaid on this array is a redundant adjacency
+data structure (a graph) that allows us to look-up the neighbors of a given
+gate. This representation is faithful; it is also convenient because each range
+in the array represents a valid subcircuit. However, not every valid subcircuit
+is represented by a range. In particular, any set of gates in a circuit that form
+an antichain (with respect to the partial ordering) will be ordered, obscuring
+the fact that any subset is a valid subcircuit.
+Example 1. To encode the circuit in Figure 2, we number wires top-down
+from zero to three. Then, the gates can be written as T(2, 3; 1)T(0, 1; 3)C(3; 2)
+C(1; 2)C(3; 0)T(0, 2; 1)N(2). The two gates T(0, 1; 3) and C(1; 2) form a subcircuit
+(contiguous block), but do not form a range in the array.
+In Section 5, we develop algorithms for generating valid subcircuits, including
+the two-gate subcircuit from the previous example. These algorithms are
+based on the following characterization.
+PROPOSITION 1. A subset S of a circuit C is a subcircuit if and only if there
+is an encoding EC such that the gates from S form a contiguous block in EC.
+Section 4 describes algorithms to generate vast libraries of optimal reversible
+circuits based on the NCT gate library. To extend the practical scale of these libraries,
+we propose a compact bit-packing scheme that is also runtime-efficient.
+In the particularly convenient special case of four wires, each gate occupies just
+one byte. The gate type is stored in two bits, since there are three options.1 Each
+of the gate’s operands is also stored in two bits, since each circuit operates on
+four wires. Since no gate in our library acts on more than three wires at a
+time, an entire gate can be encoded in eight bits (for NOT and CNOT gates, the
+1If needed, one more gate can be added, for example, the Fredkin gate or the SWAP gate.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+282 • A. K. Prasad et al.
+excess operands are just ignored). Leveraging our array-based representation
+of reversible circuits, this allows us to encode any four-wire NCT-based circuit
+with up to seven gates in only eight bytes, including the number of gates in the
+first byte.
+Example 2. The circuit from Figure 2 and Example 1 is encoded with seven
+(size) in the first byte, and the remaining seven bytes encoding each gate individually.
+For example, the second byte corresponds to the gate T(2, 3; 1) and
+starts with bits ten for gate type. The remaining six bits in the second byte
+encode the three wire indices 2, 3, and 1. Other gates are encoded similarly,
+with code 00 for inverters and code 01 for C gates.
+Expressing such 64-bit representations using type long long int enables
+very efficient handling on modern 32-bit and 64-bit workstations. We also store
+the function computed by the circuit. A reversible circuit on n wires permutes its
+2n possible input vectors. A permutation of 16 values can be captured with four
+bits per value, which we pack in two 32-bit integers to allow efficient hashing.2
+We multiply the low 32 bits by a prime number and add the result to the high 32
+bits. According to our computational experience, less optimized data structures
+may undercut performance of the library generation algorithms in Section 4 by
+more than a hundred times, and increase memory usage by more than ten times.
+4. ALGORITHMS FOR GENERATING OPTIMAL CIRCUIT LIBRARIES
+Our circuit optimization relies on determining if a selected subcircuit can be
+reimplemented at lower cost. Here, circuit cost is calculated as the sum of gate
+costs, where all gates of the same type contribute equally. Such circuit cost
+functions imply that any subcircuit of an optimal circuit is optimal, and our
+algorithms use this property.
+For notational convenience, we describe in the following a special case where
+all gate types have equal costs. The more general case of potentially different
+gate costs requires that libraries should be expanded according to increasing
+circuit cost, rather than increasing gate count. In particular, we never store
+optimal circuit costs, therefore, considering floating-point gate costs will not
+affect the compact circuit encoding introduced in Section 3.
+Our algorithms build circuit libraries containing one representative optimal
+circuit for each function that may be computed in d or fewer gates on
+n wires. We term such a library an optimal circuit representative library, denoted
+OCRL(d, n). Observe that the first d −1 gates of an optimal d-gate circuit
+themselves form an optimal subcircuit. Therefore, to generate OCRL(d, n) from
+OCRL(d −1, n), we iterate through all (d −1)-gate circuits from OCRL(d −1, n),
+and add single gates to the end of each in all possible ways. If such a circuit computes
+a function that is not represented in the OCRL, we add it to the OCRL.
+Thus, only optimal circuits are added, at most, one per function. The techniques
+2Hashing optimal circuits by their functions allows us to quickly check if a given trial subcircuit is
+optimal. For this, multiply out the gates of the trial subcircuit and look-up the resulting function
+in an optimal circuit library. Then, price the optimal circuit found and compare to the cost of the
+trial subcircuit.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 283
+described so far were first proposed in Shende et al. [2003] to synthesize optimal
+reversible circuits using a depth-first search algorithm, accelerated by
+means of an OCRL. As an illustration, the authors of Shende et al. [2003] built
+OCRL(3, 3) and used it to synthesize optimal circuits on three wires for each
+of the 8! = 40, 320 reversible functions on three inputs. Generating OCRL(3, 3)
+takes a negligible amount of time.
+Using an optimal circuit library on four wires can lead to additional reductions,
+but there are (24)!, or more than 20 trillion, such functions. Memory
+constraints allow us to generate only about 40 million. Since there are approximately
+26 million circuits of depth six, we stop the generation algorithm at
+OCRL(6, 4). Runtimes are reasonable, as shown in Table III, but because of
+the limited library size, our algorithm cannot always find and reduce suboptimal
+subcircuits with more than six gates. In practice, however, we observe that
+many circuits can be reduced to optimal by only considering subcircuits with
+six gates or fewer.
+Table III shows that the time needed to generate circuit libraries is nearly
+linear in the number of circuits, with about 200,000 circuits generated per
+second. This speed is due in part to the compactness of our data storage. Since
+each circuit is stored in only 16 bytes, all 26 million or so depth-six circuits
+fit in under half a gigabyte of memory. In Shende et al. [2003], generating
+and saving all functions on three wires takes 3.5 seconds; we require only 0.4
+seconds.3 More importantly, their storage method cannot accommodate such
+large libraries on four wires.
+5. ALGORITHMS FOR REDUCING REVERSIBLE CIRCUITS
+To reduce NCT-circuits, we traverse small sections of these circuits and optimize
+them one-by-one. We say that a subset S of the gates in a circuit C is replaceable
+if for any pair of gates F, H ∈ S and for any gate G ∈ C, the relation H > G > F
+implies that G ∈ S. Given a replaceable subset of gates, their order relations,
+and which wires they operate on, we can determine how they are interconnected
+in the original circuit—this completely determines a subcircuit. For example,
+the sets of gates highlighted in Figures 5(b) and (c) are replaceable, but that in
+Figure 5(a) is not.
+We now enumerate subcircuits of a given width in a circuit C, given the encoding
+array EC (illustrated in Example 1). Recall that each subcircuit must be
+contiguous in some encoding array E
+C, but trying all encoding arrays is impractical.
+Instead, we make use of the overlay graph data structure (as explained
+earlier) and also consider all transformations that alter EC without changing
+the function of the encoded circuit, and enumerate sets of gates that can be
+made contiguous by a sequence of such transformations.
+PROPOSITION 2. If gates g, h share no wires and are consecutive in an encoding
+array, then in the original circuit, g does not follow h, and h does not
+follow g. Swapping g and h will not affect the functionality of the circuit.
+3All runtimes are for a single-processor implementation running on a 2GHz Pentium-4 Xeon
+workstation.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+284 • A. K. Prasad et al.
+Fig. 4. Pseudocode for subcircuit enumeration.
+PROPOSITION 3. Assume that gates g, h are drawn from the NCT library and
+share some wires, but control wires of one gate are not connected to the target
+wires of the other. Then, swapping g and h will not affect the functionality of
+the circuit.
+Given an encoding array E and a pivot gate p, we can enumerate all maximal
+width-k subcircuits, containing p, that can be made contiguous without
+changing p’s position in the encoding array. The algorithm proceeds as follows.
+Initialize L as an empty array of subcircuits, and add the one-gate subcircuit
+consisting of p to this. Now, for each subcircuit S in L, iterate through all gates
+g from the rightmost (in the encoding) gate of S to the end of the circuit. For
+each gate g, check first if the total number of wires used by g and S together
+exceeds the maximal width k. If not, check if there are any gates x in the encoding
+array between p and g satisfying p < x < g, but not in S, otherwise
+we know that S ∪ g forms a subcircuit. If S already operates on all the wires
+that g affects, then add g to S and begin again with the gate to the right of
+g. If not, form a new subcircuit S
+, consisting of S and g, put it at the end of
+the array, and continue looking for gates to add to S. After we search from the
+rightmost gate to the end of the subcircuit, we search from the leftmost gate
+to the beginning of the subcircuit. Then we consider the next subcircuit in L.
+At the end, we have an array of subcircuits (L), each operating on a different
+set of wires, all with pivot p. Full pseudocode is presented in Figure 4, and the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 285
+Fig. 5. (a) The highlighted group of gates operates on the solid wires; (b) these gates can be
+consolidated into a contiguous subcircuit by reordering; (c) the subcircuit can be replaced by a
+smaller equivalent implementation.
+Fig. 6. Pseudocode for circuit reduction. OCRL is a precomputed hash table of optimal circuit
+representatives in which a circuit is hashed by the function it computes; see Section 4.
+choice of the constant DISTANCE is discussed in Section 6. Note that calls to
+CAN JOIN are expensive and therefore, postponed as late as possible.
+Finally, note that our algorithm is based on checking whether two gates can
+move past each other in the encoding array, without affecting circuit function.
+One way to ensure that the function is not affected is to preserve the circuit
+structure. However, gates often can be moved past each other in the circuit itself,
+without changing the computed function. In this case, we can also interchange
+them in the encoding array. We find such possibilities using commutativity rules
+from Shende et al. [2003, Cor. 26]. Figure 5 shows an example.
+6. EMPIRICAL RESULTS AND IMPLEMENTATION DETAILS
+In this section we highlight several implementation issues and empirically
+study the scalability of the proposed algorithms, as well as the impact of library
+size on performance.
+Algorithmic details. We now discuss how far to search from the pivot gate
+(DISTANCE) while locating subcircuits (Figure 4). For comparison, we first try
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+286 • A. K. Prasad et al.
+Table I. Runtimes and Performance of Our Algorithms
+Runtime of Local A (sec) Runtime of Local B (sec)
+No. of gates 5 wrs 10 wrs 20 wrs 5 wrs 10 wrs 20 wrs
+1000 3 20 106 1.7 3.8 10.1
+500 1 9 45 .8 1.6 3.5
+250 0 4 21 .2 .5 1.1
+%reduction 35.2 25.6 23.0 37.3 25.6 21.0
+All tests performed on a 2GHz Pentium-4 Xeon workstation. The %reduction is
+measured by dividing the change in circuit size by the original circuit size.
+Table II. LocalB Applied to Circuits of Various Widths
+Input Circuits of Different Widths
+No. of wires 5 7 10 15 20 25 30
+%reduction 37.5 29.4 24.9 22.9 21.7 20.5 19.5
+Time (sec) .2 .4 .6 1.0 1.5 1.9 3.1
+DISTANCE = infinity; we call this version of the algorithm LocalA. We ran LocalA
+on randomly generated circuits with 5, 10, and 20 wires, in addition to 250,
+500, and 1000 gates. While the cost reductions achieved on such benchmarks
+are not representative of results on more structured circuits (discussed next),
+this experiment confirms the scalability of our techniques in terms of runtime
+and the amount of reduction.
+The greatest reduction occurred on circuits with five wires, and decreased
+significantly as the number of wires was increased. However, even at 20 wires,
+the program was able to reduce the gate count to 79.6% of its original value. The
+relative reduction was similar for circuits of very different gate counts. Results
+are given in Table I.
+As iterations are repeated for all gates in the circuit, LocalA runs in (n2)
+time, where n is the number of gates. In Table I, we see the impact on runtime.
+We may obtain linear runtime by choosing any fixed value for DISTANCE.
+Table I compares LocalA to a DISTANCE = 30 implementation, LocalB, and
+shows only minimal performance degradation. However, LocalB was over 10
+times faster for circuits on 20 wires with 1,000 gates.
+Reduction versus circuit width. While evaluating the performance of LocalB
+on circuits with 5–30 wires, we ran it on inputs with a range of sizes. The
+average reduction percentages are shown in Table II. The times listed in the
+table are for circuits with 250 gates. The reduction percentage decreased as
+circuit width increased, leveling to about 80% for 30 wires. Runtimes remained
+fairly low.
+Reduction versus library size. To test the efficacy of our circuit library, we
+compared it with several other optimal libraries with maximum depths ranging
+from zero gates (the identity function alone) up to a depth of six gates (the
+ordinary size of our circuit library and the largest we could store). The runtime
+differences for various library sizes were negligible for both five and ten wires.
+Other empirical data is given in Table III. Interestingly, the amount of reduction
+degrades very slightly from depth six to depth five, despite the fact that there
+are more than ten times as many circuits of depth six as depth five. To this end,
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 287
+Table III. Properties of an OCRL(d,4) for Various d
+Circuit Libraries of Different Depths
+Depth d 0 1 2 3 4 5 6
+%reduction, 5 wires 12.4 18.3 26.4 30.8 33.5 35.5 37.0
+%reduction, 10 wires 11.6 15.7 21.9 24.2 25.0 25.9 25.9
+# Circuits 1 29 605 10K 158K 2.1M 26M
+Time (sec) 0 0 0 0 1 10 152
+The reduction efficiency is on five and ten wires, number of circuits in OCRL, and buildtime.
+we observe that on ten wires, more than 99% of the subcircuits found had fewer
+than seven gates, and 98% had fewer than six. Therefore, a depth-five library
+is good enough for most of the subcircuits we find, and maintaining a depth-six
+library should be more than sufficient.
+The results for depth-zero are also interesting. Because the only function
+computable with zero gates is the identity function, gate cancellations account
+for almost all reductions, and empirically, most are inverter cancellations. The
+gate count is reduced by about 12% in both cases, almost matching the expected
+reduction of 13.3% computed in the Appendix. It is smaller for two reasons: (i)
+The 30-gate limit on search distance from the pivot gate costs up to 2%, as seen
+in Table I, and (ii) the analytical result assumes arbitrarily large circuits.
+Circuits with restricted libraries. In Shende et al. [2003, Thm. 33], a constructive
+synthesis procedure is given to decompose any permutation into an
+NCT-circuit consisting of four subcircuits, each with only one gate type: TOFFOLI,
+CNOT, TOFFOLI, and NOT, respectively. These subcircuits contain up
+to 3(2n −n)(3n−7), n2, 3(2n+1)(3n−7), and n gates, respectively [Shende et al.
+2003]. We now examine how well local optimization works on circuits with only
+TOFFOLI or CNOT gates.
+First, we build an optimal circuit library with circuits that only use the gate
+in question. We fix the subcircuit width to four. For CNOT circuits, we can store
+the full OCRL(9,4) with all 20,160 four-wire CNOT functions. For TOFFOLI
+circuits, we store 20 million circuits, which is halfway between the sizes of
+OCRL(9,4) and OCRL(10,4). The first library takes less than one second to
+build, and the next library takes about five minutes For five-wire, 1,000-gate
+random circuits, on average, 25.6% of each CNOT circuit and 88.6% of each
+TOFFOLI circuit remain after optimization.
+We can estimate how much of the reduction is due to gate cancellations by
+the methods in the Appendix. For an all-CNOT circuit, we have pN = pT = 0
+and pC = 1, hence we expect cancellations to remove 2/(2k − 1) = 22.2% of
+the original gates. Thus, 52.2% of the CNOT gates were removed by more
+complicated reductions. On the other hand, we expect that approximately
+10% of the original gates in a random TOFFOLI only circuit to cancel, so
+only 1.4% of the original TOFFOLI gates were removed by more complicated
+reductions.
+Results for synthesized benchmarks. We now test local optimization on circuits
+produced by constructive synthesis algorithms that take a permutation
+as input and return a circuit that computes this. Such reversible synthesis
+algorithms are fairly recent [Shende et al. 2003; Miller et al. 2003].
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+288 • A. K. Prasad et al.
+Shende et al. [2003] give a synthesis algorithm that takes an even permutation
+as input and yields an NCT-implementation. Their algorithm decomposes
+the permutation into disjoint pairs of two-cycles that are then individually
+implemented, mostly with TOFFOLI gates. Thus, the resulting circuits are
+dominated by TOFFOLI gates, which, as we illustrated in our results for random
+circuits, may be less amenable to local optimization than those with more
+CNOT and NOT gates. However, many TOFFOLI gates in the algorithm can be
+replaced by NOT and CNOT gates. For example, the first step of implementing
+a disjoint pair of two-cycles in the algorithm is to transform the first index to
+10 ··· 0100 using, at most, n TOFFOLI gates; this can be done with, at most, n
+NOT gates. In the second step, instead of using up to n TOFFOLI gates to transform
+the second index to 10 ··· 01 (without affecting the previously transformed
+index), we can do the same with n CNOT and two NOT gates. Most of the remaining
+steps can be similarly simplified to use fewer TOFFOLI gates. We call
+this modified algorithm Synthesis 1. Miller et al. [2003] give another synthesis
+algorithm that we refer to as Synthesis 2. These two synthesis techniques are
+used to illustrate our optimization only—we do not intend to compare them to
+each other or perform comprehensive empirical studies on reversible synthesis.
+We synthesize several benchmark functions using algorithms Synthesis 1
+and 2, and then apply two optimization algorithms: Local B and a templatebased
+optimization from [Miller et al. 2003; Maslov et al. 2003a]. Both Synthesis
+2 and template-based optimization can yield circuits with generalized
+TOFFOLI gates that act on more than three wires; using the best-known decompositions
+[Barenco et al. 1995], we break down these larger gates into threeinput
+TOFFOLI gates. However, in some cases, the generalized TOFFOLI gates
+span all wires, and thus an additional wire is needed to decompose the original
+gate.
+For our first set of benchmarks, we use a reversible generalization of the
+hidden weighted bit (hwb) function; the input word is circularly shifted by
+its weight, that is, the number of ones it has. We synthesize this function for
+input sizes of four, five, and six bits. The next benchmark, mod5, is a five-wire
+Grover oracle circuit [Nielsen and Chuang 2000; Shende et al. 2003] that takes
+the first four wires as inputs, leaving their values unchanged at the output
+while inverting the value of the last wire if the first four wires represent an
+integer divisible by five. The next benchmark, bch7, is a seven-input function
+that decodes a seven-bit single error-correcting BCH code [MacWilliams and
+Sloane 1977, 23–26]. The final set of benchmarks are versions of rd53, a sevenbit
+encoder function [Miller et al. 2003] that uses the first five wires as inputs
+and the last three as outputs with one shared bit. The output is the binary
+representation of the number of ones on the inputs. The difference between the
+two versions of rd53 is simply the ordering of the output wires. All benchmarks
+can be found online at http://www.cs.uvic.ca/~dmaslov/
+In Table IV, the last two columns show how the shortest circuit was produced
+for each benchmark, and its size. For example, the best result for hwb5
+was found by using Synthesis 2, applying the templates technique, then applying
+Local B. In most cases, Synthesis 2 contributed to best results when used
+with template-based optimization and LocalB. For synthesized benchmarks, a
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 289
+Table IV. NCT Gate Counts
+Synthesis 1 Synthesis 2
+Benchmark Shende et al. [2003] Miller et al. [2003] Best Result
+Function — LocB Tmpl — LocB Tmpl Method Size
+hwb4 116 60 76 24∗ 22 23∗ 2L 22
+hwb5 394 196 277 135∗ 134 116∗ 2TL 115
+hwb6 894 526 670 539∗ 533 468∗ 2TLTL 457
+mod5 56 21 22 9 8 9 2L 8
+bch7 3504 1867 2429 38 36 36 2L,2T 34
+rd53(1) 776 424 553 804 804 700 1L 424
+rd53(2) 2748 1062 461 62 60 57 2LT 50
+These are the NCT gate counts for circuits synthesized using two existing algorithms and postprocessing with
+LocalB and Templates. Both Synthesis 2 and Templates return circuits with generalized TOFFOLI gates that
+we decompose into NCT circuits. In cases labeled with asterisks, such decomposition requires an extra wire.
+Fig. 7. An optimal circuit used to illustrate limitations of peephole optimization.
+combination of Local B and template-based optimization achieved an overall
+18% reduction.
+Limitations of peephole optimization. As seen from our empirical results,
+peephole optimization shows significant improvements when applied to both
+structured and randomly generated circuits. However, this approach also has
+limitations. While no subcircuit of an optimal NCT-circuit can be reduced, the
+converse is false.
+For example, consider the k-gate, depth-k NCT-circuit shown in Figure 7.
+The function it computes modifies each bit. Therefore, if it is computed with
+gates from the NCT gate library, at least one “⊕” symbol must appear on each
+wire, hence at least k gates are required. The circuit given is optimal, hence its
+subcircuits must also be optimal. Now suppose we continue the pattern, adding
+one gate at a time, and stopping once the circuit first becomes suboptimal for
+the function it computes. We note that no suboptimal subcircuits are formed: If
+the subcircuit from gate i to gate j (inclusive) is suboptimal, then the subcircuit
+formed by the first j − i + 1 gates is also suboptimal, since the two subcircuits
+are identical up to a relabeling of the inputs. This cannot be, as we stop adding
+gates upon first finding a reducible circuit.
+PROPOSITION 4. For any d, there is a reducible NCT-circuit with depth ≥ d
+and no reducible proper subcircuits.
+Proposition 4 implies that no matter how large our library of local reductions
+may be, some circuits cannot be reduced by local optimization. The
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+290 • A. K. Prasad et al.
+preceding example is only guaranteed to use k +1 gates, where k is the number
+of wires. However, other longer constructions with this property may exist using
+TOFFOLI gates.
+7. CONCLUSIONS
+We have described a compact storage mechanism for synthesizing reversible
+circuits that exploits libraries containing optimal reversible circuits. These
+libraries play a role similar to those of end-game databases in computer chess—
+they can be generated once and for all, and allow very efficient lookup. They can
+also be accessed in constant time by the functions they implement. We show
+that on a modest workstation, it is possible to generate optimal circuits for all
+40,320 reversible functions on three bits in a blink of an eye. This is in contrast
+to recent publications [Miller et al. 2003; Maslov et al. 2003b; Agrawal and Jha
+2004; Kerntopf 2004] which report suboptimal synthesis on three bits, typically
+requiring more time.
+We developed a new use for the large libraries of optimal reversible circuits—
+iterative local optimization of larger circuits. In particular, if our method is
+applied after those in Miller et al. [2003]; Maslov et al. [2003b]; Agrawal and
+Jha [2004]; and Kerntopf [2004], it will guarantee optimal results for all threebit
+functions. Indeed, we consider all possible three-bit subcircuits and replace
+those that are suboptimal with equivalent optimal variants from the library.
+Given that we can also store and use millions of optimal four-bit circuits, it
+would be very difficult for a human circuit designer to improve the resulting
+circuits. We have shown empirically that such optimization scales well for large
+reversible logic circuits. Runtimes are in seconds, even for circuits with 30
+inputs and 1,000 gates, and local optimization is equally fast when applied to
+both randomly generated and synthesized circuits. Our current techniques do
+not exhaust all available memory, but we have not been able to find noticeable
+improvements by storing larger libraries. We have shown that the additional
+use of template-based simplification improves results. However, templates do
+not require much memory and do not need to be traded off for libraries.
+APPENDIX
+ANALYTICAL STATISTICS FOR RANDOM CIRCUITS
+Classical VLSI circuits are sometimes modeled by randomly generated synthetic
+netlists that preserve the same statistical characteristics [Darnauer and
+Dai 1996; Stroobandt et al. 1999]. Indeed, having families of increasing circuits
+with similar structure is particularly convenient when estimating the scalability
+of optimization heuristics and the available room for improvement [Cong
+et al. 2003]. However, faced with a lack of comparable studies on the statistical
+behavior of practical reversible circuits, we are going to use uniform distributions
+as a first-order approximation and a likely optimistic upper bound. To
+evaluate the scalability of our reduction techniques, we construct a random
+circuit in steps by first selecting a gate type (N, C, or T) based on some probability
+distribution (pC, pN , pT ). The wires for the gate inputs are then chosen
+at random. The wires available for the following gate are the same, except
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+Algorithms for Simplifying Reversible Circuits • 291
+that those at the inputs of the current gate have been replaced by those at its
+outputs.
+Each NCT gate is its own inverse, therefore, two identical gates appearing
+next to each other cancel. In this section, we analytically estimate the rates of
+such cancellations in long random circuits on k wires, assuming a single pass
+through the circuit from inputs to outputs.
+Let K be an arbitrary idempotent gate type, such as NOT, CNOT, or TOFFOLI.
+Since two gates are eliminated with each cancellation, the reduction in
+size of the circuit resulting from K-gate cancellations is 2× P(redK ), the probability
+that a given K-gate appears in the first position among cancelling gates.
+Let pK be the probability a given gate in the circuit is of type K. We now view
+gates one-by-one from left-to-right and consider them as random variables. For
+an arbitrary K-gate in the circuit, let PK be the probability that another K-gate
+that can cancel it appears before other gates can block the cancellation. In general,
+PK is a function of the probability distribution of the gates in the circuit.
+Clearly, P(redK ) < pK PK , but this bound is not tight: The first gate may have
+been eliminated in an earlier reduction. To eliminate this possibility, we ensure
+that the number of gates that precede the first gate and could cancel it is even.
+This probability is approximated by the following formula:
+P(redK ) ≈ pK PK (1 − PK )
+
+1 + P2
+K + P4
+K ···
+= pK PK /(1 + PK ).
+We now calculate this for the specific case of an NCT-circuit, and for NOT, CNOT,
+and TOFFOLI (viewed as K ). Let pN , pC, and pT denote the respective relative
+probabilities of these gates. Two NOTs on the same wire can cancel if no gate
+between them is controlled by this wire. A NOT that cancels appears with the
+same probability as a CNOT that obstructs cancellation; since a TOFFOLI gate
+has two controls, it is twice as likely to obstruct the cancellation. Thus,
+PN = pN /(pN + pC + 2 · pT ).
+Similar calculations can be made for CNOT and TOFFOLI gates. One important
+difference is that for the NOT case, we only had to consider the effect of a
+control occurring between two NOT gates; for the CNOT and TOFFOLI cases,
+however, we also need to consider the effect of a target occurring between the
+gates’ controls:
+PC = pC
+pN (k − 1) + pC(2k − 2) + pT (3k − 5)
+PT = pT
+pN (k2 − 3k + 2) + pC
+3k2−11k+10
+2 + pT (2k2 − 8k + 9).
+For equiprobable gate types (pC = pN = pT = 1/3), we find that
+P(redN ) ≈ 1/15 P(redC) ≈ 1/(18k − 21).
+P(redT ) ≈ 2/(27k2 − 99k + 102) (1)
+In contrast with the NOT case, the reduction from CNOT and TOFFOLI cancellations
+decreases as k increases. Intuitively, this makes sense. Consider CNOT
+reductions: Only one CNOT gate can form a pair with another, while 2k − 3
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 4, October 2006.
+292 • A. K. Prasad et al.
+CNOT gates can eliminate the possibility of a pair; it is correspondingly worse
+for TOFFOLI gates.
+The expected percentage reduction from NOT cancellations alone is
+2/15 ≈ 13.3%. Note this is a special case of local optimization: Certain gate
+configurations are equivalent to an empty circuit, and so can be eliminated.
+There are many more such reductions, but in general, we replace more gates
+with fewer rather than two gates with none. To make greater reductions, we
+precompute a library of optimal circuits that we use to replace any longer,
+equivalent circuits we find.

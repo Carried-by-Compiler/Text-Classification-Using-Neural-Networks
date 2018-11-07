@@ -1,0 +1,804 @@
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips
+
+In the area of biomedical engineering, digital-microfluidic biochips (DMFBs) have received considerable attention
+because of their capability of providing an efficient and reliable platform for conducting point-of-care
+clinical diagnostics. System reliability, in turn, mandates error-recoverability while implementing biochemical
+assays on-chip for medical applications. Unfortunately, the technology of DMFBs is not yet fully equipped
+to handle error-recovery from various microfluidic operations involving droplet motion and reaction. Recently,
+a number of cyber-physical systems have been proposed to provide real-time checking and errorrecovery
+in assays based on the feedback received from a few on-chip checkpoints. However, to synthesize
+robust feedback systems for different types of DMFBs, certain practical issues need to be considered such as
+co-optimization of checkpoint placement, error-recoverability, and layout of droplet-routing pathways. For
+application-specific DMFBs, we propose here an algorithm that minimizes the number of checkpoints and
+determines their locations to cover every path in a given droplet-routing solution. Next, for general-purpose
+DMFBs, where the checkpoints are pre-deployed in specific locations, we present a checkpoint-aware routing
+algorithm such that every droplet-routing path passes through at least one checkpoint to enable errorrecovery
+and to ensure physical routability of all droplets. Furthermore, we also propose strategies for executing
+the algorithms in reliable mode to enhance error-recoverability. The proposed methods thus provide
+reliability-hardening mechanisms for a wide class of cyber-physical DMFBs.
+CCS Concepts: • Applied computing → Life and medical sciences; • Computer systems organization
+→ Embedded and cyber-physical systems;
+Additional Key Words and Phrases: Physical design automation, checkpoint, sensor, droplet routing, microfluidics,
+biochips
+
+1 INTRODUCTION
+Point-of-care (POC) testing has the potential to promote a shift away from traditional diagnostic
+tests in the clinical laboratory setting to near-patient setting, providing physicians with timely diagnostic
+information so as to make informed decisions regarding diagnosis and treatment [7]. Furthermore,
+POC-testing offers many advantages such as low consumption of reagents and samples,
+miniaturization of device, and fast turn-around time for analysis. Additionally, POC-testing allows
+patients to personally monitor their own health quantitatively at home, especially for diseases such
+as HIV that carries some degree of social stigma [25]. Several researchers from multi-disciplinary
+fields are now working towards the development of POC-based diagnostic systems such as exploring
+new materials for building substrate and low-cost biosensors for detection. Recently, the
+technology of DMFBs has made remarkable progress in miniaturizing POC-testing [26].
+With the continuing revolution in fabrication and packaging processes, modern micro-electromechanical
+systems (MEMS) and microfluidic systems are being developed to integrate two or
+more electrical, mechanical, or chemical devices into a single package. By deploying such technology,
+accurate preparation, analysis, and detection of biochemical fluids can be accomplished
+quickly on a compact lab-on-a-chip instead of using slow, elaborate, and expensive laboratory procedures.
+Many conventional biochemical laboratory procedures can be implemented efficiently
+with a small-size, portable, digital microfluidic biochip (DMFB) on which several fluidic operations
+can be performed by applying a pre-scheduled electrical actuation sequence that controls
+micro-/nano- or pico-liter volume of fluid droplets over a 2D discrete electrode array [30]. A large
+number of DMFBs deploy the principle of electrowetting-on-dielectric (EWOD) for droplet navigation.
+DMFB offers several advantage over flow-based microfluidic chips such as flexibility and
+precision in fluidic operations, scalability of electrode-size, and programmability as well as reconfigurability
+of resources. Consequently, the DMFB technology has emerged as a platform-of-choice
+for implementing many large-scale bioassays [30].
+Digital microfluidic biochip technology, which often uses electrowetting-on-dielectric to manipulate
+discrete droplets of picoliter volumes under program control on a patterned electrode
+array, is revolutionizing laboratory procedures not only for point-of-care clinical diagnostics [26]
+but also for many applications such as high-throughput DNA sequencing, immunoassays [2],
+environmental monitoring [36], and drug discovery. A significant amount of research has been
+reported on biochip design automation and optimization for architectural-level synthesis [28, 29],
+module placement [4], and droplet routing [5, 15, 16, 19, 31, 32, 35]. In brief, most of these prior
+work primarily focus on offline synthesis over decades. However, a major stumbling block in the
+monitoring and controlling of diseases/contaminations via POC systems is the lack of adaptive
+and reliable diagnostic tests that can recover from unexpected errors [17]. Some biochemical
+operations are very sensitive. For example, the flash chemistry has two major challenges: (1) the
+underlying fast reactions (with time scales of less than a second) require highly precise timecontrol
+in each step of chemical synthesis, and (2) several organic synthesis procedures require
+the precise manipulation of liquids in small volumes [18]. To handle such tasks accurately and to
+increase the reliability of the bioassay, a cyber-physical system has been proposed recently [23],
+which can dynamically reconfigure electrode actuation sequences depending on the feedback
+signal received from on-chip sensors.
+In the past decade, many researchers studied several methods for error-recovery during assay
+execution such as checkpointing and rollback recovery method [37], dictionary-based method [23],
+and the state-of-the-art dynamic adaptation technique [17]. Also, there exist many previous studies
+that focus on error recovery in biochips [1, 13, 14, 22]. Prior work mostly focused on how to
+recover the assay from the errors detected by a checkpoint leaving the problem of physical placement
+of these checkpoints unaddressed. Note that even though the sensitive droplets in an assay
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:3
+Fig. 1. (a) Checkpoint placement based on naive method. (b) An improved checkpoint placement.
+have a very short active lifetime, they may impact the accuracy of an assay significantly. These
+droplets need to be transported to the nearby sensing circuits for testing their physical, chemical,
+or volumetric correctness. In the case an error is detected, certain preceding fluidic operations
+are to be re-executed with previously stored droplets. The additional operations needed for errorrecovery
+often lengthen assay-completion time, which in turn, may degrade the sensitivity of the
+droplets and invalidate the assay.
+To increase the reliability of highly sensitive bioassays, cyber-physical system can be used for
+real-time checking and correcting the errors. For designing a robust feedback system, certain
+physical design issues concerning the placement of checkpoints need to be considered both for
+application-specific and general-purpose DMFBs. We state below two pertinent design problems
+in this context:
+(1) In an application-specific DMFB, the designer can choose the locations for placing checkpoints
+(sensors) depending on the geometry of droplet-pathways corresponding to the
+synthesized assay. Note that every critical or highly sensitive droplet should be routed
+through at least one checkpoint on-chip so that the quality of the sample can be ascertained
+in real time. A relevant problem here is to minimize the number of sensors and to
+determine their locations so that the original path-length of each of the sensitive droplets
+is not compromised. Figure 1(a) depicts an example of checkpoint placement, where we
+assume that all droplets are highly sensitive. Note that this solution needs six checkpoints
+where every checkpoint has been used by only one pathway during the execution of the
+assay. Figure 1(b) shows another solution in which only three checkpoints are needed
+while satisfying the constraint that each droplet cross at least one checkpoint.
+(2) In a general-purpose DMFB, designers may not have any option for choosing assayspecific
+placement of checkpoints, because their locations are pre-determined by the manufacturer.
+Therefore, given an assay, a checkpoint-aware routing algorithm is needed,
+which will ensure that every sensitive droplet passes through at least one pre-located
+checkpoint for possible error-detection. Additionally, the routing solution must satisfy
+all fluidic constraints and reduce path-congestion without sacrificing the desired assaycompletion
+time. In Figure 2, a general-purpose DMFB is shown with four pre-placed
+checkpoints at cells a,b,c,d. As before, we assume that all droplets are highly sensitive.
+Figure 2(a) depicts a greedy routing solution for checkpoint-assignment based on choosing
+a nearest neighbor. In this naive approach, each sensitive droplet is routed to its nearest
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:4 G.-R. Lu et al.
+Fig. 2. (a) Routing solution for checkpoint assignment based on a greedy (nearest-neighbor) method. (b) An
+improved checkpoint-assignment method with no congestion at sensing nodes.
+Fig. 3. (a) A checkpoint around a sparse zone is favorable for error-recovery. (b) Error-recovery is hard for a
+checkpoint located in dense area.
+checkpoint while traveling from its source (S) to its target location (T). This solution produces
+two congested checkpoints at cells a and c, where multiple droplets are competing
+for the same checkpoint to use. Thus, only one droplet can use the checkpoint at any
+instant of time and the remaining droplets need to be stalled. As a result, the value of
+“latest-arrival-time” for this bioassay may increase. Figure 2(b) shows an improved routing
+solution where there is no congested checkpoint, i.e., there is no concurrent demand
+on the same checkpoint by multiple droplets.
+Furthermore, the issue of error management (called error-recoverability) for checkpoints also
+needs to be addressed. Note that each checkpoint may be surrounded with different physical environment
+on-chip, and, hence, selection of proper checkpoints for error detection will strongly
+impact the success of error-recovery. For example, consider two checkpoints A (see Figure 3(a))
+and B (see Figure 3(b)). There are several free (i.e., unused) cells around A, but there are many
+occupied cells around B. When errors are detected at A and B, it is much easier to re-execute the
+preceding fluidic operations for A. This is because of the availability of space (free space) just next
+to Checkpoint A, where a least-cost (3 × 4) mixer operation can be accommodated. However, for
+Checkpoint B, the available minimum free space may be located far away from the error-site, and
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:5
+Fig. 4. The schematic of cyber-physical digital microfluidic system [23].
+this may incur routing-penalty. In short, the distance between a checkpoint and its nearest freearea
+(which is called “recovery distance”), influences error-recoverability. We also consider the
+issue of error-recoverability for both application-specific and general-purpose DMFBs.
+In this work, we present solutions to the above-mentioned optimization problems that arise
+in cyber-physical digital microfluidic biochips. The rest of the article is organized as follows.
+Section 2 describes the cyber-physical system, how to use checkpoint to recover errors, and
+error-recoverability. Section 3 introduces the proposed algorithm for checkpoint minimization for
+application-specific DMFBs. Section 4 introduces a new checkpoint-aware routing algorithm for
+general-purpose DMFBs. Section 5 presents experimental results and comparative discussion. Finally,
+Section 6 concludes the article.
+2 RELIABILITY IN CYBER-PHYSICAL DMFBS
+In this section, we first briefly introduce the cyber-physical system and depict the importance of
+checkpointing and rollback-recovery. Next, we present the formulation of the underlying optimization
+problem for application-specific DMFBs and general-purpose DMFBs, respectively.
+2.1 Cyber-Physical DMFB Overview
+Due to the randomness and intricate component interactions that are ubiquitous in biochemical
+processes, it is difficult to control the accuracy of fluidic operations and chemical reactions. If
+an unexpected error occurs during an operation, then the outcome may become incorrect. To
+detect any such error, sensors are needed for checking the outcome before the droplet is used in a
+subsequent operation. A microfluidic system with on-chip sensors and feedback controller is called
+a cyber-physical system [23]. Figure 4 shows the schematic of a cyber-physical digital microfluidic
+system, which consists of a computer, a single-board micro-controller, a peripheral circuit, and a
+biochip with sensors. During the execution of a bioassay, the sensor monitors the status of droplets
+(e.g., volume, concentration) and sends the feedback signal to the microcontroller. Based on the
+feedback signal, the controller invokes necessary operations to recover from the error and resumes
+normal execution of the assay.
+2.2 Errors, Checkpointing, and Error Recoverability
+In this subsection, we briefly introduce the concept of checkpoint and error detection in the context
+of DMFBs. As in the case of integrated circuits (ICs), an increase in electrode density and in the
+number of on-chip fluidic-operations will lead to high defect/error probability, thereby reducing
+yield, especially for newer technologies. Also, when fluidic operations are repeatedly executed on
+a dense microfluidic array, the concerned group of cells may suffer from degradation, and, hence,
+malfunctions may occur for certain patterns of droplet movement or fluidic operations [37]. Hence,
+monitoring the outcome of the ongoing assay at various stages is essential with the insertion of
+checkpoints, which enable the actions needed for recoverability of the assay whenever required.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:6 G.-R. Lu et al.
+Fig. 5. A sequencing graph on PCR for DNA amplification with checkpoints.
+A comprehensive set of fault models for defects and malfunctions is described in Reference [33].
+In the protein assay, if the droplet with incorrect volume dilutes with the other droplet with normal
+volume, then the outcome droplet will have incorrect volume and its concentration will be
+different from the desired one. In this manner, the error in droplet volume and concentration will
+be propagated along the dilution tree1 until the endpoint of the assay is reached. Therefore, the
+concentration at the end of the assay will be different from the desired concentration.
+To detect errors when bioassay is executing, checkpoints are inserted to detect errors. A checkpoint
+has two attributes:
+• Several previous approaches address the checkpointing issue from software perspective,
+i.e., checkpoints are inserted into a sequence graph (see Figure 5) based on certain criteria
+such as cost of recoverability or sensitivity of the outcome. When this decision is made,
+the sensitivity of an operation and subsequent routing of the droplets to be sensed are also
+decided, and the flow-graph is altered accordingly. For example, in Figure 5, assume that
+M1, M2, and M5 are sensitive mix-operations; hence their outcome needs to be checked
+following the operations. The techniques proposed by previous approaches usually deploy
+error-propagation methods to estimate which operations need monitoring.
+• In the proposed work, we address the above problem from hardware perspective. In other
+words, we assume that “soft” checkpoints have already been identified in the flow-graph
+of the assay. The next problem is to determine the exact physical locations of the sensors,
+where the droplets produced at soft-checkpoints are to be transported for sensing.
+To detect possible errors at a checkpoint, the intermediate-droplet produced there is transported to
+an on-chip optical or capacitive sensor. We discuss below different aspects of error-recoverability
+in the context of DMFBs.
+2.2.1 Error Recovery. If no error is detected, then the intermediate-product droplet can be stored
+and utilized for subsequent operations. When an error detected by the sensors, these droplets are
+transported to the waste reservoir, and the rollback recovery is performed to correct the error.
+For each checkpoint, the actuation-sequence controller determines the corresponding re-execution
+subroutine for rollback recovery [37]. The re-execution subroutine includes all fluidic operations
+from the immediate upstream checkpoint along all paths in the sequencing graph model to the
+current checkpoint. Note that during bioassay execution, a checkpoint can only be reached when
+no failure is detected in all its upstream checkpoints. This implies that if an error is detected, it must
+1Dilution tree means the sequence graph of the protein dilution bioassay.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:7
+be localized among the operations between the current checkpoint and the immediate upstream
+checkpoint. Therefore, by re-executing the subroutine, the error can be corrected.
+To recover from the error, we may need some free space S on the chip. The free space is a rectangular
+region on the biochip that is needed for re-executing the portion of the assay (reaction-paths)
+from an immediate upstream checkpoint, when a present droplet is sensed as erroneous. Such reexecution
+of the concerned portion of the reaction-paths includes various fluidic operations, e.g.,
+droplet dispensing, transportation, or mixing. The original sequence was synthesized and mapped
+to a physical region of the chip by executing standard synthesis tools. The area required for such
+mapping is thus known when the synthesis was performed. On sensing an error, if re-execution
+of some reaction-path is needed, we will look for minimum-area empty (free) space on the chip
+in the closest neighborhood, where it can be executed. However, the main challenge arises when
+the aspect ratio of the available free space does not match with what was used to synthesize the
+original assay. In that case, re-synthesis of the concerned portion of the assay has to be performed
+by taking into account the available free space before its execution for error-recovery. Also, the location
+of the requisite free space on the chip can be found by adapting some geometric algorithms
+[3, 24].
+For example, Figure 5 depicts the conventional Polymerase Chain Reaction (PCR) process (an
+essential part of any clinical diagnosis protocol) from Reference [17], which contains eight dispense
+nodes, seven mix-split nodes, and one detection node. Note that “splitting” is the only operation
+that can produce copy droplets. When no copy-droplet is available at a checkpoint, the same
+droplet is to be produced in the event of an error observed later on the reaction path. Once the
+bioassay is recovered from the error, it is allowed to continue further. Here we insert three checkpoints
+C1, C2, C5 after mixer M1, M2, and M5, respectively. If an error is detected at Checkpoint
+C5, then operation M5 needs to be re-executed (the copy-droplets from M1 and M2 are the inputs).
+After operation M5 is re-executed, the error is recovered.
+2.2.2 Error Recoverability. The physical location of checkpoint will impact the difficulty of error
+recovery, which is mentioned in the previous section. Due to the different surrounding situation for
+each checkpoint, selection of suitable checkpoints will impact the time of error-recovery and the
+effort needed for resynthesizing control-path. To evaluate the error recoverability for a checkpoint,
+we define a metric ER for a checkpoint c as follows:
+ER(c) = 1
+1 + Dis(c, S)
+× 100%, (1)
+where S represents the nearest minimum free space for c, and Dis(c, S), recovery distance, represents
+the minimum Manhattan distance between checkpoint c and the nearest minimum free
+space S and is defined as
+Dis(c, S) = min
+∀p ∈S
+Dis(c,p), (2)
+where p is a point (cell) in Space S, and Dis(c,p) the Manhattan distance between Checkpoint c
+and point p. The minimum value of Dis(c, S) is 0 (when the nearest minimum free space is just
+next to Checkpoint c), and the value of ER(c) will be maximum (100%).
+Most of the related works [17, 23, 37] focus on how to determine the re-execution subroutine (on
+the sequencing graph). However, from the hardware or physical design perspective, no prior work
+addressed the issue of geometric placement of checkpoints, routability of critical droplets through
+them, or error-recoverability for checkpoints. In this work, we formulate these three problems
+related to checkpoints in application-specific DMFBs and in general-purpose DMFBs, respectively.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:8 G.-R. Lu et al.
+2.3 Problem Formulation
+In application-specific DMFBs, the goal is to minimize the number of required checkpoints for
+a given droplet routing solution. The minimization problem can be stated formally as follows
+(Problem 1):
+• Input: Given a netlist ofm nets N = {n1,n2,...,nm }, where each net is a two- (one-droplet)
+or three-pin (two-droplet) net, their routing paths, the locations of pins (S, T) and obstacles,
+and a timing constraint Tmax .
+• Objective: To minimize the number of checkpoints and maximize the error-recoverability,
+i.e., to minimize the recovery-distance.
+• Constraint: Each droplet should cross at least one checkpoint before reaching its target
+destination. Each droplet dk
+a of net na should satisfy both fluidic and timing constraints,
+where dk
+a denotes the kth droplet of net na. If na is a two-pin net, then k is always 1; if na
+is a three-pin net, then k will be 1 or 2.
+In general-purpose DMFBs, the checkpoint-aware routing problem can be stated formally as
+follows (Problem 2):
+• Input: Given a netlist of m1 nets N = {n1,n2,...,nm1 }, where each net is a two- (onedroplet)
+or three-pin (two-droplet) net, the locations of pins, m2 pre-located checkpoints
+C = {c1,c2,...,cm2 }, and obstacles, and a timing constraint Tmax .
+• Objective: The objective is to determine droplet-routing pathways from their source locations
+to respective targets for all droplets, while minimizing the maximum droplet transportation
+time (latest-arrival-time) and maximize the error-recoverability, i.e., to minimize
+the recovery-distance.
+• Constraint: Each droplet should cross at least one checkpoint before reaching its target
+destination. Each droplet dk
+a of net na should satisfy both fluidic and timing constraints,
+where dk
+a denotes the kth droplet of net na.
+3 CHECKPOINT ALLOCATION AND MINIMIZATION
+In this section, we formulate Problem-1 in terms of a graph-based clique-partitioning method.
+Figure 6 shows an overview of the proposed checkpoint minimization algorithm. Given a dropletrouting
+solution for multiple nets, we first introduce the concept of checkpoint sharing that is used
+to reduce the number of required checkpoints. After detailed checkup, this problem can be viewed
+as a vertex-cover problem in a bipartite graph.
+The conventional design flow of DMFB integrated with checkpoint minimization is shown in
+Figure 6(b). The input is a sequence graph, which is a behavioral description of a biomedical assay.
+Then, during the phase of architecture synthesis, resource binding and scheduling are taken care
+of. Next, in the geometrical phase, module placement and droplet routing are handled. Finally, a
+footprint of the bio-protocol and the corresponding physical layout are generated. The proposed
+minimization flow as depicted in Figure 6(a) can be easily integrated with the conventional design
+flow of Figure 6(b) (after geometrical synthesis).
+3.1 Checkpoint Sharing
+Recall that in Figure 1(a), six checkpoints are assigned, one to each net, to cover all routing paths
+following a naive (exhaustive) approach. However, as shown in Figure 7, the pathways of two
+droplets can share a common checkpoint, which is located on an electrode appeared in two routing
+paths. To identify the potential checkpoint-sharing sites, given a routing solution as shown in
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:9
+Fig. 6. (a) Flow of the proposed checkpoint minimization algorithm. (b) The proposed minimization flow can
+be easily integrated with the conventional design flow of DMFB.
+Fig. 7. Example of checkpoint sharing.
+Figure 8(a), we calculate the usage-map of each active electrode (cell), i.e., the number of nets
+passing through it (Figure 8(b)), is generated. An electrode is said to be active if the path of at least
+one droplet crosses it. In Figure 8, the electrodes at locations (6,6), (7,6), (8,6), and (9,6) have been
+heavily used as three droplets (droplets 1, 2, and 5) have crossed them. Therefore, the allocation of
+only one checkpoint on any of them will cover the paths of three droplets. Similarly, a checkpoint
+at either (3,8) or (3,9) will cover droplets 3 and 4, and one more checkpoint will be needed to cover
+droplet 6. Thus, in this example, three checkpoints will suffice. We describe below a solution to
+Problem-1 that exploits the above idea of checkpoint sharing based on clique-partitioning method.
+3.2 Clique Partitioning Based Minimization
+Apparently, Problem-1 can be directly mapped to the clique-partitioning problem [10]. Given a
+routing solution as in Figure 8(a), we construct an undirected graph referred to as the compatibility
+graph, where each node represents a droplet, and an edge between a pair of nodes indicates that
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:10 G.-R. Lu et al.
+Fig. 8. Example of checkpoint allocation and minimization. (a) A routing solution. (b) Corresponding usagemap
+used to derive the number of required checkpoints.
+Fig. 9. Mapping routing paths of droplets from Figure 8(a) to an undirected graph G.
+Table 1. Notation Used in Checkpoint Minimization
+G a compatibility graph constructed from a routing solution
+Gb a bipartite graph
+G a weighted graph transferred from G
+RW recoverability weight
+eij an edge connected between node Vi and node Vj
+cij the electrodes where the pathways of net i and net j are overlapping
+two nodes are compatible when their pathways overlap on at least one electrode (see Figure 9).
+Table 1 lists the notation that we have used.
+Note that a clique in a graph G is defined as a complete subgraph of G, and clique-partitioning
+refers to the problem of partitioning the nodes of G into minimum number of cliques [10]. For the
+compatibility graph shown in Figure 9, a clique-partition is {1, 2, 5}, {3, 4}, {6}, which corresponds
+to the required checkpoint allocation derived above. Since the general clique-partitioning problem
+is known to be NP-hard [9], we use a heuristic based on the union-find algorithm [6], which takes
+O(N3) time where N is the number of droplets on the chip.
+3.3 Clique Legalization
+Unfortunately, the aforementioned clique-partitioning method for checkpoint-minimization does
+not always work. There is an additional issue of “legality of clique.” Consider two routing solutions
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:11
+Fig. 10. Example of checkpoint allocation and minimization. (a) Example for illustrating illegal clique. (b)
+Example for illustrating legal clique. (c) The corresponding compatibility graph G.
+as shown in Figure 10(a) and Figure 10(b). Note that both instances lead to the same compatibility
+graph as shown in Figure 10(c). The clique-partitioning solution returns only one clique
+{1, 2, 3}, i.e., only one checkpoint should suffice. While this is indeed true for the instance shown in
+Figure 10(b), we need at least two checkpoints in Figure 10(a). It is because these three nets do not
+have a common electrode (i.e., these three paths do not have any common geometric intersection),
+even though they form a 3-clique in the compatibility graph. Thus, the maximal complete subgraph
+{1, 2, 3} does not represent a legal clique. Similarly, in Figure 9, the clique {2, 3, 5} does not
+represent a legal clique. In fact, the intersection patterns of droplet-pathways as described in this
+problem do not satisfy the Helly property [12]. Therefore, Problem-1 can be solved by finding a
+clique-partitioning of G with only legal cliques. The legality of a clique is defined as follows:
+Definition 1. A clique is called leдal if the routing paths for all nodes (nets) present in the clique
+have at least one electrode in common.
+For example, the clique in Figure 10(b) is legal, because the three participating nets cross a
+common electrode located at (4,3). Thus, while solving the clique-partitioning problem, one needs
+to check whether or not the selected clique is legal.
+Alternatively, Problem-1 can be formulated more conveniently as a vertex-cover problem in a
+bipartite graph [10]. Construct a bipartite graph Gb = (V, E), where V is the vertex set and E is
+the edge set of the graph. V = V1 ∪V2,V1 ∩V2 = ϕ; V1 denotes the set of nets and V2 denotes the
+set of active electrodes of the chip. An edge eij ∈ E, if vi ∈ V1,vj ∈ V2 and if the net denoted by
+node vi passes through the electrode denoted by vj . Problem-1 now reduces to that of selecting a
+minimum-size subset Vs of V2 such that every node in V1 is adjacent to at least one node in Vs . In
+other words, we need to find a one-sided cover of nodes with the fewest number of nodes from the
+other side of the bipartite graph. Figure 11 shows the bipartite graph corresponding to Figure 8(a),
+which consists 6 nodes in V1 and several nodes in V2 (we have shown a few representative nodes
+only). As this problem is also NP-hard [9], we deploy a greedy heuristic of selecting the node from
+V2 that has the highest degree, and update the node-degree in V2 by deleting the edges incident
+on the selected node in V2, and the edges incident on the already-covered nodes in V1. We iterate
+this procedure until covering of all nodes in V1 is completed. This can be easily accomplished in
+O(N · |E|) time, where N denotes the number of nets (i.e., = |V1 |) and |E| denotes the number of
+edges in Gb , i.e., the total number of times an electrode is crossed by a droplet, summed over all
+droplets and all active electrodes.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:12 G.-R. Lu et al.
+Fig. 11. The bipartite graph corresponding to Figure 8(a).
+3.4 Reliable Mode
+To maximize error-recoverability for the checkpoints that are assigned to monitor droplets, we attach
+“recoverability-weight” to each edge on the undirected graphG (as mentioned in the previous
+subsection). In other words, the undirected graph G is transformed into a weighted graph G
+. The
+algorithm for transforming G to G is described below as pseudo-code (Algorithm 1).
+For each edge eij ∈ E between two nodesvi andvj , letck
+ij represent a common cell between these
+two nets. Each ck
+ij also represents a possible location of a checkpoint; so we need to calculate the
+recoverability-weight RW k
+ij for each ck
+ij that provides us an indicator to judge the suitability of the
+location for error-recoverability. The recoverability-weight RW on each edge is inversely related
+to the distance (recovery distance) between a checkpoint location (electrode) c and the nearest
+minimum free space s (the definition is the same as in Equation (1)), i.e., RW k
+ij = ER(ck
+ij). Let RW max
+ij
+be the maximum value among all recoverability-weights, i.e., RW max
+ij = max(RW k
+ij |k = 1, 2,...,n).
+Based on this calculation, we assign a weight with the value RW max
+ij to edge eij . The original cliquepartitioning
+problem is now modified to “maximum-weight” clique-partitioning problem, i.e., to
+determine a node-cover of the weighted-graph with minimum number of legal cliques such that
+the sum of edge-weights over all cliques in the cover, is maximized.
+Figure 12 depicts an example to illustrate the impact of recoverability-weight. Figure 12(a) shows
+a routing solution, which consists of three nets and three checkpoint-candidates (a, b, and c) that
+are formed due to overlapping of droplet-pathways corresponding to these nets. Figure 12(b) is
+the corresponding weighted compatibility graph G
+. For candidate b, the distance between a and
+the nearest minimum free space is zero, so the RW value of edge 1-2 is equal to one. For the
+remaining two candidates, we can derive them in the same way. After solving this maximum clique
+partitioning problem, a clique-partition {1, 2}, {3} is derived, i.e., we only need two checkpoints.
+The location of the first checkpoint is (6, 4), and the location of the other checkpoint can be any
+cell along the path of Net 3.
+4 CHECKPOINT-AWARE ROUTING
+In this section, we propose an algorithmic solution to Problem-2 that determines droplet-routing
+paths in general-purpose DMFBs, satisfying the checkpoint-crossing criterion and other constraints
+as stated earlier. We present an overview and describe each step in details.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:13
+Fig. 12. Example of error recoverability maximization. (a) A routing solution. (b) The corresponding weighted
+compatibility graph G
+.
+ALGORITHM 1: Graph transformation
+Input: G(V, E): An undirected graph, V : the node set, and E: the edge set.
+Output: A weighted undirected graph G
+for each edge eij ∈ E between node vi (net ni) and node vj (net nj) do
+Let RW max
+ij = 0;
+for each overlapping electrode ck
+ij between the pathways of net ni and net nj , k = 1, 2,...,n do
+Calculate recoverability-weight RW k
+ij by Equation (1); //RW k
+ij = ER(ck
+ij )
+if RW max
+ij < RW k
+ij then
+RW max
+ij = RW k
+ij ;
+end
+end
+Assign a weight with the value RW max
+ij to edge eij ;
+end
+return the weighted undirected graph G;
+4.1 Routing Algorithm Overview
+Figure 13 shows an overview of the proposed checkpoint-aware routing algorithm, which consists
+of two phases: (1) checkpoint assignment and (2) net routing. For solving the checkpointassignment
+problem, we propose a minimum-cost bipartite matching method to balance two goals:
+(a) reducing (eliminating) checkpoint congestion, i.e., to avoid the situation where several droplets
+are competing for the same checkpoint at the same time, and (b) minimizing the maximum droplettransportation
+time (latest-arrival-time). During the net-routing stage, we route each net from its
+source to the corresponding checkpoint that is assigned in the previous stage, followed by routing
+this net to its designated target. Table 2 lists the notation that we have used in checkpoint-aware
+routing.
+4.2 Checkpoint Assignment
+In this subsection, we present the details of the proposed checkpoint assignment algorithm based
+on a matching problem of a bipartite graph [6].
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:14 G.-R. Lu et al.
+Fig. 13. Flow of the proposed checkpoint-aware routing algorithm.
+Table 2. Notation Used in Checkpoint-Aware Routing
+Gb bipartite graph
+m1 the number of nodes in X set
+m2 the number of nodes in Y set
+c(x,y) edge-cost between node x and node y
+W L sum of the minimum distance from the source to a checkpoint and the
+minimum distance from the checkpoint to the target
+Tshortest shortest time needed to route a droplet from its source to a checkpoint
+Dis(cj,s) distance between checkpoint cj and the nearest minimum free space s
+crit(a) criticality for net a
+4.2.1 Min-Cost Matching Formulation. To formulate this problem, we construct a bipartite
+graph Gb = (V, E), where V is the vertex set and E is the edge set of the graph. The graph Gb
+can be denoted as Gb = (X,Y, E), where V = X ∪ Y and X ∩ Y = ∅, and each edge in E has one
+endpoint in X and the other in Y. A solution of Problem-2 can be obtained by finding a minimumcost,
+maximum-matching M from X to Y (i.e., the least-cost solution among all maximum-sized
+matchings). In other words, each node in X must be matched to some node in Y, and the sum
+of edge-weights should be minimum. Let the cardinality of X (Y) be m1 (m2). We assume that
+m2 ≥ m1, and there will be an edge (x,y) for every pair of nodes x and y, where x ∈ X, and y ∈ Y,
+with a non-negative integer cost c(x,y) attached to it. These conditions will ensure that such a
+matching will always exist. A matching is a set of edges such that no two edges have a common
+vertex. In this checkpoint assignment problem, X denotes the set of nets, Y is a set of checkpoints
+at a specific time, and c(x,y) denotes the estimated cost that accounts for the distance from its
+source to its target through a specific checkpoint, and the congestion at the checkpoint. A matching
+from X to Y will ensure that no two droplets arrive at a checkpoint at the same time. Based on
+the following two rules, we now construct the network:
+Rule #1: Construction of V
+(1) For each droplet dk
+a net a, create a node vk
+a in X.
+(2) For each pre-located checkpoint cj at a specific time t, create a node vt
+cj
+, where t =
+0, 1,...,Tmax , where Tmax represents the timing constraint.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:15
+Fig. 14. Bipartite graph Gb construction. Each left node represents a droplet, and each dotted group represents
+timing resource of a checkpoint.
+Rule #2: Construction of E
+(1) For each node pair (vk
+a ,vt
+cj
+), where vk
+a ∈ X and vt
+cj ∈ Y, create an edge fromvk
+a to vt
+cj with
+cost c(vk
+a ,vt
+cj ).
+The cost c(vk
+a ,vt
+cj ) in the rule is used to minimize the distance traveled by a droplet dk
+a of net
+a while crossing a checkpoint cj along its journey from its source to its sink, and to reduce the
+checkpoint congestion. This cost will be discussed next. Figure 14 shows a schematic of bipartite
+graph construction.
+4.2.2 Cost Assignment. The edge-cost c(vk
+a ,vt
+cj ) is defined as follows:
+c(vk
+a ,vt
+cj ) =
+⎧⎪
+⎨
+⎪
+⎩
+W Lj
+a,k + (t −Ta,k,j
+shortest ) if t ≥ Ta,k,j
+shortest
+∞ if t < Ta,k,j
+shortest
+,
+where W Lj
+a,k is the sum of the minimum distance from the source of droplet dk
+a of net a to checkpoint
+cj and the minimum distance from checkpoint cj to the target of droplet dk
+a , Ta,k,j
+shortest is the
+shortest time needed to route the droplet from the source of droplet dk
+a to checkpoint cj (through
+the shortest path), and (t −Ta,k,j
+shortest ) is a timing penalty that controls congestion. The required
+shortest routing paths stated above are obtained by invoking the A∗ search algorithm [11]. The
+value of W Lj
+a,k is used to enforce a droplet to choose a suitable checkpoint such that its arrival
+time is minimized, and the value of t provides a timing cost for each droplet to ensure avoidance
+of checkpoint-congestion. For each edge (vk
+a ,vt
+cj ), if t is smaller than Ta,k,j
+shortest , it is impossible for
+droplet dk
+a to move from its source to the checkpoint cj in time t. Therefore, the cost of this edge
+is assigned as infinity.
+Figure 15 shows a bipartite graph which corresponds to Net 1 and the four checkpoints in
+Figure 2(b). Then, we illustrate how to determine the cost of the edge between node v1
+a1 and node
+vt
+ca . The minimum distance from the source of droplet d1
+a1 to checkpoint ca is 3, and that from
+checkpointca to the target of droplet d1
+a1 is 14. Therefore, the value of W L1
+a1,1 is equal to 17. Since
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:16 G.-R. Lu et al.
+Fig. 15. Construction of the bipartite graph Gb corresponding to Net 1 and four checkpoints in Figure 2(b).
+the value of Ta,k,j
+shortest is equal to 3, the costs c(v1
+a1
+,vt
+ca ), when t is smaller than Ta,k,j
+shortest are set to
+infinity. The costs of the remaining edges can be calculated in the same way. Once we construct
+the bipartite graph, a min-cost maximum matching from X to Y can be found. In the case when
+m2 > m1, we can add some dummy nodes in X such that m2 = m1, add edges from each of them to
+all edges in Y, and assign a very large positive weight to them. The problem now reduces to find
+a minimum-cost perfect matching, which can be computed in O(m1
+3) time [8].
+4.2.3 Reliable Mode. As before, to maximize error-recoverability for those checkpoints, we associate
+recoverability-weight to edge on the undirected graph Gb . The edge cost c(vk
+a ,vt
+cj ) is updated
+as follows:
+c(vk
+a ,vt
+cj )
+ = c(vk
+a ,vt
+cj ) + Dis(cj,s) (3)
+where s represents the nearest minimum free space for cj , and Dis(cj,s) represents the distance
+between checkpoint cj and the nearest minimum free space s.
+4.3 Net-Routing Algorithm
+We determine the route for each droplet from its source to destination via a suitable checkpoint
+assigned by the earlier matching-based method. The net-routing algorithm has two steps: (1) determination
+of the routing-order among the nets and (2) detailed-routing. The routing-order is
+selected based on the criticality of each net. In detailed-routing, we route each net by applying A∗
+search algorithm following its criticality-order. We determine the criticality of each net as follows:
+crit(a) = W Lj
+a,k , (4)
+where W Lj
+a,k is already defined in the previous stage. If two or more nets have the same value
+of criticality, i.e., in the case of a tie, then the first assigned net will be routed first. Once we compute
+criticality values, we perform detailed-routing for each droplet in the non-increasing order of its
+criticality, considering rip-up-and-reroute options on failed nets. A failed net is a net for which
+a routing solution cannot be found during its trial route to satisfy the required fluidic or timing
+constraints.
+5 EXPERIMENTAL RESULTS
+In this section, we report experimental results obtained by executing the proposed algorithms for
+checkpoint minimization and checkpoint-aware routing. The implementation has been done using
+C++. All experiments were performed on a 2.5GHz 64-bit Linux machine with 16GB memory.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:17
+Table 3. Statistics of Benchmark Suite I
+Benchmark Suite I
+Name Size #Sub #2-pin #3-pin #Tmax #Dmax Avg. Block (%)
+in_vitro_1 16 × 16 11 22 6 20 7 5.84
+in_vitro_2 14 × 14 15 29 6 20 7 7.69
+protein_1 21 × 21 64 173 8 20 6 8.97
+protein_2 13 × 13 78 170 8 20 7 22.27
+• Size: Size of microfluidic array. • #Sub.: Number of subproblems. • #2-pin: Total number of 2-pin nets.
+• #3-pin: Total number of 3-pin nets. • Tmax : Timing constraints. • #Dmax : Maximum number of droplets
+among subproblems. • Avg. Block: Average blockage density among all subproblems.
+Table 4. Statistics of Benchmark Suite II
+Benchmark Suite II
+Name Size #Sub #2-pin #3-pin #Tmax #Dmax Avg. Block (%)
+random_1 16 × 16 4 9 3 20 6 16.70
+random_2 14 × 14 4 11 4 20 7 12.76
+random_3 21 × 21 8 20 4 20 6 16.27
+random_4 13 × 13 8 22 3 20 7 33.95
+• Size: Size of microfluidic array. • #Sub.: Number of subproblems. • #2-pin: Total number of 2-pin nets.
+• #3-pin: Total number of 3-pin nets. • Tmax : Timing constraints. • #Dmax : Maximum number of droplets
+among subproblems. • Avg. Block: Average blockage density among all subproblems.
+We perform experiments to evaluate the effectiveness and robustness of our algorithm on
+Benchmark Suite I, which consists of two widely used bioassays. The first one is an example of
+in_vitro diagnostics; this plays an important role in clinical studies of metabolic disorder [31]. The
+second one is protein assay, which is concerned with protein dilution [29]. The readers can refer
+to Reference [27] for more details.
+The benchmark namely in_vitro_1 is taken from Su et al.’s work [31]. The other test-cases
+(in_vitro_2, protein_1, and protein_2) have been taken from the work of Yuh et al. [34, 35]; they
+are constructed from the two bioassays with the same design specification for in_vitro diagnostic
+and protein assay as specified in References [31] and [29], respectively. Table 3 shows the statistics
+of each benchmark. We use this suite for evaluating our algorithms on both application-specific
+DMFBs and general-purpose DMFBs in different settings.
+We also randomly generate four test cases to evaluate the performance of our algorithm, which
+we name as Benchmark Suite II. Table 4 shows the statistics for each example in this suite. To
+eliminate trivial routing solutions, we have increased on-chip blockage density in the test cases of
+Suite II (which makes routing progressively more difficult) than those in Benchmark Suite I.
+5.1 Results on Checkpoint Minimization
+For the checkpoint-minimization problem in application-specific DFMBs, a routing solution is provided
+as input. We choose the state-of-the-art routing engine [20] to derive detailed routing for
+four test cases of Benchmark Suite I. Also, we have assumed that all droplets are monitored online,
+i.e., each of them has to cross at least one checkpoint. To demonstrate the effectiveness of the
+proposed algorithm, we compare ours with a baseline method, in which the number of required
+checkpoint is determined in an exhaustive manner (i.e., by assigning a distinct checkpoint to each
+droplet). Table 5 shows the results. On average, the proposed algorithm reduces the number of required
+checkpoints by 22%. We expect that the reduction will be more pronounced for large-sized
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:18 G.-R. Lu et al.
+Table 5. Results on Checkpoint-Minimization
+for Benchmark Suite I
+Benchmark Suite I Baseline1 Proposed
+Name #Checkpoints #Checkpoints
+in_vitro_1 34 24
+in_vitro_2 41 30
+protein_1 189 149
+protein_2 186 146
+Avg. 1.00x 0.78x
+1Assign one individual checkpoint for each droplet.
+• #Checkpoints: Total number of required checkpoints for all
+subproblems.
+Table 6. Results on Checkpoint-Minimization
+for Benchmark Suite II
+Benchmark Suite II Baseline1 Proposed
+Name #Checkpoints #Checkpoints
+random_1 15 9
+random_2 19 12
+random_3 28 22
+random_4 28 18
+Avg. 1.00x 0.68x
+1Assign one individual checkpoint for each droplet.
+• #Checkpoints: Total number of required checkpoints for all
+subproblems.
+bioassays and if the routing engine, which we have used, would allow the nets to move across the
+electrodes that are used by other nets. However, in such cases, undesirable droplet-contamination
+might arise and degrade the outcome.
+Table 6 shows comparative results obtained by running the Baseline algorithm and the proposed
+algorithm on Benchmark Suite II, that further demonstrate the effectiveness of the proposed algorithm.
+On average, the latter reduces the number of required checkpoints by 32%. Note that the
+number of overlapping cells between two pathways is usually higher than those in Benchmark
+Suite I.
+Table 7 shows comparative results between the normal-mode and the reliable-mode of proposed
+algorithms. There are three metrics in this table: (i) #Checkpoints, which represents the sum
+of the required checkpoints for each subproblem, (ii) Min. ER, which represents minimum errorrecoverability
+among all subproblems, and (iii)  Dis., which denotes the sum of recovery-distance
+for each droplet in each sub-problem. On average, the reliable-mode operation successfully improves
+error-recoverability by 418% and reduces the total recovery-distance by 94% without any
+penalty on the number of checkpoints. Note that error-recoverability is decreased when blockage
+density increases as observed from these four benchmarks. This happens because there are fewer
+available cells on a chip that can be used to recover errors.
+Table 8 shows the comparison between the normal- and reliable-mode operation of the proposed
+algorithm on Benchmark Suite II. On an average, the reliable-mode operation successfully
+improves error-recoverability by 466% and reduces the total recovery-distance by 99% without any
+penalty on the number of checkpoints.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:19
+Table 7. Results on Checkpoint-Minimization for Normal- and Reliable-Mode Operation
+of the Proposed Algorithm on Benchmark Suite I
+Benchmark Suite I Normal mode1 Reliable mode2
+Name Avg. Block (%) #Checkpoints Min. ER  Dis. #Checkpoints Min. ER  Dis.
+in_vitro_1 5.84 24 33.33% 6 24 100% 0
+in_vitro_2 7.69 30 16.67% 10 30 100% 0
+protein_1 8.97 149 16.67% 49 149 100% 0
+protein_2 22.27 146 7.69% 162 146 11.11% 14
+Avg. - 1.00x 1.00x 1.00x 1.00x 418.39x 0.06x
+1The proposed algorithm on checkpoint minimization in normal mode.
+2The proposed algorithm on checkpoint minimization in reliable mode.
+• #Checkpoints: Total number of required checkpoints for all subproblems. • Avg. Block (%): Average blockage density
+among all subproblems. • Min. ER: Minimum error recoverability among all droplets. •  Dis .: Sum of the recovery
+distance for those droplets whose recovery distances are more than one
+Table 8. Results on Checkpoint-Minimization for Normal- and Reliable-Mode Operation
+of the Proposed Algorithm on Benchmark Suite II
+Benchmark Suite II Normal mode1 Reliable mode2
+Name Avg. Block (%) #Checkpoints Min. ER  Dis. #Checkpoints Min. ER  Dis.
+in_vitro_1 16.70 9 33.33% 6 9 100% 0
+in_vitro_2 12.76 8 16.67% 9 8 100% 0
+protein_1 16.27 22 16.67% 19 22 100% 0
+protein_2 33.95 18 8.33% 38 18 50.00% 1
+Avg. - 1.00x 1.00x 1.00x 1.00x 466.67.x 0.01x
+1The proposed algorithm on checkpoint minimization in normal mode.
+2The proposed algorithm on checkpoint minimization in reliable mode.
+• #Checkpoints: Total number of required checkpoints for all subproblems. • Avg. Block (%): Average blockage density
+among all subproblems. • Min. ER: Minimum error recoverability among all droplets. •  Dis .: Sum of the recovery
+distance for those droplets whose recovery distances are more than one.
+5.2 Results on Checkpoint-Aware Routing
+In general-purpose biochips, the locations of checkpoints are pre-determined. In our experiments,
+we have assumed that the checkpoints are evenly distributed on the chip-floor. (There are nine
+checkpoints in each subproblem for the first two benchmarks and 25 checkpoints for the last two
+benchmarks.) We compare a baseline routing algorithm with the proposed method. In the baseline
+algorithm, a checkpoint is assigned to a net based on the nearest-neighbor policy, i.e., for each
+droplet that needs to be monitored, we will choose the nearest checkpoint while traveling to its
+destination. Table 9 shows the comparative results. On an average, the proposed algorithm reduces
+average latest-arrival-time by 10% and maximum latest-arrival-time by 13%, as a result of improved
+routability. The reliable-mode of the algorithm improves error-recoverability by 16% and reduces
+the total recovery-distance by 89% without imposing any penalty on latest-arrival-time (compared
+with normal mode).
+Table 10 shows the comparative results for checkpoint-aware routing solutions when the Baseline
+and the proposed algorithm are run, in both normal- and reliable-mode, on Benchmark Suite II.
+On an average, the proposed algorithm reduces average latest-arrival-time by 10% and maximum
+latest-arrival-time by 11%, as expected because of improved routability. The reliable-mode of the
+algorithm improves error-recoverability by 65% and reduces the total recovery-distance by 100%
+without imposing any penalty on latest-arrival-time (compared with normal-mode).
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+34:20 G.-R. Lu et al.
+Table 9. Results on Checkpoint-Aware Routing for Baseline and Proposed Algorithms (Benchmark Suite I)
+Nearest1 Normal mode2 Reliable mode3
+Name Max. T Avg. T Min. ER  Dis . Max. T Avg. T Min. ER  Dis . Max. T Avg. T Min. ER  Dis .
+in_vitro_1 21 13 100% 0 18 12 100% 0 18 12 100% 0
+in_vitro_2 16 10 100% 0 16 10 100% 0 16 10 100% 0
+protein_1 24 16 20% 19 21 15 33.3% 11 21 15 50% 1
+protein_2 30 13 7.14% 200 20 10 11.1% 33 20 10 12.5% 11
+Avg. 1.00x 1.00x 1.00x 1.00x 0.87x 0.90x 1.01x 0.46x 0.87x 0.90x 1.16x 0.11x
+1It routes nets to cross the nearest checkpoint to detect errors.
+2The proposed algorithm in normal mode.
+3The proposed algorithm in reliable mode.
+• Max. Tl a: Maximum latest-arrival-time among all subproblems. • Avg. Tl a: Average latest-arrival-time among all subproblems.
+• Min. ER: Minimum error recoverability among all droplets. •  Dis .: Sum of the recovery distance for those
+droplets whose recovery distances are more than one.
+Table 10. Results on Checkpoint-Aware Routing for Baseline and Proposed
+Algorithms (Benchmark Suite II)
+Nearest1 Normal mode2 Reliable mode3
+Name Max. T Avg. T Min. ER  Dis . Max. T Avg. T Min. ER  Dis . Max. T Avg. T Min. ER  Dis .
+random_1 20 14 100% 0 18 11 100% 0 18 11 100% 0
+random_2 16 13 100% 0 16 13 100% 0 16 13 100% 0
+random_3 24 18 33.3% 4 20 17 94.44% 2 20 17 100% 0
+random_4 21 17 9.09% 46 19 14 100% 0 19 14 100% 0
+Avg. 1.00x 1.00x 1.00x 1.00x 0.90x 0.89x 1.38x 0.08x 0.90x 0.89x 1.65x 0.00x
+1It routes nets to cross the nearest checkpoint to detect errors.
+2The proposed algorithm in normal mode.
+3The proposed algorithm in reliable mode.
+• Max. Tl a: Maximum latest-arrival-time among all subproblems. • Avg. Tl a: Average latest-arrival-time among all subproblems.
+• Min. ER: Minimum error recoverability among all droplets. •  Dis .: Sum of the recovery distance for those
+droplets whose recovery distances are more than one.
+6 CONCLUSION AND FUTURE WORK
+In this article, we have described the first checkpoint-reduction algorithm for application-specific
+DMFBs, and checkpoint-aware droplet routing for general-purpose DMFBs. In the first problem,
+the proposed algorithm reduces the number of required checkpoints for highly sensitive droplets
+and provides possible locations on the chip-floor for their placement. Experimental results on a
+set of real-life applications demonstrate the effectiveness of the proposed approach. For the second
+problem of DMFBs, where all checkpoints are pre-embedded on a chip, we have presented a
+checkpoint-aware routing algorithm, which comprises two steps, namely checkpoint assignment
+and detailed routing. Experiments on various test cases not only reveal enhanced net-routability
+but also reduction in routing cost and congestion compared to the baseline approach. Consequently,
+a reduction in latest-arrival-time is observed, which is a desired metric that indicates
+faster completion of an assay. Thus, the proposed techniques offer solutions to achieve reliabilityhardening
+mechanism for the emerging class of cyber-physical biochips.
+As a future problem, one may investigate the co-design issue that addresses the problem of
+synthesizing an assay on-chip given its high-level description, and the subsequent physical design
+problem of checkpoint-reduction or low-cost checkpoint-aware routing, resulting in further
+optimization of cost and delay parameters.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 34. Pub. date: October 2018.
+Reliability Hardening Mechanisms in Cyber-Physical Digital-Microfluidic Biochips 34:21

@@ -1,0 +1,624 @@
+Deep Neural Network Optimized to Resistive Memory with Nonlinear Current-Voltage Characteristics
+
+Artificial Neural Network computation relies on intensive vector-matrix multiplications. Recently, the emerging
+nonvolatile memory (NVM) crossbar array showed a feasibility of implementing such operations with
+high energy efficiency. Thus, there have been many works on efficiently utilizing emerging NVM crossbar
+arrays as analog vector-matrix multipliers. However, nonlinear I-V characteristics of NVM restrain critical
+design parameters, such as the read voltage and weight range, resulting in substantial accuracy loss. In this
+article, instead of optimizing hardware parameters to a given neural network, we propose a methodology of
+reconstructing the neural network itself to be optimized to resistive memory crossbar arrays. To verify the
+validity of the proposed method, we simulated various neural networks with MNIST and CIFAR-10 dataset
+using two different Resistive Random Access Memory models. Simulation results show that our proposed
+neural network produces inference accuracies significantly higher than conventional neural network when
+the network is mapped to synapse devices with nonlinear I-V characteristics.
+CCS Concepts: • Computing methodologies → Neural networks; • Hardware → Non-volatile memory;
+Analysis and design of emerging devices and systems;
+Additional Key Words and Phrases: Deep neural network, I-V nonlinearity, nonvolatile memory, perceptron
+
+1 INTRODUCTION
+In recent years, Artificial Neural Network (ANN) has been gaining significant interest by claiming
+several cutting-edge results in solving various nonlinear problems (LeCun et al. 2015). The breakthrough
+of ANN heavily depends on the expansion of networks in depth, which requires a vast
+amount of vector-matrix multiplications. With the advent of vector-matrix multiplication acceleration
+based on graphics processing units (GPUs), large and deep neural networks have been able
+to handle complex tasks using extensive amounts of data (Chellapilla et al. 2006). However, despite
+Hyungjun Kim and Taesu Kim equally contributed to this work.
+This work was in part supported by the MSIT (Ministry of Science and ICT), Korea, under the ICT Consilience Creative Program
+(IITP-2017-R0346-16-1007) and “Nano-Material Technology Development Program” through the National Research
+Foundation of Korea (NRF) funded by the Ministry of Science and ICT (NRF-2016M3A7B4910249). It was also in part supported
+by the Industrial Technology Innovation Program (10067764) funded by the Ministry of Trade, Industry & Energy
+(MOTIE, Korea).
+Authors’ addresses: H. Kim, T. Kim, J. Kim, and J.-J. Kim, POSTECH, 77, Cheongam-ro, Nam-gu, Pohang, Gyeongsangbukdo,
+37673, South Korea; emails: {hyungjun.kim, taesukim, jinseok.kim, jaejoon}@postech.ac.kr.
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee
+provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and
+the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires
+prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+© 2018 ACM 1550-4832/2018/07-ART15 $15.00
+https://doi.org/10.1145/3145478
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:2 H. Kim et al.
+Fig. 1. An example of mapping vector-matrix multiplication to a RRAM crossbar array.
+the fact that GPUs provide highly parallel computing suitable for ANNs, the high power consumption
+of GPUs is an obstacle to be improved. To address the issue, many dedicated accelerators for
+vector-matrix multiplications have been proposed (Chi et al. 2016; Gokmen and Vlasov 2016; Hu
+et al. 2016a; Shafiee et al. 2016).
+Emerging nonvolatile memory (NVM) technologies, including Phase-Change Random Access
+Memory (PCRAM), Resistive Random Access Memory (RRAM), Conductive-Bridge Random Access
+Memory (CBRAM), and Spin-Transfer-Torque Magnetic Random Access Memory (STTMRAM),
+have been widely studied as next-generation memories (Yu and Chen 2016). While conventional
+memories, such as Static Random Access Memory (SRAM) and FLASH memory, are
+charge-based, emerging NVM is current-based and represents states with different conductance
+values. This current-based nature opens up the opportunity to use emerging NVM for neural network
+acceleration. Current-based devices in a crossbar array structure can straightforwardly implement
+vector-matrix multiplication in neural network computations as shown in Figure 1. By
+mapping input vector to input voltages and weight matrix to resistive crossbar array, vector-matrix
+multiplication can be calculated in a single step by sampling the current flowing in each column
+(Hu et al. 2014). Since this approach can be several orders of magnitude more efficient than CMOS
+ASIC approaches in terms of both speed and power (Chi et al. 2016; Gokmen and Vlasov 2016;
+Hu et al. 2016a; Shafiee et al. 2016), many studies proposed neural network accelerators based on
+emerging NVM crossbar array (Burr et al. 2017, 2015; Prezioso et al. 2015; Xia et al. 2016).
+However, there are several issues with using emerging NVM crossbar array as an analog multiplier.
+Sneak path problem is one of the most critical issues (Burr et al. 2017; Prezioso et al. 2016; Yu
+and Chen 2016; Zidan et al. 2013). Various works have tried to solve this problem in different ways
+(Deng et al. 2013; Yu and Chen 2016; Zidan et al. 2013). The most common idea is to use a device
+with nonlinear I-V characteristics. For example, it has been proposed to serially connect a selector
+device such as a transistor or a diode to an emerging NVM cell or to make the I-V characteristic
+of an emerging NVM cell as nonlinear as possible (Yu and Chen 2016). However, although this
+approach can overcome the sneak path problem, it degrades the accuracy of current-based vectormatrix
+multiplication because nonlinear I-V characteristics hinder precise implementation of linear
+multiplications required for vector-matrix multiplications. Several works tried to solve this issue
+by restricting the range of the reading voltage to use the pseudo-linear sub-region of the nonlinear
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:3
+Fig. 2. (a) I-V curve of a real RRAM device in different resistance states. (b) Experimental data and fitted
+curve of the device under various resistance states (Yu et al. 2013).
+I-V curve (Gu et al. 2015; Li et al. 2015). However, limiting reading voltage worsened DAC resolution
+issue, making it difficult to compute complex neural networks using emerging NVM crossbar
+arrays. Another previous approach was to address the problem by tuning the weights considering
+the computational error before mapping (Hu et al. 2016a, 2016b). However, it also failed to utilize
+full input voltage range. In addition, these approaches did not fully address how the increase of
+the nonlinearity of I-V characteristics affects the inference accuracy of neural networks.
+Unlike previous approaches which attempted to precisely map weights from ordinary neural
+networks to the crossbar array to reduce accuracy loss, we propose to rather construct an ANN
+model itself which accommodates nonlinear I-V characteristics. This allows nonlinear I-V characteristics
+to be taken into account during both of the learning phase and the inference phase
+of a neural network, reducing discrepancies between neural network models and emerging NVMbased
+hardwares. In this article, we have selected two nonlinear RRAM devices as proof-of-concept
+devices and performed simulations to verify the idea based on the characteristics of the devices.
+The main contributions of this article is as follows:
+(1) We analyze the correlation between the degree of nonlinearity of I-V characteristics and
+the inference accuracy loss in RRAM-based ANN hardware. We show that the degree of
+accuracy loss depends on the distribution of activation values.
+(2) We propose a modified perceptron model that is compatible with the nonlinear I-V characteristics
+of resistive memory devices and demonstrate how to train neural networks based
+on the proposed model. We show that neural networks based on the proposed model can
+avoid the loss of inference accuracy, which happens while mapping the network to RRAM
+crossbar arrays.
+2 PRELIMINARIES
+2.1 Nonlinear I-V Characteristics of RRAM Devices
+Figure 2 illustrates the I-V characteristics of an actual metal-oxide RRAM device extracted from
+Yu et al. (2013). Each line shows the I-V curve of the RRAM device given a specific sequence of setvoltage
+pulses. As shown in Figure 2(a), the I-V relationship of the RRAM device has an exponential
+form. Yu et al. (2013) suggests that the I-V characteristics can be modeled as an empirical model
+with a sinh function,
+I (V ) = ed/d0 sinh(BV ), (1)
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:4 H. Kim et al.
+Fig. 3. (a) I-V curves of device models following Equation (1) with various degrees of nonlinearity. In this case,
+parameter B is related to nonlinearity k. The example device has k = 7.5, leading to B = 4 in Equation (1). (b)
+Error between nonlinear I-V curves of RRAM devices and corresponding linear I-V curves of resistors. Hollow
+symbols stand for the linear resistor model and filled symbols stand for the RRAM device model.
+where d is an average tunneling gap distance, d0 is a fitting parameter, and B is a constant. Measurement
+results and the values from the empirical model match well as shown in Figure 2(b). Each
+I-V curve corresponding to a different state can be obtained by appropriately determining a state
+variable d.
+The degree of nonlinearity of an I-V curve can be represented by half-bias nonlinearity k, which
+is defined as
+k = I (Vr,max)
+I (Vr,max/2)
+, (2)
+where Vr,max is the maximum value of read voltage that can be used without disturbing the state of
+the device. A k value does not guarantee unique I-V characteristics of a particular device, as two
+different devices with the same k value can have different I-V curves. However, it can be still said
+that k value represents the nonlinearity in some degree. In this article, we assume Vr,max = 1 V for
+simplicity without loss of generality. Then, k can be expressed as a function of B as follows:
+k = eB − e−B
+eB/2 − e−B/2 . (3)
+When k = 2, the device has a linear I-V characteristic. As k increases, the I-V characteristic of the
+corresponding device becomes more nonlinear and exhibits a larger current difference from the
+linear I-V characteristic with the same resistance state (Figure 3(a)). To investigate the k values of
+existing RRAM devices, we surveyed several papers and manually extracted I-V characteristic data
+of the proposed devices. We could observe that k has a wide distribution ranging from 2.5 (Misha
+et al. 2015) to 70 (Gao et al. 2015; Zhou et al. 2016). Among the devices, we chose a device with
+k = 7.5 as the model device for the rest of the article.
+2.2 Weight Mapping
+ANN utilizes a vector-matrix multiplication of the corresponding input vector and weight matrix
+to obtain a weighted sum for a layer as
+s = x · W, (4)
+with s as the weighted sum vector, x as the input vector, and W as the weight matrix. To implement
+Equation (4) using an emerging NVM crossbar array, each weight in particular row and
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:5
+column of the weight matrix must be mapped to a characteristic parameter of corresponding devices
+in the crossbar array. Double-column scheme, which uses two devices at the same row of two
+adjacent columns to represent a single weight, is commonly used to map both positive and negative
+weights to crossbar arrays. Writing positive weights to one column and the absolute value
+of negative weights to another column and subtracting the computation result of negative weight
+column from the result of positive weight column is required to evaluate both positive and negative
+weights at the same time. In previous approaches (Gu et al. 2015; Hu et al. 2012, 2016a) that
+used RRAM crossbar arrays, weights were mapped to the conductance of the devices assuming
+linear I-V characteristics as follows:
+G(w) = (Gmax − Gmin)(w − wmax)
+wmax − wmin
++ Gmax. (5)
+Equation (5) takes a naive linear-mapping approach that maps the minimum weight to the
+minimum conductance and maps the maximum weight to the maximum conductance. In general,
+when the double-column scheme is used, wmin (wmax) is the minimum (maximum) value of the
+absolute weight values. With this approach, input vectors can be represented by a set of voltages
+applied to rows of the crossbar array and the result of the vector-matrix multiplication can be
+obtained by sampling the current in each column. Previous works mostly relied on the naive mapping
+and attempted to mimic linear I-V characteristics by limiting the reading voltage into a small
+linear range (Gu et al. 2015; Vontobel et al. 2009).
+2.3 Input Encoding
+There are two representative ways to encode input vector x in Equation (4) for crossbar arraybased
+vector-matrix multiplications (Chen et al. 2015). A single input value can be encoded to a
+train of voltage pulses with fixed voltage as Vread or an analog voltage normalized to Vread.
+In the case of using the pulse train method, an input value is expressed as the number of pulses
+in a pulse train and the computation is done by accumulating the output current for the same
+duration as the length of the input pulse train. This method allows us to avoid the computation
+error due to nonlinear I-V characteristics of RRAM devices, since only zero andVread are applied to
+the crossbar array. However, pulse train method makes computation slower, since the duration of
+input pulse trains must be lengthened as the bit resolution of given input vectors become higher.
+For example, this method would require at least 256 clocks to represent an 8-bit input vector.
+Using the analog voltage method, an input value is expressed as a normalized analog voltage.
+In this case, the computation can be done by reading out the output current from the crossbar
+array for a single time step. Because the number of required time steps is less than the pulse train
+method, overall computation time can be reduced. However, analog voltage method is vulnerable
+to the computation error due to nonlinear I-V characteristics of RRAM devices, since mid-range
+voltages are used as input in addition to zero and Vread. Also, analog voltage method relies on
+Digital-to-Analog Converters (DACs) to generate input voltages. Since practical DACs have limited
+resolution, the bit resolution of input vector can be limited to a certain value.
+In this article, we do not claim that either of these two methods is better than the other. In
+the following sections, we used 8-bit for both input resolution and weight resolution. We believe
+that both input encoding schemes are available for 8-bit input resolution with its own benefits.
+However, analog voltage method is currently not fully available due to the nonideal characteristics
+of RRAM devices. Thus, we solely focus on making the application of analog voltage method
+available by overcoming the nonlinear I-V characteristics of RRAM devices in this article.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:6 H. Kim et al.
+Fig. 4. (a) Accuracy vs. nonlinearity (k) and (b) normalized accuracy loss vs. nonlinearity (k) for shallow
+MNIST case (black square), deep MNIST case (red uptriangle), shallow CIFAR-10 case (blue diamond), and
+CIFAR-10 CNN case (magenta circle). (b) Accuracy loss relative to the baseline (linear case) accuracy.
+3 ERROR ANALYSIS
+In this section, we analyze the causes of inference error of the neural networks naively mapped
+to a crossbar array consisted of RRAM devices with nonlinear I-V characteristics. To analyze the
+errors that occur while using the full range of Vread, we simulated vector-matrix multiplication
+results using naive mapping method based on the RRAM devices that have I-V characteristics as
+illustrated in Yu et al. (2013) (Figure 2) with MATLAB. Based on the range of the device current at
+1 V, weights were linearly converted to the conductance following Equation (5). The empirical I-V
+model given in Equation (1) was used for inference simulations.
+To acquire model weights for analysis, two different Multilayer Perceptron (MLP) networks
+were trained with MNIST (LeCun et al. 1998) dataset. A shallow network (784-500-250-10, shallow
+MNIST case) with two hidden layers and a deep network (784-2,500-2,000-1,500-1,000-500-10,
+deep MNIST case) with five hidden layers were each trained with Stochastic Gradient Descent
+(SGD) using MATLAB. For CIFAR-10 (Krizhevsky and Hinton 2009) dataset, a shallow MLP (2,352-
+4,000-1,000-4,000-10, shallow CIFAR-10 case) was trained with the same method for additional
+analysis. Last, a deep Convolutional Neural Network (CNN) for classifying CIFAR-10 dataset was
+trained. We used a modified version of CIFAR-10 quick model (Krizhevsky 2011) (CIFAR-10 CNN
+case), which includes Batch Normalization layers (Ioffe and Szegedy 2015) and reflects some hardware
+constraints such as the limited range of input voltage.
+For each neural network model, the inference accuracy was evaluated using the naive mapping
+discussed above. Several simulations were performed by sweeping the k values to investigate the
+relationship between the degree of the inference accuracy degradation and the nonlinearity of the
+I-V characteristics. For each k, corresponding parameter B in the numerical I-V model Equation (1)
+could be retrieved using Equation (3). Evaluation results are illustrated in Figure 4. We could observe
+that overall inference accuracy decreases as the I-V characteristics of the devices become
+more nonlinear. In addition, the inference accuracy of deeper and more complex networks began
+to drop at lower k compared to smaller network models. Another observation was that networks
+for complex dataset such as CIFAR-10 were more vulnerable to device nonlinearity than networks
+for smaller dataset such as MNIST.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:7
+Fig. 5. Distribution of input data A (a) and B (d). Desired output and actual device output for input data A
+(b, c) and B (e, f ).
+To analyze the cause of accuracy degradation, we investigated the relationship between input
+value distribution and computation error. Because the current difference between linear and nonlinear
+I-V curves is the largest at an input voltage of about 0.5 V (Figure 3(b)), we speculated that
+input values around 0.5 V are prone to errors.
+To verify this claim, two distinct distributions were given as input vectors to the second layer of
+the deep MNIST case. Input data A (Figure 5(a)) was generated by truncating a normal distribution
+of numbers so that all data were around 0 and 1. Input data B (Figure 5(d)) was generated as a
+normal distribution of numbers with a mean of 0.5 to let all data be around 0.5. The result showed
+that when input data A was fed to the layer, an output distribution similar to that of the ideal vectormatrix
+multiplication appeared (Figures 5(b) and 5(c)). While feeding input data B to the layer
+resulted in an output distribution with large error (Figures 5(e) and 5(f)). Based on this observation,
+we investigated two representative cases that can induce mid-range input and cause inference
+accuracy degradation.
+3.1 Impact of Network Depth
+In the shallow MNIST case, the activation values of neurons tend to yield extreme values such
+as 0 and Vread (Figures 6(a), 6(c), and 6(d)), since the network can easily fall into saturation due
+to the lack of training parameters. In contrast, a deeper network with an increased number of
+training parameters can reduce the probability of saturation and induce mid-range activation values.
+Increased depth of a network can make the accuracy even worse, because computation error
+due to mid-range activation values can accumulate on several layers. Figures 6(e) and 6(f) demonstrate
+that the activation values of the third and fourth hidden layer of the deep MNIST case have
+relatively more mid-range values compared to shallow networks. This explains why the shallow
+MNIST case could maintain relatively high accuracy while the deep MNIST case was vulnerable
+to the I-V nonlinearity, resulting in greater accuracy loss.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:8 H. Kim et al.
+Fig. 6. Distributions of input data in (a) MNIST dataset and (b) CIFAR-10. Activation values of (c) first hidden
+layer and (d) second hidden layer of shallow MNIST network, (e) third hidden layer and (f ) fourth hidden
+layer of deep MNIST network, and (g) first hidden layer and (h) second hidden layer of shallow CIFAR-10
+network.
+3.2 Impact of Input Data Distribution
+Figures 6(a) and 6(b) present the distribution of randomly selected training data from the MNIST
+dataset and the CIFAR-10 dataset. As the CIFAR-10 dataset consists of natural images with various
+RGB data, it has more mid-range values compared to the MNIST dataset. Such an input data distribution
+causes degradation in inference accuracy due to imprecise activation values at the first
+layer of the network. Besides, hidden layers of the ANNs for the CIFAR-10 dataset tend to generate
+mid-range values as the networks must extract complex features to classify complex images.
+As a result, the neuron activation values for CIFAR-10 neural networks have a large portion of
+mid-range values even in the shallow network case (Figures 6(g) and 6(h)).
+4 PROPOSED METHODOLOGY
+Previous approaches attempted to exploit the linear sub-range in the nonlinear I-V curve for more
+accurate vector-matrix multiplications. However, its effectiveness was only explored for particular
+empirical I-V models. DAC resolution also arose as a critical problem for the cases with increased
+nonlinearity. Thus, there is a pressing need to address the I-V nonlinearity without such limitations.
+Here, we take a totally reverse approach to solve the problem; we suggest reconstructing
+the neural network model itself to reflect the I-V nonlinearity by replacing linear vector-matrix
+multiplications.
+This section proposes a method to build an optimized neural network based on a device model.
+For the optimized neural network, the basic computation block for vector-matrix multiplications
+of a neural network is replaced by the nonlinear I-V model of a given device. Any device with
+nonlinear I-V characteristics can be adopted as far as the numerical model of the I-V curve is
+differentiable. By reconstructing the neural network considering the nonlinear I-V model of a given
+device, we aim at overcoming the causes of accuracy loss discussed in Section 3 without limiting
+the functionality of crossbar arrays.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:9
+Fig. 7. Conventional and proposed perceptron model.
+4.1 Network Construction
+A perceptron produces its activation value using transfer function and activation function as
+y = д(f (w, x)), (6)
+with x as a vector of input values, w as a vector of weights, function f as the transfer function,
+and function д as the activation function. Conventional ANN uses weighted sum as the transfer
+function,
+f (w, x) =
+
+i
+wixi . (7)
+For the activation function, there are several choices, such as sigmoid, tanh, and ReLU. In the case
+of a fully connected layer with k perceptrons for an output vector y and i inputs, input vector x is
+fed to each k perceptron with corresponding weight vectors wk . Since the weight vector and the
+input vector are independent, this computation can be simplified to a vector-matrix multiplication
+by concatenating the weight vectors into a weight matrix W,
+y = д(x · W). (8)
+Different from conventional ANN, which uses the weighted sum as the transfer function, we
+propose to use the numerical model of the nonlinear I-V characteristics of a given device as the
+transfer function of a perceptron. By introducing nonlinearity to the perceptron model itself, we
+can reduce the gap between the neural network model and the nonlinear I-V characteristics. As
+an example case, let us construct a neural network using the device from Yu et al. (2013). The
+empirical model of the device is given as Equation (1). The equation can be simplified to
+I (G,V ) = Gsinh(BV ). (9)
+As B is the characteristic constant of the RRAM device (Yu et al. 2013), there are two variables
+G and V that determine the output current. Based on the observation, we can define a transfer
+function as
+f (w, x) =
+
+i
+wisinh(Bxi ), (10)
+using conductance Gi as weight wi (Figure 7). Because the weight vector and the input vector are
+independent similar to the transfer function of the conventional ANN, we can also concatenate the
+weight vectors to simplify the computation of an output layer into a vector-matrix multiplication
+as
+y = д(sinh(Bx) · W). (11)
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:10 H. Kim et al.
+Because conductance value is always positive, two adjacent columns of the crossbar array are
+used to express a single column of weights. We decompose a single weight to a pair of positive
+and negative sub-weights as
+wi = w+
+i − w−
+i , (12)
+with w+
+i as the positive sub-weight and w−
+i as the negative sub-weight. With this expression, expected
+computation result can be obtained by subtracting the computation results from two adjacent
+columns. The transfer function is given as
+y = д(sinh(Bx) · W+ − sinh(Bx) · W−). (13)
+Besides the modifications, the proposed network uses the same activation functions, cost functions,
+optimizers, and other components as conventional ANN. For the rest of the article, we used
+modified Rectified Linear Unit (ReLU) as the activation function and logistic regression with softmax
+as the cost function. ReLU function was modified to have an upper bound as the value of
+maximum read voltage. We used 1 as the upper bound, since Vread = 1 V. Under this condition,
+logical output value of a layer could be directly fed into the next layer as the input voltage.
+4.2 Training
+The proposed network can be trained using gradient descent similar to conventional ANN. Gradient
+for kth weight matrix in a n-layer network can be derived using chain rule as follows:
+dE
+dWk
+= dE
+dsn
+· dsn
+dyn−1
+·
+dyn−1
+dsn−1
+·
+dsn−1
+dyn−2
+····· dyk+1
+dsk+1
+·
+dsk+1
+dWk
+, (14)
+where s stands for the result of the transfer function, y stands for the result of the activation
+function, and E means the error according to the cost function used. After evaluating the gradient
+of each weight matrix, gradient descent can be applied to the proposed network to update the
+weights with μ as the learning rate:
+W∗
+k = Wk − μ
+dE
+dWk
+. (15)
+Each term in Equation (14) can vary depending on the device I-V model used in the neural
+network. Let us derive the terms for the example case discussed above:
+dE
+dsn
+= (Otrue − Opredict). (16)
+The derivative term of error is given as the difference between desired output and predicted output,
+since the example case uses the conventional cross-entropy loss with softmax function:
+dyn
+dsn
+=
+
+1, 0 ≤ sn ≤ 1
+0, else. (17)
+Equation (17) shows the derivative term of the activation function used in the example case. At
+sn = 0 and sn = 1, we assign 1 to the term for computation although the derivative cannot be
+explicitly defined:
+dsn
+dyn−1
+= BWn−1 · cosh(Byn−1). (18)
+Equation (18) is derived by taking the derivative of the transfer function with respect to the input
+vector:
+dsn
+dWn−1
+= sinh(Byn−1). (19)
+Equation (19) can be obtained by taking the derivative of the transfer function with respect to the
+weight matrix. For both Equations (18) and (19), Equation (12) is not considered to simplify the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:11
+Table 1. Simulated Classification Accuracy Results for the Model Device with k = 7.5 (%)
+Shallow MNIST Deep MNIST Shallow CIFAR-10 CIFAR-10 CNN
+Ideal case 94.80 97.43 54.97 83.52
+Naive mapping 87.90 9.05 41.94 10.00
+Proposed network 96.74 96.91 52.09 82.11
+equation. However, simplified sub-weight decomposition can still be used by defining two subweights
+in adjacent columns as
+w+ =
+
+w, w ≥ 0
+0, w < 0, (20)
+w− =
+
+0, w ≥ 0
+|w|, w < 0, (21)
+given a weight w. With all the derivative terms above, the proposed network can be trained with
+gradient descent algorithm.
+5 EVALUATION
+Several evaluation networks based on the example case in Section 4 were trained and simulated
+using MATLAB. A shallow (784-500-250-10) network and a deep (784-2,500-2,000-1,500-1,000-500-
+10) network were trained with MNIST dataset. A shallow (2,352-4,000-1,000-4,000-10) network and
+a CNN (CIFAR-10 quick model) (Krizhevsky 2011) for CIFAR-10 dataset were trained for additional
+analysis.
+Because ed/d0 in Equation (1) is simplified toG and used as the weight in the proposed network,
+trained weights must be mapped back into the range of the term ed/d0 that actual device exhibits.
+Manual fitting described in Figure 2 showed that maximum value for ed/d0 is e−8 and the minimum
+value is e−14. k value was also measured as 7.5 through fitting.
+Sub-weights were mapped to the available range via linear transformation. The linear transformation
+was as follows:
+Gmapped = e
+d/d0
+mapped = W ± ∗ e−8 − e−14
+max(W +,W −)
++ e−14. (22)
+Then, simulated current was sampled from each sub-weight column. After subtracting the sampled
+value of each negative sub-weight column from the sampled value of the corresponding positive
+sub-weight column, output of the transfer function was retrieved with inverse function of Equation
+(22).
+5.1 MNIST MLP Classification Accuracy
+Example MLP models were trained with SGD. For the shallow network, we used 30 epochs for
+training. Learning rate was set to 5 × 10−6 at first and to 1 × 10−6 after 16 epochs. The deep network
+was trained for 65 epochs. Learning rate for the deep network was set to 2 × 10−6 at first and
+7 × 10−7 after 15 epochs. To demonstrate the robustness against nonlinear I-V characteristics of
+various devices, model networks with various k values were also tested. Same SGD was used but
+learning rate varied for each case. Figure 8 demonstrates the inference evaluation results.
+The proposed network did not show noticeable degradation in accuracy for various k values
+while networks based on naive mapping exhibited drastic accuracy loss as k increased. Accuracies
+for the cases with the example device (k = 7.5) were as shown in Table 1. This result shows that
+the proposed network can minimize the error demonstrated in Section 3.1 Note that although the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:12 H. Kim et al.
+Fig. 8. Inference accuracies of networks trained using the proposed method for various k values. Simulation
+results from naive mapping are in lines and those from proposed mapping are in symbols. Remarks are
+described in the table. Proposed networks (symbol) do not show significant dependency on k value while
+naively mapped networks (line) do.
+classification accuracy of the proposed network is higher than the ideal case for shallow MNIST
+category, we do not claim that the proposed network outperforms the original network. The small
+difference is due to the stochastic nature of the training process and the difference in hyperparameters,
+such as learning rate, used for training.
+5.2 CIFAR-10 MLP Classification Accuracy
+Another MLP with the proposed model was trained for CIFAR-10 dataset as a proof-of-concept
+model. The training set was randomly cropped into a set of 28 × 28 images and exposed to random
+image distortions. The random distortions included horizontal flips and contrast and brightness
+adjustments. Then, the images were divided by 255 to ensure input range between 0 and 1, because
+the raw data are unsigned 8-bit integers. The MLP was trained for this image dataset using SGD for
+100 epochs. Learning rate was fixed to 1 × 10−6. MLP networks with varying k values for CIFAR-10
+dataset were also trained.
+CIFAR-10 MLP classification results also showed that the accuracy of the proposed network
+does not vary much over a wide range of the k values. As illustrated in Table 1, the proposed
+scheme achieved better inference accuracy than the naive mapping case. Since MLP is not capable
+of achieving high inference accuracy for such complex tasks, inference accuracies of both ideal
+and proposed network were limited. Still, the result demonstrates that the proposed network can
+also avoid the error discussed in Section 3.2.
+5.3 CIFAR-10 CNN Classification Accuracy
+To validate the proposed method on a deep convolutional neural network, we trained and tested
+a CNN for CIFAR-10 classification task. The images were processed in the same way as CIFAR-10
+MLP case to keep the input values in the range between 0 and 1 and apply random distortions.
+The network was trained using Adam (Kingma and Ba 2014) optimizer for 40 epochs. Learning
+rates decaying from 5 × 10−3 to 5 × 10−4 were used. Batch normalization (Ioffe and Szegedy 2015)
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:13
+Fig. 9. (a) Simulation results of CIFAR-10 CNN classification accuracy under various degree of device-todevice
+conductance variation applied to the proposed network (k = 7.5). (b) Classification accuracy simulation
+results of CIFAR-10 CNN (k = 7.5) under various degree of device model nonlinearity (k) variation.
+was used for faster convergence. Top-1 classification accuracy results of the network are shown
+in Figure 8 and Table 1.
+CIFAR-10 CNN classification results demonstrated that the proposed method does not show
+noticeable classification accuracy degradation for various k values. In contrast, naive mapping case
+showed much worse accuracy as shown in Table 1. This result shows that the error discussed in
+Section 3.1 is prominent in deep neural networks, and the proposed method is capable of handling
+it.
+5.4 Device Variation
+We investigated the impact of device variations on the inference accuracies of neural networks.
+We simulated two different types of device-to-device variations. First, we examined the impact of
+conductance variations on the inference accuracy based on CIFAR-10 CNN classification simulation
+results. To mimic the device-to-device conductance variations, conductance values of crossbar
+arrays were adjusted following the Gaussian distribution. We simulated several conductance variation
+scenarios with standard deviations from 0 to 0.2 applied to the proposed networks with
+k = 7.5 (Figure 9(a)). As expected, the classification accuracy decreased as the variation level increased.
+We could observe from the simulation results that accuracy loss due to device-to-device
+conductance variations can be minimized by ensuring the standard deviation of the variance to be
+less than 5% while programming weights onto the conductance for all of the simulated devices.
+Since we are solely focusing on the inference-only engine with pre-trained weights, this condition
+can be met using write-and-verify method.
+In addition to the conductance variation study, we also analyzed the impact of device model
+variations with the same CIFAR-10 CNN case. In the proposed method, we assumed B to be a
+constant value, meaning that all devices have the same k. However, in real world, each device
+can have slightly different I-V model with various k. To investigate the effect of such variations
+on the inference accuracy of proposed networks, we conducted several simulations that had each
+device to have modified nonlinearity parameter k following the Gaussian distribution with various
+standard deviation values. The simulation result in Figure 9(b) shows that device model variations
+can induce some inference accuracy loss, but the impact of the variation is also limited. Thus, we
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+15:14 H. Kim et al.
+Fig. 10. (a) Experimental data and fitted curve of another device under various conductance states (Park
+et al. 2013). (b) Accuracy comparison between previous and proposed approaches. This result shows that our
+proposed method can also be applied to complex device models.
+believe that proposed networks can be mapped to real devices assuming that every device has the
+same device model.
+6 APPLICATION TO MORE COMPLEX I-V MODEL
+There are several other resistive devices and corresponding empirical I-V models (Deng et al. 2013;
+Sonoda et al. 2008). While each device has a different I-V model, the proposed method is generally
+applicable as far as the I-V model is differentiable.
+To demonstrate the validity of this claim, we built and tested three MLPs using the device model
+obtained by manually fitting the I-V characteristics of the device in Park et al. (2013) as the transfer
+function. We intentionally made a complex empirical model to verify our assertion. The empirical
+model is as follows:
+I (w,V ) = eAw+B (eCV w+D
+− 1), (23)
+with A = −53.59, B = −37.058, C = 20, D = 0.2, and 0 < W < 0.15. Note that the model is more
+complex than Equation (1). Fitting result of the model was as shown in Figure 10(a). MLPs for
+MNIST and CIFAR-10 with same structures as the ones described earlier were built and evaluated.
+To train the network using gradient descent, same chain rule as Equation (14) was derived. Since
+the cost function and activation function were the same, derivative terms Equations (16) and (17)
+remained the same. However, for other terms, the derivation process was very different, because
+the weight term and the input voltage term were correlated. Because of the correlation, we had to
+consider the simplified sub-weight decomposition while choosing the transfer function as
+s = I (w+,V ) − I (w−,V ), (24)
+where Equations (20) and (21) lead to
+sn,j =
+⎧⎪⎪⎪⎪
+⎨
+⎪⎪⎪⎪
+⎩
+
+i
+
+eAwn−1,i,j+B (eCxwn−1,i,j +D
+n−1,i − 1) − eB (eCx D
+n−1,i − 1)
+
+, wn−1,i,j ≥ 0,
+
+i
+
+− e−Awn−1,i,j+B (eCx−wn−1,i,j +D
+n−1,i − 1) + eB (eCx D
+n−1,i − 1)
+
+, wn−1,i,j < 0,
+(25)
+for the jth neuron in nth layer. Since the transfer function must be computed element-wise, derivative
+terms of the transfer function with respect to the input vector and the weight vector had to
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 15. Pub. date: July 2018.
+DNN Optimized to Resistive Memory with Nonlinear I-V Characteristics 15:15
+be also expressed element-wise as
+dsn,j
+dwn−1,i,j
+=
+⎧⎪⎪⎪⎪
+⎨
+⎪⎪⎪⎪
+⎩
+
+i
+eCxwn−1,i,j +D
+n−1,i +Awn−1,i,j+B (Cxwn−1,i,j+D
+n−1,i lnV − A), wn−1,i,j ≥ 0,
+
+i
+eCx−wn−1,i,j +D
+n−1,i −Awn−1,i,j+B (Cx−wn−1,i,j+D
+n−1,i lnV − A), wn−1,i,j < 0,
+(26)
+dsn,j
+dxn−1,i
+=
+⎧⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪
+⎨
+⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪
+⎩
+
+i
+x
+wn−1,i,j+D−1
+n−1,i eCxwn−1,i,j +D
+n−1,i +Awn−1,i,j+B−1 (Cwn−1,i,j + CD) − CDxD−1 n−1,ieCx D
+n−1,i+B,
+wn−1,i,j ≥ 0
+
+i
+−x
+−wn−1,i,j+D−1
+n−1,i eCx−wn−1,i,j +D
+n−1,i −Awn−1,i,j+B−1 (−Cwn−1,i,j + CD) + CDxD−1 n−1,ieCx D
+n−1,i+B,
+wn−1,i,j < 0.
+(27)
+Since Equation (27) was not defined for x = 0, we substituted 0 as the term for such cases during
+the training phase. Using the terms above, we could obtain the accuracy results as shown in Figure
+10(b). The results showed that the proposed method is applicable to very complex nonlinear
+device I-V model.
+7 CONCLUSION & FUTURE RESEARCH
+In this article, we aimed for accurate computation of neural networks using emerging NVM crossbar
+arrays. We first analyzed the cause of inference accuracy degradation in RRAM based neural
+network when applying the conventional naive mapping method. Simulation results showed that
+mid-range activation values induced computation error for complex tasks and networks. To overcome
+the accuracy degradation due to the nonlinear I-V characteristics of emerging NVM devices,
+we proposed a method to construct neural networks optimized to the characteristics. Neural networks
+based on the empirical models of two RRAM devices were trained and tested to classify
+MNIST and CIFAR-10 dataset using the proposed approach. Results showed that proposed networks
+could achieve inference accuracies comparable to the baseline. In contrast, conventional
+naive mapping showed significant accuracy loss.
+Meanwhile, the proposed method was applied to image classification tasks only in this work.
+However, NVM crossbar array can also be used for other kinds of networks, especially RNN, which
+is composed of several fully connected layers. Thus, one of our next goals will be applying the
+proposed methodology to other deep neural network models. Also, we did not take into account
+some non-ideal characteristics of emerging NVM arrays such as the I-R drop for the simulations.
+Another next step of this work will be to simulate and analyze the effects of such characteristics.

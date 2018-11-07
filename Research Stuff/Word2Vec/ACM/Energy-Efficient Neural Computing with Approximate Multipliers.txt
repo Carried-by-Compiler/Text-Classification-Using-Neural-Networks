@@ -1,0 +1,759 @@
+Energy-Efficient Neural Computing with Approximate Multipliers
+
+Neural networks, with their remarkable ability to derive meaning from a large volume of complicated or
+imprecise data, can be used to extract patterns and detect trends that are too complex for the von Neumann
+computing paradigm. Their considerable computational requirements stretch the capabilities of even modern
+computing platforms. We propose an approximate multiplier that exploits the inherent application resilience
+to error and utilizes the notion of computation sharing to achieve improved energy consumption for neural
+networks. We also propose a Multiplier-less Artificial Neuron (MAN), which is even more compact and energy
+efficient. We also propose a network retraining methodology to recover some of the accuracy loss due to
+the use of these approximate multipliers. We evaluated the proposed algorithm/design on several recognition
+applications. The results show that we achieve ∼33%, ∼32%, and ∼25% reduction in power consumption and
+∼33%, ∼34%, and ∼27% reduction in area, respectively, for 12-, 8-, and 4-bit MAN, with a maximum ∼2.4%
+loss in accuracy compared to a conventional neuron implementation of equivalent bit precision. These comparisons
+were performed under iso-speed conditions.
+CCS Concepts: • Computer systems organization → Neural networks; • Computing methodologies → Supervised learning; • Hardware → Neural systems;
+Additional Key Words and Phrases: Alphabet set multiplier (ASM), artificial neural network (ANN), bit precision scaling, computation sharing multiplication (CSHM), multiplier-less artificial neuron (MAN)
+
+1 INTRODUCTION
+An Artificial Neural Network (ANN) is an information-processing paradigm that is inspired by
+the way biological nervous systems, such as the brain, processes information. The key element
+of this paradigm is the novel structure of the information-processing system. It is composed of a
+large number of highly interconnected processing elements (neurons) working in unison to solve
+A preliminary version of this article appeared in DATE 2016 [Sarwar et al. 2016].
+The work was supported in part by Center for Spintronic Materials, Interfaces, and Novel Architectures (C-SPIN), a MARCO
+and DARPA sponsored StarNet center, by the Semiconductor Research Corporation, the National Science Foundation, Intel
+Corporation, and the DoD Vannevar Bush Fellowship.
+Authors’ addresses: S. S. Sarwar, S. Venkataramani, A. Ankit, A. Raghunathan, and K. Roy, School of Electrical and Computer
+Engineering, 465 Northwestern Avenue, Purdue University, West Lafayette, IN 47907; emails: {sarwar, venkata0, aankit,
+raghunathan, kaushik}@purdue.edu.
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee
+provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and
+the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires
+prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+© 2018 ACM 1550-4832/2018/07-ART16 $15.00
+https://doi.org/10.1145/3097264
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:2 S. S. Sarwar et al.
+specific problems. ANNs learn by example. An ANN can be configured for a specific application,
+such as function approximation, regression analysis, pattern and sequence recognition, filtering,
+clustering, robotics [10, 32, 41], and so on. Deep Learning Network (DLN) is a descendent of ANN,
+which has emerged as one of the most transformative paradigms in computer vision for the next
+generation of embedded devices. Recently, it spurred a lot of excitement due to a combination of
+factors, including new algorithms, cheap parallel computation, and the widespread availability of
+large datasets. Using massive amounts of data and computing power, DLNs have shown stateof-the-art
+performance on a variety of recognition, classification, and inference tasks, as well as
+or better than any other known algorithms. Some recent and well-known examples, deployed in
+real-world applications, are Google Image search, Google Now speech recognition [19], Microsoft’s
+“Project Adam” [7], Apple’s Siri voice recognition, and Google Street View [33].
+Due to their compute-intensive workloads, hardware implementations of these neuromorphic
+architectures prove inefficient in terms of power consumption and area. Challenges of hardware
+implementation of ANNs have been explored from different perspectives [11, 35]. One approach
+for pursuing efficient hardware implementation of neural networks is to alter the architecture of
+the networks [6, 13, 51]. To exploit the parallelism of ANNs, application of Graphical Processing
+Units (GPUs) [20, 40] has also been explored. The other approach is the use of emerging device
+technologies to implement neurons and synapses more efficiently. Use of hybrid memristor
+crossbar-array/CMOS system [24], phase-change memory devices [52, 57], resistive RAM [44], and
+spin-based devices [46, 48, 49] in this context have been studied.
+Fortunately, neural networks and their associated applications are known for exhibiting intrinsic
+resilience to errors, which makes them appropriate candidates for approximate computations.
+Exploiting the inherent error resilience of a system, a variety of approximate hardware [8, 9, 15,
+25, 56] and software [12, 58] techniques have been proposed to achieve computational efficiency.
+One of these techniques is reduction of bit precision for computation and storage. Several works
+have shown that neural networks can function satisfactorily with 8- or 16-bit fixed-point numbers
+[14, 22] rather than 32- or 64-bit floating-point math (the dominant data types in deep-learning
+research). The focus of Google’s Tensor Processing Unit (TPU), which is a custom chip created
+specifically to facilitate projects related to machine learning, is 8-bit integer math [34]. The processor
+requires fewer transistors per operation, which allows it to accomplish more operations per
+second. In this work, we tried to go beyond 8 bits. In addition to 12- and 8-bit neurons, we also
+propose a 4-bit neuron that uses only 4-bit width for input and synapse weight values.
+The major power-hungry components of an ANN are the multipliers in the neurons, which multiply
+inputs and corresponding synapses (weights). To address this issue, we propose an Alphabet
+Set Multiplier (ASM), which is approximate in nature. There are several other works on approximate
+multipliers. Most of them exhibit poor performance for small-bit width computation [4, 31].
+In References [27, 55], non-uniform network architecture was used to reduce the power consumption
+of the multiplication. In Reference [55], resilient neurons are identified during training, then
+precisions (bit-widths) of the input operands and the synapse weights corresponding to those neurons
+are modulated based on their degree of resilience, and the network is retrained to compensate
+for the weight perturbations. In Reference [27], resilient synapses are identified and are processed
+with reduced bit-precision. Then, computations regarding those synapses are done in approximate
+processing engine, which contained approximate multiplier. On the contrary, in this work
+we apply uniform approximation throughout the network. We also utilized Computation Sharing
+Multiplication (CSHM) [23, 43, 50] concept in conjunction with ASM to devise an energy-efficient
+solution. In ASM, conventional multiplication is substituted by simplified shift and add operations.
+An ASM contains a pre-computer bank that generates lower-order multiples of the input
+based on some small-bit sequences termed alphabets. Based on the synaptic weight, a product of
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:3
+appropriate alphabet and input is selected from the pre-computer bank. Then, shift and add operations
+are carried out to complete the multiplication operation. To achieve energy benefits, the
+number of alphabets used in the proposed ASM are less than necessary for ideal (accurate) operation.
+As a result, it may not support all the multiplication combinations. To guarantee proper
+functioning of the neural network, we must ensure that those unsupported multiplication combinations
+do not lead to significant errors during testing. For this purpose, we impose restrictions on
+the weights obtained from the conventionally trained network. These restrictions are similar to
+quantization, which drops some amount of information. As a result, some accuracy loss is incurred.
+However, to achieve acceptable output quality, we apply retraining of the NN with restrictions in
+place.
+The proposed ASM can replace the conventional multiplier in artificial neurons to get reduction
+in energy consumption and also gain other benefits, such as reduction of area and increase in
+processing speed. We also propose an even more compact neuron design, which does not contain
+any pre-computer bank: a Multiplier-less Artificial Neuron (MAN). Finally, we propose the most
+simplified artificial neuron, which is a contracted version of the MAN, leading to large improvement
+in energy consumption with minimal accuracy degradation. In summary, in this work we
+propose several approximate multipliers based on alphabet set multiplication, which can be used
+effectively in neural networks. We also propose a methodology that can be used to retrain the
+network appropriately, so that accuracy loss due to the use of these approximate multipliers is
+minimal.
+A preliminary version of our work appeared in Reference [47]. We extend our paper in Reference
+[47] by providing two more simplified versions of the approximate multiplier-based neurons. Furthermore,
+we propose assisted training for aggressively employing bit precision scaling. We show
+the effect of bit precision scaling on the classification accuracy. We show the energy-accuracy
+trade-off of using neurons of different bit precisions and with different degrees of approximations.
+Further, we also analyze the system-level (memory and computation) benefits obtained from approximate
+neurons.
+2 ARTIFICIAL NEURAL NETWORK: BASICS
+Neurons and synapses are central to artificial neural networks. To model artificial neurons, the
+complexity of a biological neuron is highly abstracted. The artificial neuron computes a weighted
+sum of inputs and sends the result through an activation function. The activation function can
+be hard-limiting (e.g., step function) or soft-limiting (e.g., logistic sigmoid and tanh functions).
+Usually, soft-limiting neurons (Figure 1(a)) are chosen as they allow much more information to be
+communicated across neurons and greatly expand the neural network modeling capability, while
+reducing network complexity. By tuning the weights corresponding to the inputs of an artificial
+neuron, we can obtain desired output for specific inputs; this process is called training.
+While our proposed approach can be employed to various classes of ANNs, in this work we study
+the ubiquitous form, i.e., feedforward ANNs. In feedforward ANNs, the neurons are connected in
+an acyclic network, which is illustrated in Figure 1(b).
+The main operation of ANNs consists of two stages: (i) Training and (ii) Testing. The training
+process is usually performed off-line and therefore is not of much concern from an energy consumption
+aspect. The trained ANN is then employed to test random data inputs, and this is done
+on-chip. For large networks with millions of neurons, the testing process, although less compute intensive
+than training, may also require significant computation. The testing process is mainly
+forward propagation, which consists of multiplication, summation, and activation operations. The
+most power-consuming operation among these is the multiplication, which far outweighs the summation
+and activation operations. And therefore, our main focus is to mitigate this issue by offering
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:4 S. S. Sarwar et al.
+Fig. 1. (a) Artificial neuron, (b) Feedforward Artificial Neural Network. In panel (b), each neuron of one
+layer is connected to all the neurons of the following layer (fully-connected network), which is shown by
+arrows. The different colored arrows indicate that each input is multiplied by different weights (modified
+from Reference [47]).
+Table 1. Decomposition of Multiplication Operation
+Weights Decomposition of Product
+W1 = 011010112 (10710) W1 × I = 25.(0011).I + 20.(1011).I
+W2 = 010010102 (7410) W2 × I = 26.(0001).I + 21.(0101).I
+a solution that is energy efficient. In this work, we first substitute the conventional multiplier in
+the neurons with approximate ASM. Then, we make an effort to create a multiplier-less neuron.
+Finally, we attempt to design the most simplified shift multiplier-based artificial neuron. Note that
+retraining the network with approximate multipliers leads to minimal degradation in network
+classification accuracy, while achieving significant energy reduction.
+3 ALPHABET SET MULTIPLIER
+A multiplication operation can be decomposed into simple shift and add operations. The decomposition
+is based on the multiplicand “W,” which in our case is represented by the synaptic weights.
+Sample decomposition of two multiplication operations W1 × I and W2 × I, are shown in Table 1.
+Note that, in the table, few small bit sequences (00012, 01012, 00112, 10112) are multiplied with the
+input “I.” These small-bit sequences, ak , are referred to as alphabets. If I, 3I, 5I, 7I, 9I, 11I, 13I, and 15I
+are available, then the entire multiplication is down to a few shift and add operations. Based on this
+insight, instead of multiplying the multiplier with the multiplicand, some lower-order multiples of
+the input are shifted and added in ASM [23, 43, 50]. An ASM consists of a pre-computer bank, an
+“adder,” and one or more “select,” “shift,” and “control logic” units. The pre-computer bank computes
+the lower-order multiples of the input, which are the products of the input and some pre-specified
+alphabets. These alphabets are collectively termed the alphabet set (denoted by {1,3,5, . . .}). Overall,
+the ASM has four steps: (i) generate the products of the input and the alphabets, (ii) select a product,
+(iii) shift that product, and (iv) add the shifted products. In this work, synaptic weights are taken
+as 4-, 8-, and 12-bit words for neurons of equivalent bit precisions. For this sub-section, we will
+consider only 8-bit synapses for explaining the operation of ASMs. The 8-bit word is divided into
+two quartets for the ASMs. This requires a final addition after select and shift operations. Based
+on the multiplicand, different combinations of select, shift, and addition will occur, which will be
+controlled by a “control logic” unit. For performing general multiplication operation, all possible
+combinations must be covered. It has been shown that to cover these combinations, eight alphabets
+{1,3,5,7,9,11,13,15} are required for bit sequence size of 4 bits [50]. It must be noted that the number
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:5
+Fig. 2. An 8-bit four-alphabet ASM (modified from Reference [47]).
+of alphabets being used in the pre-computer bank directly translates to power dissipation, while the
+number of communication buses (out of the pre-computer) is also proportional to the number of
+alphabets. However, to achieve lower routing complexity and power consumption, use of reduced
+number (less than eight) of alphabets is proposed in Reference [47]. The reduction of number of
+alphabets is only possible owing to the error resilience of neural computing. Using Figure 2, the
+working principle of an 8-bit four-alphabet ASM is explained next.
+Multiplier “I” is supplied to the pre-computer bank, which generates products of input and the
+alphabets. These products are realized by shift and add operations. In this example, the alphabet
+set is {1,3,5,7}. Hence, the pre-computer bank will generate 1I, 3I, 5I, 7I. Multiplicand “W” is divided
+into two parts, which will work as inputs for the “control logic” circuits. Based on the “W,” control
+signals for the “select” and “shift” units are generated by the respective “control logic” circuits.
+The “select” units select suitable products from the pre-computer bank and pass them to the
+“shift” units. “Shift” units shift the input by the required amount. Finally, the “adder” unit adds
+the two separate values to get the multiplication result. For instance, to realize the multiplication
+of Y=100 (011001002) and X, we have to generate 01002 X (4X) and 01102 X (6X) × 24 (shifted
+by 4 corresponding to the relative bit position), and sum them up. Note that 4X and 6X can be
+generated by selecting 1X and 3X from the pre-computer bank, and shifting them, respectively,
+by 2 bits and 1 bit. The multiplication decomposition is demonstrated by the following equation:
+011001002 × X = (3X × 21) × 24 + (1X × 22) × 20.
+Since these ASMs require pre-computing unit and control circuitry, they will only be advantageous
+if they can be used in a distributed way with minimum number of alphabets, i.e., share the
+alphabets with several multiplication units. The CSHM [36] architecture can be used to serve that
+purpose. Figure 3 illustrates a CSHM consisting of a common pre-computer bank, shared between
+a number of ASM-based multiplication units.
+In a feedforward ANN, each input is multiplied by a number of different weights to feed the different
+neurons (Figure 1(b)). Therefore, the pre-computer bank can be shared between the neurons
+that are processing the product of the same input but different weights in parallel. In this work, we
+used the processing unit implemented in Reference [47], which processed four neurons at a time,
+thus making it possible for four ASM units to share the alphabets from a common pre-computer
+bank, as illustrated in Figure 3.
+3.1 Selection of Good Alphabets
+Use of a reduced number (less than eight) of alphabets is proposed in Reference [47] to reduce
+power dissipation of the pre-computer unit. However, reduction of the number of alphabets
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:6 S. S. Sarwar et al.
+Fig. 3. Four-alphabet ASMs using CSHM architecture (modified from Reference [47]).
+decreases flexibility of synapses during training, which in turn reduces the network accuracy.
+Therefore, proper selection of alphabets is very important to get maximum energy benefits with
+minimal loss of accuracy. While selecting alphabets for an alphabet set, that alphabet must support
+maximum number of bit shift operations to generate other bit quartets that are not in the alphabet
+set. For example, bit shift operation can be applied on alphabet 1 (00012) to generate three other
+bit quartets, 2 (00102), 4 (01002), and 8 (10002). However, alphabet 3 (00112) can produce two
+other bit quartets, 6 (01102) and 12 (11002), while 5 (01012) and 7 (01112) each can produce
+only one other bit quartet, 10 (10102) and 14 (11102), respectively. It is difficult to use alphabets
+9(11002), 11(10112), 13(11012), and 15(11112), since they cannot generate any other bit quartets.
+Therefore, selection priority of alphabets is: 1 > 3 > 5, 7 > 9, 11, 13, 15.
+4 DESIGN APPROACH & METHODOLOGY
+The use of ASM to exploit error resilience and sharing of alphabets are the bases of proposed
+approximate neurons. This section outlines the key ideas behind the proposed design methodology.
+4.1 Application of Weight Constraints
+To perform multiplication using ASM, “select,” “shift,” and “add” operations in a number of different
+combinations needs to be performed. The efficacy of ASM mostly depends on the number
+of alphabets used to encompass the range of the combinations. If the bit sequence size of 4 bits is
+used for the decomposition of the multiplication operation, then an alphabet set of eight alphabets
+{1,3,5,7,9,11,13,15} is sufficient to produce any product using the select, shift, and add operations.
+To achieve higher energy savings, the number of alphabets used in the proposed ASM is fewer
+than the quantity required for ideal (accurate) operation. As a result, it may not support all the
+multiplication combinations, which leads to approximations in multiplication. For example, when
+a four-alphabet {1,3,5,7} ASM is used, we can generate 12 (including 0 (00002)) out of 16 possible
+combinations of 4 bits by bit shift operations (e.g., from 1 (00012), we get 2 (00102), 4 (01002), and
+8 (10002)). It cannot produce the products, 9I, 11I, 13I, and 15I, with (9,11,13,15) being the quartets
+from the synaptic weights. Therefore, we cannot generate the product 011010012 ×I with any select,
+shift and add combinations, since the LSB 10012 (910) is not supported by the alphabet set.
+However, to guarantee proper functioning of the neural network, it must be ensured that the unsupported
+multiplication combinations do not lead to significant computational errors. To address
+this issue, we introduce constrained training of the ANN so that these unsupported combinations
+never occur. Since ANN applications are inherently error resilient, we can exploit this and get
+favorable set of weights. For this purpose, the synaptic weights (9,11,13,15) are restricted to the
+nearest supported values (8,10,12,14). This is similar in effect to quantization, which drops some
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:7
+Fig. 4. A 12-bit weight value decomposed into three quartets (modified from Reference [47]).
+amount of information resulting in accuracy degradation. To salvage some of the lost accuracy, the
+network needs to be retrained with the imposed constraints. The retraining overhead is marginal
+compared to the original training.
+In a NN, the synaptic weights can be either positive or negative, while regular primary input,
+for example, image pixel value, is usually non-negative. Also, if we use non-negative activation
+function (“sigmoid” or “ReLU” [38]), then the inter-layer inputs will be non-negative too. For multiplication,
+we used the magnitude of the synaptic weights. For storing the sign information of
+synaptic weights, one extra bit is used. The sign bit also determines the sign of the multiplication
+output. If negative input is also present, then one extra bit will be required to store that information
+and the sign of the multiplication output will depend on both the input sign and synaptic
+weight sign bits.
+Next, as an example, the algorithm for constraining weights for 12-bit ASM is explained. Here,
+we consider a 12-bit unsigned synaptic weight as a concatenated version of 3-bit quartets P, Q,
+and R, where P is the MSB and R is the LSB (shown in Figure 4). P, Q, and R each can have 16
+combinations, 0 (00002) to 15 (11112). If we use two alphabets {1,3} only, then the maximum number
+of supported combinations out of the 16 is 8. In that case, we cannot support 516, 716, 916, A16, B16,
+D16, E16, F16 for P, Q, and R. Hence, we convert those unsupported values to the nearest supported
+value, ensuring minimum loss in precision. Algorithm 1 is the weight constraint mechanism for a
+12-bit two-alphabet {1,3} multiplier.
+ALGORITHM 1: Weight constraint for a 12-bit two-alphabet {1,3} multiplier
+Input: Absolute weight value PQR, list of unsupported quartets values {unsV}, sign information of the
+weight value “s.”
+Output: Updated weight value PQRnew
+1. If P={unsV}
+2. If Q={unsV}
+3. If R={unsV}, then round-down R,
+4. based on Rnew round-up/down QR,
+5. based on Qnew round-up/down PQR
+6. Else based on R round-up/down QR,
+7. based on Qnew round-up/down PQR
+8. Else based on Q round-up/down PQR
+9. Else if Q={unsV}
+10. If R={unsV}, then round-down R,
+11. based on Rnew round-up/down QR,
+12. based on Qnew round-up/down PQR
+13. Else based on R round-up/down QR,
+14. based on Qnew round-up/down PQR
+15. Else if R={unsV}, then round-down R,
+16. based on Rnew round-up/down QR,
+17. based on Qnew round-up/down PQR
+18. If s=0, Return PQRnew
+19. Else Return 2’s complement of PQRnew
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:8 S. S. Sarwar et al.
+Fig. 5. For a two-alphabet {1,3} ASM, rounding up/down the unsupported values of (a) 4-bit synapse, (b) 8-bit
+synapse.
+Fig. 6. Overview of the ANN design methodology (modified from Reference [47]).
+4.2 Rounding Logic
+For approximate multiplication operation, we must round-up/-down an unsupported value to the
+nearest supported value ensuring minimum loss of information. For every two consecutive supported
+values, the average of them is considered as the threshold point for rounding. For a 4-bit
+synapse, consider the two consecutive supported values 816 and C16 (using only the alphabets
+{1,3}); then, the threshold is (816+ C16)/2 = A16. If the unsupported value 916 comes up, then we will
+convert it to 816; else, if A16 or B16 comes up, then we will convert it to C16 (Figure 5(a)).
+The threshold point for rounding is different for different unsupported values. If the unsupported
+value is between two supported values, then based on the threshold point it can be converted
+to appropriate supported value. But there are cases that do not fall into this pattern. For
+example, if the unsupported value is E16, then it has only one nearest supported value C16. If we
+use 4-bit synapse, then there is no option other than converting E16 toC16. But if we use 8- or 12-bit
+synapse, then we can take help from the upper 4 bits in this situation. This is shown in Figure 5(b).
+Here, we have to consider the upper 4 bits as well for finding the nearest supported values and
+threshold point.
+4.3 Neural Network Design Methodology
+With help of Figure 6, Algorithm 2 describes the overall NN training and testing methodology.
+The inputs are a neural network (NN), its corresponding training dataset (TrData), testing dataset
+(TsData), and a quality constraint (Q) that determines the minimum acceptable quality in the implementation.
+The quality specifications are application-specific.
+4.4 Retraining
+Retraining could effectively be used to mitigate the accuracy degradation incurred due to approximations
+in multiplication. Adapting the learning rate is vital for efficiently retraining the network
+with these approximations in place. The learning rate is basically a multiplication factor in the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:9
+Fig. 7. Flow diagram of the retraining process for an approximate NN.
+ALGORITHM 2: NN training and testing methodology
+Input: Neural network: NN, Training dataset: TrData, Testing dataset: TsData, Quality constraint: Q≤1.
+Output: Retrained NN meeting the quality constraint.
+1. Train the NN using TrData without any weight constraints till the training reaches near saturation, i.e.,
+minuscule improvement in recognition accuracy can be achieved through more training.
+2. Test the network using the TsData to get the network accuracy J. Create a restore point.
+3. Retrain the network imposing constraints for minimum number of alphabets (start with 1) on weight
+update with lower learning rate till it again reaches near saturation.
+4. Test the retrained network to find the new network accuracy K and compare the network accuracy using
+J, K and Q.
+If accuracy is satisfactory, i.e., if K ≥ J × Q, then end the training.
+Else restart from the restore point created in 2 and repeat steps 3 and 4 with increased number of
+alphabets.
+weight update equation [42] that influences the speed and quality of learning. Precise adjustment
+of the learning rate is needed, when using the approximate multiplier, due to the non-uniformity in
+the distance between the allowed weight levels. The non-uniformity is illustrated by the following
+example. Let us consider a two-alphabet {1,3} ASM, where the acceptable weight levels are 0×, 1×,
+2×, 3×, 4×, 6×, 8×, and 12×. It can be deduced that the distance between the levels 8× and 12× is
+4×, while that between 6× and 8× is 2×. In this scenario, if the learning rate is too low, the updates
+might not be substantial enough for the weights to overcome the distance barrier between certain
+allowed levels. This arises the possibility of the weights getting stuck at a specific level (that may
+potentially lead to non-convergence in training), which is unfavorable to the learning process. On
+the contrary, too high a learning rate might cause the weights to widely oscillate between the
+different levels, which leads to accuracy deterioration. Hence, the determination of the optimal
+learning rate for retraining the approximate NN is of extreme importance.
+Figure 7 illustrates the flow diagram of the retraining process. The retraining begins with the
+learning rate that was used to start training the NN without approximation. With the weight
+restrictions in place, if the accuracy improves, retraining is carried on with the same learning rate
+for a few more iterations, until there is no noticeable improvement in the accuracy. However, if
+the accuracy does not improve, the learning rate is adjusted and the NN is further retrained. The
+adjustment of learning rate is reducing it by some factor. The process of adjusting the learning
+rate is continued until the accuracy improvement saturates. A point to be noted here is that the
+retraining overhead for an approximate NN is negligible compared to the number of iterations
+required to train the original NN (without approximations).
+4.5 Reliability of the Proposed Design
+To assess the reliability of our design, we employed it on Face Detection application, where based
+on input image data, the network detects whether there is a face present or not. Here, the number
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:10 S. S. Sarwar et al.
+Table 2. NN Accuracy Results for Face Detection
+Size of Synapse No. of Alphabets Accuracy (%) Accuracy Loss (%)
+conventional NN 90.71 –
+12 bits 4 {1,3,5,7} 90.60 0.11
+2 {1,3} 90.54 0.17
+1 {1} 90.49 0.22
+conventional NN 90.66 –
+8 bits 4 {1,3,5,7} 90.46 0.20
+2 {1,3} 90.31 0.35
+1 {1} 90.23 0.43
+Accuracy loss is computed by considering the conventional NN accuracy as standard.
+Table 3. NN Accuracy Results for Digit Recognition
+Size of Synapse No. of Alphabets Accuracy (%) Accuracy Loss (%)
+conventional NN 97.68 –
+12 bits 4 {1,3,5,7} 97.65 0.03
+2 {1,3} 97.6 0.08
+1 {1} 97.33 0.35
+conventional NN 97.56 –
+8 bits 4 {1,3,5,7} 97.56 0.00
+2 {1,3} 97.49 0.07
+1 {1} 97.18 0.38
+Accuracy loss is computed by considering the conventional NN accuracy as standard.
+of final output neurons is only 2. We used 1,024 input neurons and 100 hidden layer neurons. Using
+the training dataset, we first generated the 8- and 12-bit synaptic weights for unconstrained (for
+conventional multiplier) and constrained conditions (for ASM). Then, we tested the network using
+the test dataset and achieved good results with a maximum degradation in accuracy of 0.43%. The
+results are listed in Table 2.
+Next, we moved on to a more complex problem of “Hand Written Digit Recognition” using
+MNIST [1] dataset. We used similar method as before to generate the synaptic weights (here,
+the number of final output neurons is 10). Then, we used those synapse weights in our designed
+processing engine to test the network accuracy. The accuracy results are listed in Table 3.
+4.6 Multiplier-Less Neuron (MAN)
+From the accuracy results of ASM in artificial neurons, we observed that even with only one alphabet
+{1} in all layers, we are able to achieve accuracy within ∼0.5% of conventional implementation.
+The additional advantage of using only one alphabet, specifically {1}, is that we do not have to generate
+any alphabet set, the input only is sufficient for the one-alphabet {1} requirement. That means
+we do not need multiplication, only shifting and adding is enough. This eliminates the necessity of
+the pre-computer bank and alphabet “select” unit, leading to a “Multiplier-less” neuron (Figure 8).
+4.7 Bit Precision Scaling with Assisted Training
+From the proposed MAN design, we found that the final addition part consumes a significant
+portion of the total energy required for multiplication. To get rid of the addition, the synaptic
+weight and input bit width has to be reduced to 4 bits only. Nevertheless, that will cause further
+classification accuracy degradation. To observe the effect of this bit width reduction, we applied
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:11
+Fig. 8. An 8-bit one-alphabet {1} ASM (MAN) (modified from Reference [47]).
+Fig. 9. Effect of bit precision scaling on benchmark applications.
+bit precision scaling on the benchmark applications. Initially, we started the training with reduced
+precision, and until 7 bits it gave reasonable results. From 6 bits the accuracy started falling
+drastically and in some cases the training did not converge. The reason is that neural networks
+require a certain amount of flexibility for training, and the synaptic bit width is their degree of
+freedom. Hence, with only 6 bits or less, training is difficult as the initial weights are random
+and most of the times the solution gets stuck in local minima. To take care of this problem, we
+introduced assisted training. First, we trained the network with 64 bits until it reaches saturation.
+Then, we rounded up the synaptic weights and inputs to the desired bit width during retraining
+for a few more iterations. During this retraining, we increased the learning rate as the distance
+between the allowed weight levels started to increase due to bit width reduction. If the learning
+rate is not increased, then the network will not be able to compensate for rounding, as the distance
+between the allowed levels will be larger than the weight update value. In Figure 9, the effect of
+bit precision scaling is demonstrated.
+The assisted training helps to make sure that the solution does not get stuck in local minima as
+retraining starts from a point close to the global minima. Due to assisted training, the classification
+accuracy became reasonable until 4 bits. Note that we have used fixed-point bit width and the
+bit width shown here is excluding the sign bit. The accuracy we achieved with 4-bit synapse for
+MNIST (97.32%), using a compact fully connected network, is comparable to the accuracy achieved
+by Ristretto (98.95%) [16], using much larger convolutional network LeNet [28]. However, the
+accuracy we achieved with 4-bit synapse for CIFAR10 (85.9%) is much better than the accuracy
+achieved by Ristretto (81.44%) [16] using 8-bit synapse. Researchers have also shown networks
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:12 S. S. Sarwar et al.
+Table 4. Comparison of Network Sizes
+Dataset This Work Binary Networks [30]
+MNIST 1 fully connected hidden layer with
+100 hidden neurons
+3 fully connected hidden layers with
+total 3,072 hidden neurons
+SVHN 5 fully connected hidden layers with
+total 1,550 hidden neurons
+7 conv. layers, 1 fully connected
+hidden layer
+CIFAR10 3 conv. layers, 4 fully connected
+hidden layers
+6 conv. layer, 1 fully connected
+hidden layer
+Fig. 10. A four-alphabet {1,3,5,7} ASM.
+with 1-bit synapse only, termed Binary networks [30]. However, such networks are much larger
+compared to the networks used in this work. Table 4 shows a comparison of network sizes.
+The 4-bit networks use four times the memory for each synapse and needs multipliers for neuronal
+operation compared to binary networks where multiplication can be replaced with simple
+bitwise operations. However, the total number of synapses in binary networks is much larger
+compared to the 4-bit networks used in this work.
+4.8 Alphabet Shift Multiplier
+Using only 4-bit precision ensures that if Alphabet Set Multiplier is used with bit sequence size of
+4 bits, the final addition step is not required anymore. Using Figure 10, the working principle of a
+four-alphabet {1,3,5,7} shift multiplier is explained next.
+Multiplier “I” is fed to the pre-computer bank, which generates products based on the four
+alphabets. Multiplicand “W” is the input of the “control logic” circuit. Based on “W,” appropriate
+control logic for the “select” and “shift” units are generated. The “select” unit selects proper product
+from the “pre-computer bank” and passes it to the “shift” unit. “Shift” unit shifts the product by the
+required amount. For example, if the multiplier is “M” and multiplicand is 01102, we have to generate
+01102 M (6M). 6M can be generated by shifting 3M by 1. The multiplication is demonstrated
+using the following example:
+01102 × M = (3M)× 21.
+4.9 Contracted Multiplier-Less Artificial Neuron (CMAN)
+The accuracy results for MNIST dataset with Alphabet Shift Multiplier are listed in Table 5. We
+can observe that even with only 4-bit synapse and one alphabet {1} in all layers, we are able to
+achieve network accuracy within ∼1% of conventional implementation for MNIST.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:13
+Table 5. NN Accuracy Results for Digit Recognition
+Size of Synapse No. of Alphabets Accuracy (%) Accuracy Loss (%)
+conventional NN 97.32 —
+4 bits four {1,3,5,7} 96.97 0.35
+two {1,3} 96.59 0.74
+one {1} 96.31 1.01
+Accuracy loss is computed by considering the conventional NN accuracy as standard.
+Fig. 11. A 4-bit one-alphabet {1} ASM.
+Using 4-bit synapse and one alphabet {1} means that we do not need pre-computer bank for the
+Alphabet Shift Multiplier, only shifting is enough. That eliminates the “select” unit as well. With
+this insight, we designed the most simplified multiplier for artificial neuron (Figure 11), which is
+faster, more compact, and less power consuming.
+Further scaling of synaptic weights is successfully shown in References [5, 45], where only 2∼3
+levels are allowed. Those works focus on Convolutional Neural Networks (CNNs) as they have
+more redundancy compared to ANNs.
+5 SIMULATION FRAMEWORK
+Here, we discuss the circuit to system-level simulation framework used to analyze the effectiveness
+of the presented approximations on NNs. For the approximate multiplication, we implemented the
+multiplier, adder, activation, and controller units at the Register-Transfer Level (RTL) in Verilog
+and mapped the designs to the 45nm technology library using the Synopsys Design Compiler. It
+was also used to estimate the neuron energy consumption and area required, under iso-speed conditions.
+The memory structure (SRAM) in our proposed system was modelled using CACTI [37], in
+45nm technology library, to estimate the corresponding component of the energy consumption.
+We assumed a trained neural network and that it has been programmed onto on-chip memory
+(SRAM). In typical recognition applications employing neural networks, the network is trained
+once or very infrequently but used multiple times in the testing phase. Hence, we consider only
+the testing phase for our energy and power evaluations. Therefore, we do not consider the energy
+expended in programming the NN, i.e., writing the trained weights from off-chip memory to
+the SRAM (on-chip). Further, the memory size considered is in accordance with the largest neural
+network being evaluated in our benchmark.
+At the system-level, the deep learning toolbox [2], MatConvNet [54], and tinyCNN [3], which
+are open source neural network simulators in MATLAB and C++, are used to model the approximations
+and evaluate the classification accuracy of the NNs under consideration. Details of the
+benchmarks used in our experiments are listed in Table 6.
+The key implementation metrics are shown in Table 7.
+6 RESULTS
+In this section, we present results that demonstrate the accuracy obtained and also the energy
+efficiency and area reduction achieved by our proposed design.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:14 S. S. Sarwar et al.
+Table 6. Benchmarks
+Application Dataset
+Training
+Samples
+Testing
+Samples NN Structure
+Digit Recognition MNIST [1] 60,000 10,000 MLP: [784 100 10]
+Face Detection YUV Faces 46,830 11,708 MLP: [1024 100 10]
+House Number
+Recognition
+SVHN [39] 73,257 26,032 MLP: [784 800 400 200 100
+50 10]
+Tilburg Character
+Recognition
+TiCH [53] 30,000 10,000 MLP: [784 400 200 100 50 36]
+Object Recognition CIFAR10 [26] 50,000 10,000 CNN: NIN [29] [1024 × 3
+(5 × 5)192c 160fc 96fc
+(3 × 3)mp (5 × 5)192c 192fc
+192fc (3 × 3)mp (3 × 3)192c
+192fc 10o]
+Object Recognition CIFAR100 [26] 50,000 10,000 CNN: ResNet [18] Depth 164
+164 Conv., 164 Batch Norm.,
+164 ReLU, 1 average pooling,
+1 Output Prediction layer
+Table 7. Experimental Parameters
+Metric Value
+Feature Size 45nm
+Maximum Clock Frequency for 12-bit Neurons 2.5GHz
+Maximum Clock Frequency for 8-bit Neurons 3GHz
+Maximum Clock Frequency for 4-bit Neurons 4GHz
+Fig. 12. Comparison of accuracy between conventional multiplier-based NN and ASM-based NNs. 12b, 12-bit
+synapse NN; 12b4, 12-bit synapse NN with four-alphabet ASM; 12b2, 12-bit synapse NN with two-alphabet
+ASM; 12b1, 12-bit synapse NN with one-alphabet ASM. Similar notations for 8- and 4-bit NNs.
+6.1 Accuracy Comparison
+Figure 12 shows the classification accuracy obtained using conventional multiplier-based neurons
+and proposed ASM-based neurons for various applications. The accuracy of the proposed design in
+each application is normalized to a fully accurate NN implementation in which all of the neurons
+use conventional multiplier with 64-bit computation.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:15
+Fig. 13. Comparison of power consumption, between conventional neuron and different ASM-based neurons
+of 12, 8, and 4 bits.
+Note that we are using 64-bit fully accurate computation for generating the baseline accuracy for
+the networks. Though all the dataset inputs contain 8-bit width unsigned integer numbers, in the
+baseline case, the synapses and inter-layer inputs contain 64-bit precision. With this baseline, we
+compared the accuracy achieved by conventional 12-, 8-, and 4-bit neurons and our proposed ASMbased
+versions. Point to be noted here that a “N”-bit neuron makes use of a synaptic bit width of
+“N.” For the ANNs trained for the datasets MNIST, SVHN, and TiCH, the maximum loss in accuracy
+was ∼1.08%, ∼1.6%, and ∼3.9% for 12-, 8-, and 4-bit neurons, respectively, compared to a 64-bit
+neuron implementation. The maximum approximation applied here is in the 4-bit one-alphabet
+{1} version of neuron (CMAN), which gives 96.31% accuracy for MNIST compared to 90.17% of the
+proposed system in Reference [34]. Also, compared to a conventional neuron implementation of
+the equivalent bit precision, the maximum loss in accuracy was ∼0.63%, ∼0.84%, and ∼2.4% for 12-,
+8-, and 4-bit neurons, respectively, for ANN implementations.
+We also employed our process engine on a CNN, trained on CIFAR10 and CIFAR100 object
+recognition datasets, to confirm its ubiquitous functionality. In this case, ASMs performed well for
+12- and 8-bit neurons, while attaining higher accuracy degradation for 4-bit neurons. We observe
+that 4-bit neurons degrade accuracy by ∼4% and ∼7% even without any approximation for CIFAR10
+and CIFAR100, respectively (Figure 9).
+The classification accuracy of ASM-based ANNs is good for simpler datasets such as MNIST,
+compared to more complex datasets such as SVHN and TiCH. The classification accuracy of ASMbased
+CNN is reasonable, considering the fact that the CIFAR10 and CIFAR100 are employed in object
+recognition tasks that are more complex, compared to the digit/character recognition datasets.
+The accuracy baselines for the datasets MNIST, SVHN, TiCH, CIFAR10, and CIFAR100 are 97.82%,
+84.1%, 85.46%, 89.2%, and 74.2%, respectively.
+6.2 Power Benefits and Energy Consumption Comparison
+Figure 13 shows the average power improvement achieved using ASMs for different size (bit precision)
+of neurons. The power consumption of each scheme is normalized to an implementation
+in which all the neurons have bit precision of 12 bits and utilize conventional multipliers.
+For 12-bit neurons, we do not get any benefit using four alphabets, but we achieve ∼13% reduction
+in power consumption using only two alphabets {1,3} compared to 12-bit conventional
+neurons. For 8-bit neurons, we get ∼11% and ∼16% reductions in power consumption using four
+{1,3,5,7} and two alphabets {1,3}, respectively, compared to 8-bit conventional neurons. In the case
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:16 S. S. Sarwar et al.
+Fig. 14. Comparison of energy consumption, between 12-, 8-, and 4-bit conventional neurons and different
+ASM-based neurons.
+Fig. 15. Comparison of area between conventional neurons and different ASM-based neurons of 12, 8, and
+4 bits.
+of multiplier-less neurons, we achieve ∼33% reduction in power consumption, for 8- and 12-bit
+neurons, while ∼25% for 4-bit neurons, using only one alphabet {1}.
+Figure 14 shows the energy consumption per neuron in each operating cycle for conventional
+neurons and different ASM-based neurons. The energy consumption per neuron includes neuron
+computation energy and network controller energy.
+These neurons are designed to work at high speed. Though 4-bit ASM-based neurons provide
+less benefit over conventional neurons regarding power consumption, but it allows high-speed
+operation compared to 8- and 12-bit neurons. The 4-bit neuron can operate at 4GHz speed, while
+8- and 12-bit neurons can operate at 3 and 2.5GHz, respectively.
+6.3 Area Reduction
+Figure 15 shows the neuron area reduction obtained using ASMs. Again, the area of each scheme is
+normalized to a conventional neuron implementation in which all the neurons have bit precision
+of 12 bits and utilize conventional multipliers. For a neuron size of 12 bits, we achieve ∼13%
+reduction in area using only two alphabets {1,3} compared to 12-bit conventional neurons. For
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:17
+Table 8. Comparison Between Conventional and ASM-Based Neurons of
+Different Sizes at their Maximum Operational Speed
+Conventional Neuron ASM-Based Neuron
+Neuron
+Size
+(bit width)
+Minimum
+Delay
+Time (ns)
+Power
+(mW)
+Area
+(unit)
+Minimum
+Delay
+Time (ns)
+Power
+(mW)
+Area
+(unit)
+12 0.38 6.231 16904 0.34 4.748 11300
+8 0.31 4.958 10776 0.3 3.679 7507
+4 0.22 2.894 4784 0.21 2.409 3476
+Neurons are mapped to the 45nm technology library using the Synopsys Design Compiler.
+8-bit neurons, we get ∼10% and ∼17% reduction in area using four {1,3,5,7} and two alphabets {1,3},
+respectively, compared to 8-bit conventional neurons. In the case of multiplier-less neurons, we
+achieve ∼34% reduction in area, for 12- and 8-bit neurons, compared to 12- and 8-bit conventional
+neurons, respectively, while ∼27% for 4-bit neurons, using only one alphabet {1} compared to 4-bit
+conventional neurons.
+6.4 Overall Improvements
+For calculating the overall improvements, we considered 12-, 8-, and 4-bit conventional neurons
+as baselines for a fair comparison. The results show that, for four-alphabet {1,3,5,7} ASM-based
+neurons, we may not achieve significant improvement in terms of power and area. But using twoalphabet
+{1,3} ASM-based neurons, we can get up to ∼16% reduction in power consumption and
+∼18% reduction in area with a ∼1.8% loss in accuracy, compared to conventional neurons. Whereas
+in the case of MAN, we achieve ∼33%, ∼32%, and ∼25% reduction in power consumption and ∼33%,
+∼34%, and ∼27% reduction in area, respectively, for 12-, 8-, and 4-bit neurons, using only one alphabet
+{1}, with a maximum ∼2.4% loss in accuracy, compared to a conventional neuron implementation
+of the same bit precision. These comparisons were performed for ANNs under iso-speed
+conditions with clock frequency of 2.5, 3, and 4GHz for 12-, 8-, and 4-bit neurons, respectively.
+Note that the proposed ASM-based neurons have increased processing speed compared to a
+conventional neuron implementation of the same bit precision under iso-power and iso-area conditions.
+We can also compare the performance of conventional and ASM-based neurons at their
+highest achievable speed. From Table 8, we observe that ASM-based neurons can achieve slightly
+better maximum operational speed with much lower power and area consumption compared to
+conventional neuron implementation of the same bit precision. The speed of the conventional
+neuron depends on the multiplier architecture. The architecture is selected by the design compiler
+based on the “low power” design criterion. However, a faster multiplier can be used conceding
+higher power consumption and area.
+6.5 Energy Accuracy Trade-off
+The energy accuracy trade-off is central to our work. Based on the simulation results, we have
+created an energy accuracy trade-off plot in Figure 16. In this plot, we have placed the accuracy
+achieved for the five benchmark applications using 12 different neurons: Conventional, four
+{1,3,5,7} alphabets, two {1,3} alphabets, and one {1} alphabet, each of them having 12-, 8-, and 4-bit
+versions.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:18 S. S. Sarwar et al.
+Fig. 16. Energy accuracy trade-off plot for the benchmark applications.
+6.6 Add-on Accuracy Improvement through Mixed ASM
+From Figure 12, it can be observed that 12-bit neurons provide much better network accuracy
+even with only one alphabet {1}, with a maximum ∼1% degradation in accuracy compared to 64-
+bit neurons. As 12-bit synapses have more flexibility compared to 8- and 4-bit synapses, the NN can
+be retrained better to compensate for the reduced number of alphabets in approximate ASM-based
+neurons.
+However, 8- and 4-bit synapses demonstrate considerable degradation when only one alphabet
+{1} is used, with a maximum ∼3.9% loss in accuracy. This shortcoming can be tackled by using
+more alphabets in a small number of significant neurons. Usually, NNs have smaller numbers of
+neurons in the concluding layers. Also, it has been shown that these neurons have more influence
+in determining the final output of the NN compared to the neurons in the initial layers [55].
+Exploiting this insight, we can use one alphabet {1} in the initial larger layers and two alphabets
+{1,3} or four alphabets {1,3,5,7} in the ending smaller layers to improve the network accuracy. This
+will also increase the energy consumption as two-alphabet-based {1,3} and four-alphabet-based
+{1,3,5,7} ASMs consume much more power than one-alphabet-based {1} ASM. But this increase is
+quite small in practice as the ending smaller layers with fewer neurons account for a very small
+percentage of total processing cycles of the NN. For example, in the six-layer “House number
+recognition” network, the last two layers use only 3.84% of total processing cycles. In Figure 17,
+the efficacy of this technique is illustrated. For handwritten digit recognition of the MNIST dataset
+using a two-layer MLP network, one-alphabet ASM-based neurons are used in the only hidden
+layer and four-alphabet ASM-based neurons are used only in the output layer. For recognition of
+the SVHN dataset using a six-layer network, one-alphabet ASM-based neurons are used in the first
+four hidden layers, and two- and four-alphabet ASM-based neurons are used in the penultimate
+and ultimate layer, respectively. For recognition of the TiCH dataset using a five-layer network,
+one-alphabet ASM-based neurons are used in the first three hidden layers, and two- and fouralphabet
+ASM-based neurons are used in the penultimate and ultimate layer, respectively.
+From Figure 17, we can observe that, in all three applications, the accuracy is improved using
+a higher number of alphabets in the neurons in the concluding layers with very small energy
+overhead. Therefore, for NNs with neuron-size constraints, this method can be employed to obtain
+a better tradeoff between energy and accuracy.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:19
+Fig. 17. Comparison of accuracy and energy consumption between conventional NN, one-alphabet ASMbased
+NN, and one-, two, and four-alphabet ASM-based NN for (a) 8-bit neurons and (b) 4-bit neurons.
+Notations: [1] NN with only one-alphabet ASM, [1 4] NN with one- and four-alphabet ASMs, [1 2 4] NN
+with one-, two-, and four-alphabet ASMs. For one-alphabet ASM, two-alphabet ASM, and four-alphabet
+ASM, the alphabets used are {1}, {1,3}, and {1,3,5,7}, respectively.
+6.7 Iso-Accuracy Analysis
+We also analyzed the effect of increasing the number of neurons to get rid of the accuracy loss incurred
+due to weight restricted training for our proposed multiplier-less neurons. For this purpose,
+we used the conventional 12-, 8-, and 4-bit neuron implementation of MNIST network as baselines
+for comparing with their one-alphabet (MAN) counterparts. The baseline networks contained one
+hidden layer with 100 neurons and one output layer with 10 neurons. To achieve iso-accuracy using
+multiplier-less neurons, we increased the number of neurons in the hidden layer. For 12- and 8-bit
+neurons, iso-accuracy was achieved by having roughly 1.5× neurons in the hidden layer, while
+for 4-bit neurons, it took 2× neurons. The effect on important parameters is depicted in Figure 18.
+In Figures 18(a) and 18(b), we can observe that to achieve iso-accuracy, the storage requirement
+is increased 1.5× while the energy benefit is almost zero for 12- and 8-bit cases. However, in Figure
+18(c), we can observe that the storage requirement is increased 2×, while energy consumption
+is also increased for 4-bit case. Also due to increase in network size, both training time and classification
+time increases. Hence, we can observe that increasing the network size to salvage accuracy
+may not be cost-effective.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+16:20 S. S. Sarwar et al.
+Fig. 18. Iso-Accuracy Analysis on conventional and multiplier-less neuron of (a) 12-bit, (b) 8-bit, and (c) 4-bit
+precision. The plot data is normalized to the number of neurons in the hidden layer, total energy required per
+image classification, and total network storage capacity required for storing synaptic weights, respectively,
+in the conventional neural network implementation.
+6.8 System Level Benefits
+The previous subsections detail the power and energy benefits derived from the neurons. In this
+subsection, we combine the neuron computational energy and the associated memory access energy
+to study the benefits derived from approximate neurons at the system level. To this effect,
+we analyze two cases: (1) system with on-chip memory (SRAM) of a size that can fit the largest
+network, and (2) system with much smaller SRAM size. Both the dynamic and leakage components
+of memory energy increase with the memory size. The first case results in a neural processing system
+with the overall energy profile dominated by the memory component of energy. The memory
+energy component of energy dominates the overall energy profile and is 32× and 12× higher than
+the computational energy component for 4-bit synapses and 12-bit synapses, respectively. Hence,
+the observed benefits of computation energy reduction translate to only 1% (for 4-bit synapses)
+and 2.5% (for 12-bit synapses) energy savings at the system level.
+However, recent research toward usage of compressed neural networks has shown compression
+ratios as high as 50× by efficient pruning and weight sharing techniques [17, 21]. In such scenarios,
+the system-level benefits obtained from “case 1” are highly pessimistic. Hence, we also analyzed
+the system-level benefits obtained from using a memory size sufficient to fit the compressed network
+[17]. Such systems allow better distribution of total energy consumption into memory and
+logic components. System-level simulation projects energy benefits of 4–9% due to the application
+of proposed processing engine in such cases. Kindly note that using compressed networks would
+require modifications at the logic level as well as the memory level [17]. However, the design of approximate
+neurons and the resulting energy benefits is orthogonal to the hardware enhancements
+needed to support compression in NN implementation.
+Note that we use bit precision scaling for generating optimized baselines. For a fair comparison,
+we compare “N”-bit ASM-based neuron with “N”-bit conventional neuron. Note, ASM-based
+neurons do not provide any change in memory requirements.
+7 CONCLUSIONS
+Deep Learning Networks have attracted great interest in a wide range of applications. Nevertheless,
+it is far from being perfect as they struggle to meet the demand of extraordinary computational
+requirements. Combining algorithm and processor improvements, we can expect to see a
+large improvement in the energy efficiency of DLN implementations. In this work, we exploited the
+resilience of neural network applications to design highly efficient and approximate ASM-based
+neurons to achieve energy benefits. We designed MAN, in which the conventional multiplier is
+replaced by only shift and add operations. We further proposed aggressive bit precision scaling
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 2, Article 16. Pub. date: July 2018.
+Energy-Efficient Neural Computing with Approximate Multipliers 16:21
+with assisted training to make path for 4-bit neurons. And for 4-bit neurons, we proposed the concept
+of CMAN. We retrained the approximate networks with the weight constraints, providing the
+opportunity to mitigate the accuracy loss due to neuron approximation. Our experiments demonstrated
+significant improvements in energy consumption and reduction in area for negligible loss
+in the classification accuracy.

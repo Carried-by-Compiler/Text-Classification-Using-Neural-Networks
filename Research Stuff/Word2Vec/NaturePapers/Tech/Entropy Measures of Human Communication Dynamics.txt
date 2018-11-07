@@ -1,0 +1,11 @@
+For many decades, existing memory technologies have been successfully scaled down
+and improved to achieve higher densities, faster speeds with lower production costs.
+Now, however, the miniaturization level of these technologies is approaching the physical
+limits for scalability. This raises the importance of urgent development of new
+memory technologies. One of the most promising candidates is spin-transfer torque
+magnetic random access memory (STT-MRAM) [Chen et al. 2010], which combines the
+capacity and cost benefits of DRAM, fast performance of SRAM, virtually unlimited
+endurance in addition to being nonvolatile and radiation hard. Conventional semiconductor
+memory technology typically involves the charge of electrons and completely
+
+technologies computer technologies computer technologies computer technologies computer technologies computer technologies computer technologies computer technologies computer technologies computer technologies science

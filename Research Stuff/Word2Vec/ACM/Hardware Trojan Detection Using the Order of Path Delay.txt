@@ -1,0 +1,791 @@
+Hardware Trojan Detection Using the Order of Path Delay
+
+Many fabrication-less design houses are outsourcing their designs to third-party foundries for fabrication
+to lower cost. This IC development process, however, raises serious security concerns on Hardware Trojans
+(HTs). Many design-for-trust techniques have been proposed to detect HTs through observing erroneous
+output or abnormal side-channel characteristics. Side-channel characteristics such as path delay have been
+widely used for HT detection and functionality verification, as the changes of the characteristics of the host
+circuit incurred by the inserted HT can be identified through proper methods.
+In this article, for the first time, we propose a two-phase technique, which uses the order of the path delay
+in path pairs to detect HTs. In the design phase, a full-cover path set that covers all the nets of the design
+is generated; meanwhile, in the set, the relative order of paths in path pairs is determined according to their
+delay. The order of the paths in path pairs serves as the fingerprint of the design. In the test phase, the actual
+delay of the paths in the full-cover set is extracted from the fabricated circuits, and the order of paths in path
+pairs is compared with the fingerprint generated in the design phase. A mismatch between them indicates the
+existence of HTs. Both process variations and measurement noise are taken into consideration. The efficiency
+and accuracy of the proposed technique are confirmed by a series of experiments, including the examination
+of both violated path pairs incurred by HTs and their false alarm rate.
+CCS Concepts: • Security and privacy → Side-channel analysis and countermeasures; • Hardware → Static timing analysis; Sequential circuits;
+Additional Key Words and Phrases: Hardware Trojan, order of path delay, full-cover path set, side-channel analysis, false alarm rate
+
+1 INTRODUCTION
+The trend of outsourcing in IC industry for lower cost raises serious concerns about security and
+trustworthiness. One concern is that an adversary designer or manufacturer may insert hardware
+Trojans (HTs) into ICs to cause logic errors, leak sensitive information, degrade performance,
+and so on. According to the work in Karri et al. (2010), a HT can be inserted at any phase of IC
+Authors’ addresses: X. Cui, School of Cyber Security and Information Law, Chongqing University of Posts and Telecommunications,
+Chongqing 400065, China; E. Koopahi, University of Isfahan, Iran; K. Wu and R. Karri, Tandon School of
+Engineering, New York University, New York 11201 USA.
+
+development, such as specification, design, fabrication, testing, assembly, and packaging, which
+makes it difficult to develop a comprehensive method that counters threats from all kinds of HTs.
+The key feature of a HT is its stealth: (1) it can take as few as tens of gates while the host circuit
+could have millions, and (2) it remains silent/inactive for most of the time. Though tough, these two
+main characteristics indicate that a HT can be detected by observing the output of the host circuit
+once triggered or monitoring side-channel effects brought by it using proper methods. Hence some
+techniques propose to activate the HT first followed by observing the exceptional behaviors, such
+as erroneous outputs. Although the exceptional behaviors caused by an activated HT are quite
+noticeable, hence easy to capture, trying to activate the HT is very difficult and time-consuming.
+This is because all HTs are designed with minimizing the possibility of accidental activation as
+the first priority (Jin and Makris 2008; Tehranipoor and Koushanfar 2010; Zhang and Xu 2013). As
+a result, improving the transition probability of rare nets provides an effective way to reduce the
+time for activating HT (Salmani et al. 2012).
+Another set of techniques tries to detect HTs by observing the exceptional side-channel characteristics,
+including the extended path delay (Jin and Makris 2008), increased static power/current
+(Cao et al. 2014), and so on. Although these exceptional characteristics are not that significant and
+are under the noise introduced by process variations and measurement noise, they will be present
+even if the HT is not activated. In the analysis of increased static power, one of the major difficulties
+is that the amount of power consumption increased by a HT is extremely small compared
+to the power consumption of the host circuit. Techniques are then proposed to partition the host
+circuit into a number of small regions so that the HT becomes relatively more significant if it is
+completely enclosed by one of these regions (Tehranipoor and Koushanfar 2010; Wang et al. 2008).
+The work in Salmani and Tehranipoor (2016) shows that HT insertion has a big impact on the
+susceptibility of a circuit layout’s regions.
+The extended path delay, however, provides greater convenience, since the delay is always measured
+for each path and the HT inserted in the circuit will increase the delay of paths it connects
+to. Based on this observation, many techniques have been proposed (Cha and Gupta 2013; Jin and
+Makris 2008; Lamech and Plusquellic 2012; Rai and Lach 2009; Yoshimizu 2014). However, most of
+these techniques rely on the absolute path delay to tell the existence of HT. The effectiveness of
+these techniques will be suffered if the process variation is strong, and many of these techniques
+require golden samples. It will be explained after that golden samples are hard to obtain.
+Meanwhile, side-channel measurements are vulnerable to process variations. Process variations
+are the naturally occurring variations in the attributes of transistors (length, widths, oxide thickness)
+when integrated circuits are fabricated (Mittal 2016). It can be divided into two categories:
+(1) inter-die process variation, i.e., variation among different fabricated chips, and (2) intra-die
+process variation, i.e., variation in different areas of one fabricated chip. According to literature,
+the magnitude of delay variation can be more than 5% in advanced technology process (Bhunia
+et al. 2014).
+Measurement noise is another major contributor to the inaccuracy as it can cover anything
+below the noise floor (Moghimi 2010). Measurement noise is a random process that is uncorrelated
+with process variations, has zero mean and a finite variance. Measurement noise is a random
+process that is uncorrelated with process variations, has zero mean and a finite variance.
+In this work, we propose to use the relative path order to detect HTs.
+The proposed technique does not need golden samples and can naturally tolerate strong
+inter-die variation. This is because the inter-die variation can be seen as an offset to delay of
+paths in a die (Exurville et al. 2015), which will not affect the relative order between them. And
+with a fine definition of the order of path pairs, it can also tolerate intra-die variation. A series of
+experiments including the examination of the number of violated path pairs and the false alarm
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:3
+rate of misjudging a clean circuit are conducted on benchmark circuits. The key contributions of
+this article are as follows:
+(1) We first propose a golden model free technique that makes use of the order of path delay
+for HT detection;
+(2) We investigate the impact of different type of HTs and different kinds of full-cover path
+sets on the number of violated path pairs (as a metric); and
+(3) The effectiveness of the proposed technique is confirmed by a series of experiments.
+The rest of article is organized as follows. Section 2 introduces the underlying threat and path
+delay model and presents how. Section 3 summarizes the related work. Section 4 presents the
+proposed technique for detecting HTs in detail with an example. Section 5 conducts experiments
+on ISCAS ’89 benchmark circuits with the proposed technique, which confirms the effectiveness
+of the proposed method. To further verify the proposed method, a DES design with placement and
+routing information is used to observe HT’s impact on path delay. Section 6 is our conclusion.
+2 THE UNDERLYING SYSTEM MODEL
+2.1 The Threat Model
+Technically speaking, HTs can be inserted at any stage of IC development process, such as
+specification, design, fabrication, testing, assembly, and package (Karri et al. 2010). A survey work
+(Tehranipoor and Koushanfar 2010) classifies HTs into two types, functional and parametric. The
+functional class includes HTs that are physically realized through the addition or deletion of transistors
+or gates, while the parametric class refers to HTs that are realized through modifications of
+parameters of existing wires and logic. It is important to note that HTs inserted at different stages
+and/or of different types demand very different detection techniques, and it is nearly impossible
+to have one technique that can address all of them. The HTs considered in this work belong to
+the functional type and are inserted at the fabrication phase (Cui et al. 2014; Jin and Makris 2008;
+Yoshimizu 2014).
+A functional HT typically consists of two parts, (1) a trigger part that continuously monitors a set
+of preselected nets in the host circuit and will activate the payload only when the specific triggering
+pattern is received; (2) a payload that causes the host circuit to malfunction once activated by the
+trigger part.
+2.2 The Delay Model
+Static timing analysis is a method of validating the timing performance of a design by checking
+all possible paths for timing violations. Compared to the method of performing timing analysis
+through dynamic simulation that determines the full behavior of the circuit for a given set of input
+stimulus vectors, static timing analysis is much faster, because it is not necessary to simulate the
+logical operation of the circuit. It is also more thorough, because it checks all timing paths not just
+all logical conditions that are sensitized by a particular set of test vectors (Synopsys 2007). This
+makes the static timing analysis a useful tool for checking extra delay incurred by a HT without
+the need of activating it.
+There is a lot of work dedicated to static timing analysis and delay calculation (Berkelaar 1997;
+Devgan and Kashyap 2003; Kilts 2007; Ravindra and Srinivas 2007). In this article, we adopt the
+classical delay model that considers both gate and wire delay for path delay computing (Berkelaar
+1997). An example of this delay model is shown in Figure 1.
+In Figure 1, a two-input AND gate has two primary inputs (A and B) and one primary output
+(O). So, there exist three ports (A, B andO), three nets (nA, nB, nO ), and two paths (A → O, B → O).
+According to the example, three kinds of delay are demonstrated as follows.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:4 X. Cui et al.
+Fig. 1. An example of delay calculation.
+2.2.1 Gate Delay. Every component has a delay associated with it. According to work in
+(Sproull and Sutherland 1991), delay of a gate d typically has two components: (1) A fixed part
+called parasitic delay p, (2) A part proportional to the load on the output called the effort delay f .
+Thus, total delay of a gate is
+d = p + f . (1)
+And the effort delay f can be further broken down into two terms,
+f = д ∗ h, (2)
+where д = logical effort, which is the ratio of the input capacitance of a gate to the input capacitance
+of an inverter delivering the same output current, h = Cout /Cin, which is electrical effort that
+captures the properties of load and transistor sizes, where Cout and Cin are capacitances that load
+the output and present at the input, respectively.
+2.2.2 Output Delay. The output delay is the delay from input ports, including clock signals in
+sequential circuits, to output ports. Typically, a pair of input vectors is needed to gain output delay
+(Savir and Patil 1994). After the 1st vector is applied to the circuits and settles down, the 2nd vector
+is applied to update output. The output delay is the interval from the time when the 2nd vector
+is applied to the time when the output changes to the updated value. In Figure 1, assume that the
+1st vector of (A, B) is (0, 1) and the 2nd vector is (1, 1). After the 1st vector is applied, the value of
+output is 0. Once the 2nd vector is applied, the time interval between output being 0 and output
+changing to 1 is the output delay. So, the output delay is
+Tout = max(TnA ,TnB ) +Tдate +TnO , (3)
+where Tout ,TnA ,TnB ,Tдate are output delay, the delay of nA, the delay of nB, the gate delay, and
+the delay of nO , respectively.
+2.2.3 Path Delay. For an AND gate, delay of a path is decided by its control bit. For instance, in
+Figure 1, there are two paths, A → O and B → O. Assume 1st and 2nd vectors of (A, B) are (0, 1)
+and (1, 1), respectively. Then the control bit is A, the change of which updates the output value.
+Thus, the delay of path A → O is
+TA→O = TnA +Tдate +TnO . (4)
+For path B → O, it is similar. When both A and B are control bits, the path delay equals to output
+delay.
+2.3 Extra Path Delay Incurred by HT
+A HT incurs extra path delay on paths it connects to or inserted in. The situations are demonstrated
+by Figures 2 and 3.
+In Figure 2(b), a HT receives inputs from net M, which increases the fan-out load of the former
+AND gate. In Figure 2(c), an XOR gate is directly inserted at one path. Based on the delay model,
+both situations will increase the path delay of the original path.
+The extend path delay increased by fan-out load is further explained by Figure 3, which is the
+transistor-level representation of Figure 2(b). In Figure 3, we use symbols P and N to represent
+PMOS and NMOS, respectively. We can see that net M connects to 2 PMOS transistors and 2
+NMOS transistors, which has more fan-outs than the same net in Figure 2(b), and thus requires
+more time to charge and discharge.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:5
+Fig. 2. Extended delay incurred by a HT (Ismari et al. 2016). (a) A circuit without HT; (b) a HT in the circuit
+may increase the fan-out load of existing; (c) the inserted payload of a HT will also increase the path delay.
+Fig. 3. Transistor-level diagram of Figure 2(b).
+3 RELATED WORK
+As mentioned previously, the methods for detecting HT are divided into different categories. Detection
+through observing exceptional behaviors caused by an activated HT typically relies on
+the success of activating HTs. This leads to several works on improving the possibility of the success.
+Salmani et al. measured the time needed for each net to generate a transition, then proposed a
+dummy scan flip-flop insertion method to increase transition probabilities of nets whose transition
+probabilities is beyond a specific threshold (Salmani et al. 2012). Banga et al. proposed a voltage
+inversion technique based on the observation that the triggering of a HT generally requires the
+attainment of minority value (value that appears less frequently) at its output (Banga and Hsiao
+2009). A method that identifies inactive nets in the functional mode was also proposed (Cui et al.
+2017) as inactive nets in both test and functional mode are more likely to be the potential nets for
+HT insertion. This is because the low transition probabilities of inactive nets make HTs hard to be
+triggered accidentally and hence keep their stealth.
+To magnify the exceptional impact incurred by HTs relatively, some techniques try to isolate
+the HT by partitioning the host circuit into regions. Wang et al. developed a current integration
+method and a HT isolation method that are based on localized current analysis (Wang et al. 2008).
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:6 X. Cui et al.
+Nejadmoghadam et al. proposed a simple circuit partitioning method for combinational circuits
+according to primary inputs and nodes’ fan-outs (Nejadmoghadam et al. 2014). After inserting
+partitioning points, the transition probabilities of inactive nets are improved. They analyzed the
+number of potential nets for HT insertion and the number of reduced test vectors after their partitioning
+algorithm.
+As analyzed in Section 1, the inserted HT will introduce extra delay of the paths it connects
+to. Hence, measuring path delay for HT detection gains a lot of attention due to its effectiveness.
+Typically, the delay of combinational paths from register to register is measured through tuning
+clock frequencies. Li and Lach proposed a negative-skewed shadow register technique for at-speed
+delay measurement (Li and Lach 2007). In their work, a shadow register is driven by a negative
+phase shifted clock. Through carefully adjusting the shifted step, the path delay can be told when
+there comes a difference between results in the destination register and shadow register.
+Jin and Makris proposed to use the path delay extracted from golden samples as the fingerprint
+(Jin and Makris 2008), which is the first path delay analysis for HT detection based on experiments.
+They used Principle Component Analysis (PCA) method to reduce the dimension of the path delay
+information of golden-chips to three dimensions and construct 3D convex hull and take this convex
+hull as a fingerprint. The location of the delay information transferred from suspicious circuits is
+used to judge whether there exists HT. If the location is included by the 3D convex hull, then the
+tested chips are judged as clean; otherwise, they are dirty. However, one of Achilles’ heels of this
+model is that it rely on a set of golden-chips, while golden-chips are hard to find or define. Besides,
+it assumes that all chips to be tested are in one type, i.e., either all with HTs or all without HTs.
+Hence, if part of testing chips are infected, the boundary will be vague to give a clear judgement.
+The detection of HT is highly related with process variations. Similar work have been proposed
+in Exurville et al. (2015) and Ismari et al. (2016) where golden samples are assumed and multiple
+chips are tested to average out the variations.
+The construction of a HT is typically based on the host circuit, i.e., it receives internal signals
+from the host circuit to construct its combinational or sequential activation structure and its payload
+is inserted to affect the normal function upon an activation. When a HT’s input relies on
+a net and this net belongs to some paths, we say this HT connects to these paths. HT inserted
+connecting to critical paths will result set-up violations while connecting to paths with small path
+delay will incur more obvious side-channel effect. Thus, paths with comparably large path delay
+is appropriate for HT insertion. Cha and Gupta developed a path selection scheme that ignores
+critical path to maximize the impact of HT insertion (Cha and Gupta 2013). Testing vectors are
+generated to sensitize the shortest paths that provide nets for HT’s input. For a given level of
+process variations, their method estimates the minimal number of chips to be used to detect HT
+through applying such testing vectors at a desired confidence.
+The inserted HT (if connected to these paths or inserted in these paths) will break the symmetries
+predefined, which can be a judgement whether there exists HT. However, finding all symmetric
+paths for large circuits requires exhaustive searches, which is a huge cost. Besides, a HT
+can be inserted to paths that do not have such properties to avoid being detected.
+Nejat et al. conducted a study on the efficiency of HT detection based on path delay fingerprint
+(Nejat et al. 2014). They used the same delay measurement structure in previous works and selected
+minimum-delay path for each net, which is to increase the impact of HTs as described in Cha and
+Gupta (2013).
+Process variations incurred by imperfect manufacturing processes have always been a challenge
+for HT detection when the side-channel characteristics are used. Hence, all techniques using
+path delay information described above have to test a sufficient number of chips to eliminate the
+impact of process variation based on the observation that, intra-die or inter-die process variation
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:7
+has random effect on delay while a HT always changes the delay in a fixed direction (Cha and
+Gupta 2013). The elimination process is costly and inefficient. Besides, while many techniques
+(Exurville et al. 2015; Ismari et al. 2016; Jin and Makris 2008) used a set of uninfected chips to
+establish the golden model, obtaining the set of uninfected chips is either prohibitively expensive
+(e.g., manufacture a small quantity of chips using a trusted foundry) or extremely time-consuming
+(e.g., thoroughly testing a small set of chips to ensure they are uninfected). This results in (1) if
+part of tested chips are infected, the established model is not accurate and may recognize infected
+chips as clean or clean chips as infected; (2) if all tested chips are infected, the established model
+cannot identify the same infected chips at all.
+There are also golden chip free HT detection techniques. Liu et al. proposed to use process
+control monitors for process characterization and monitoring purposes. The parameters extracted
+in pre-manufacturing stage are constructed a boundary and used to compare to that in post-silicon
+stage (Liu et al. 2014). The major weaknesses suffered by such golden chip free techniques are that
+(1) process variations have a large impact on the boundary construction and (2) there is no anchor
+point to reflect process shifts between simulation and silicon stages. When it comes to path delay,
+Yoshimizu proposed to use the delay information of symmetric paths for HT detection (Yoshimizu
+2014). He explored symmetries that naturally exist in the originally designed circuit. The delays
+of symmetric paths are assumed to be the same unless the inserted HT breaks these symmetries.
+Since this is a self-referencing technique within a chip, inter-die variations are eliminated naturally.
+However, the author claimed that finding such symmetric paths in large circuits is quite exhaustive.
+Besides, using symmetric paths for hardware Trojan detection has coverage problems, and involves
+extra design effort when constructing such paths intentionally.
+The proposed technique, however, does not need golden model and is very effective and robust
+on dealing with process variations. The proposed technique uses the relative order of delay
+between paths for comparison, and each chip is examined individually. This makes the proposed
+technique naturally tolerant to inter-die process variation, since the inter-die variation is an offset
+to all paths in a die (Exurville et al. 2015) and hence does not affect the relative order between them.
+Moreover, the proposed technique can also tolerate intra-die process variation by ignoring the delay
+difference that is smaller than a variation threshold. The proposed technique is demonstrated
+in detail in the following sections. And the next section introduces the underlying system model.
+4 THE PROPOSED TECHNIQUE
+Based on the underlying delay model, we propose a method using the order of path delay in path
+pairs for HT detection. It works in two phases. In design phase, a full-cover path set that covers all
+nets of the design is generated, in which the orders of paths in all pairs serve as the fingerprint of
+the design. During the test phase, the actual delay of the paths in the full-cover path set is extracted
+from the circuit-under-test and the order of paths in these pairs are compared to the fingerprint
+generated in design phase. As described in Section 2, the paths connecting to a HT will incur extra
+delay. And the updated delay of paths will change the relative order of some path pairs. HTs are
+then detected by comparing the orders of path pairs measured from the circuit-under-test at test
+phase to the fingerprint generated at design phase. The detail is demonstrated in the following
+subsections.
+4.1 Detailed Introduction to the Method
+4.1.1 Design Phase. HTs are deliberately designed to avoid being activated accidentally, i.e.,
+connecting to the nets with extremely low transition probabilities, which is the assumption
+made in most papers (Chakraborty et al. 2008; Salmani and Tehranipoor 2017; Wolff et al. 2008).
+A high percentage of net coverage has the potential to address those nets with low transition
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:8 X. Cui et al.
+Fig. 4. Illustrative example using c17 from ISCAS-85.
+Fig. 5. The DAG transferred from the schematic graph of the example.
+probabilities. To achieve this goal, many test generation techniques have been proposed to achieve
+a high percentage of net coverage (Saha et al. 2015; Wang et al. 2016). In our technique, a set of
+paths that covers all nets is generated to guarantee a full coverage.
+The set of chosen paths that covers all nets is called a full-cover path set hereafter. To detect
+HT, a full-cover path set is sufficient, since HTs connecting to any net will affect all paths that the
+net belongs to and hence the relative order of path delay among the selected paths. Meanwhile,
+a full-cover path set usually contains fewer paths compared with the complete path set. This will
+reduce the number of paths to be examined in both design phase and test phase and thus reduces
+the cost for HT detection.
+The problem of finding the minimum full-cover path set can be reduced to the well-known
+NP-Hard Set Cover Problem (SCP). A small combinational circuit, c17 from ISCAS ’85 benchmark
+circuits, is used to demonstrate the transformation from the minimum full-cover path set to SCP.
+The example circuit is shown in Figure 4. We use Synopsys Design Compiler (DC) to synthesize
+the circuit and obtain the gate-level schematic (not shown in the article). After modeling each net
+(ports) in the gate-level schematic as a vertex, the schematic is then transferred to a directed acyclic
+graph (DAG), as shown in Figure 5. In Figure 5, there are 9 paths and 11 vertices, and each path
+contains more than one vertex. After considering each path as a set, each set covers more than
+one vertex, selecting a path set that covers all nets is equal to selecting several sets that cover all
+vertices, which becomes a SCP. Since SCP is NP-hard (Korte and Vygen 2008), a greedy algorithm
+is proposed to gain a solution in this article. The full-cover path set problem definition and the
+heuristic algorithm are described as follows.
+Problem Definition: Given a set of all nets U , and a set of subsets S = {S1, S2,..., Sn } where
+each subset Si (1 ≤ i ≤ n) consists of nets, qualifying that n
+i=1 Si = U . The full-cover path set
+problem is to identify a subset S of S such that S = U and |S
+| is minimum.
+The heuristic algorithm for the full-cover path set problem is depicted in Algorithm 1. In Algorithm
+1, the input is a set of all nets U , a set of subsets S = {S1, S2,..., Sn } where S = U . Each
+element in S is a set of nets, which indicates a path. The output is the subset S of S in which
+S = U . Step 1 initializes S to be ∅; Steps 2–6 check all nets in U to see if there exists any net
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:9
+that belongs to only one path, Sk . If so, then Sk is added to S and Sk is marked as used; Steps 8–20
+check whether the union of S equals U , and if so, the algorithm outputs S
+. Otherwise, step 11
+sorts all subsets of S in order of their scale, i.e., the number of nets contained in each path; For
+each subset of S that is not marked as used, steps 12–20 check that if there exist any net in current
+subset that is not contained by S
+, and if so, add this subset to S and check the union of S again.
+ALGORITHM 1: A Heuristic for Full-Cover Path Set
+Require: A set U and a set S = {S1, S2,..., Sn };
+Ensure: A set S
+, which is a subset of S where S = U ;
+1: S = ∅;
+2: for each net ni ∈ U do
+3: if ni is contained only by one subsect Sk of S then
+4: S = S + Sk ;
+5: mark Sk as used;
+6: end if
+7: end for
+8: if S == U then
+9: return S
+10: end if
+11: Sort subsets of S from large scale to small;
+12: for each Sj ⊂ S do
+13: if Sj is unused and ∃ nk ∈ Sj and nk  S then
+14: S = S + Sj ;
+15: mark Sj as used;
+16: end if
+17: if S == U then
+18: return S
+19: end if
+20: end for
+Algorithm 1 helps us gain a full-cover path set that covers all nets, which decreases the expenses
+of detecting HTs. The experimental results in section 5 show that for some benchmarks, the scale
+of paths to be examined can be decreased up to 15× compared to the complete path set.
+After gaining such a full-cover path set, every two paths in the path set can form a path pair.
+The order of paths in path pairs serves as the fingerprint in test phase and there are two kinds of
+relationship of two paths in a path pair. First, we give the definition of a path pair as follows.
+Path pair definition: We use (A, B) to denote a path pair, where A and B stand for designed
+delay of path A and B and delay(A) ≥ delay(B). Hence, for a full-cover path set consisting of N
+paths, the number of path pairs is ( N
+2 ). Two types of relations of a pair are further defined by a
+threshold λ according to their delay. If (A − B)/B > λ, then (A > B) is used to describe the relations
+of path A and B, otherwise (A ∼ B) is used. This threshold λ can be tuned to trade-off the detection
+probability and the false alarm rate, as will be explained in detail in Section 4.3. Consider the same
+example of Figure 5, we give the delay information of vertex-to-vertex in Table 1.
+Hence, the delay information of its full-cover path set S = {A, B,C,D, E} is
+(1) A: delay(v1 → v6 → v7 → v10) = 1.849ns
+(2) B: delay(v4 → v8 → v11) = 1.461ns
+(3) C: delay(v2 → v8 → v11) = 1.456ns
+(4) D: delay(v3 → v8 → v11) = 1.456ns
+(5) E: delay(v5 → v9 → v10) = 1.350ns
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:10 X. Cui et al.
+Table 1. Net to Net Delay Information of Figure 4
+Net→Net v1 → v6 v2 → v6 v6 → v8 v4 → v8
+Delay (ns) 0.775 0.780 1.081 1.081
+Net→Net v3 → v8 v2 → v8 v8 → v11 v6 → v7
+Delay (ns) 1.076 1.081 0.380 0.524
+Net→Net v4 → v9 v5 → v9 v7 → v10 v9 → v10
+Delay (ns) 0.812 0.809 0.550 0.541
+Table 2. Path Pairs in the
+Full-cover Path Set S of the
+Example in Design Phase
+Table 3. Path Pairs in the
+Full-cover Path Set S of the
+Example in Test Phase
+These paths are ranked in a declining order. Assume the threshold λ is 7%, which is the magnitude
+of delay variation under both process variations and measurement noise. According to the
+definition of path pair, the path pairs of the full-cover path set are listed in Table 2.
+After extracting such a set of path pairs based on the path pair definition, we use it as a fingerprint
+for testing HT during test phase. We will illustrate how to use this fingerprint for HT
+detection in next subsection.
+4.1.2 Test Phase for HT Detection. During the test phase, the path pairs in the same full-cover
+path set is extracted from the chip-under-test. Then these path pairs are compared with the
+fingerprint generated during design phase. A fan-out increase at v5 in Figure 5 caused by a AND
+HT gate insertion incurs the following updated delay information during test phase, A = 1.849ns,
+B = 1.461ns, C = 1.456ns, D = 1.456ns, E = 1.472ns. Then, updated path pairs are shown in
+Table 3.
+Compare Table 3 with Table 2, any new added path pairs or changed path pairs are seen as
+violated path pairs to be counted. For instance, (E ∼ B) is a changed path pair compared with the
+original (B > E). In this example, the total number of violated path pairs is 3.
+If one path pair (A ∼ B) in design phase changes to (B ∼ A) during test phase, then it is not
+considered a violation of order of path pair (A, B).
+It is observed that if there are N paths in a full-cover path set, the total number of path pairs is
+( N
+2 ). Actually, the size of full-cover path set for HT detection can be further reduced by ruling out
+some unsatisfied paths. The situation is demonstrated in the next subsection.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:11
+4.2 Discussion on Complexity Issue
+The proposed technique requires the path delay extraction of chips, which could be time consuming.
+In this subsection, we provide two options to decrease the complexity of testing path delay
+of a chip. One option is to further reduce the number of path pairs in the full-cover path set by
+parameters set-up, and the other option is to apply advanced at-speed testing techniques.
+For large-scale designs, it may be hard to cover all nets and hardware Trojans can always be
+inserted in these “uncovered” areas. A simple solution for this problem is to divide the design to
+several regions flexibly and establish testing structure separately for each region to eliminate these
+areas. By this way, the proposed technique is still feasible.
+4.2.1 Reducing the Set of Path Pairs. As it will be shown in experimental section, for some
+benchmark circuits, the full-cover set may still contain a lot of paths after applying the path selection
+algorithm. To illustrate how to further reduce the number of paths in a full-cover path set,
+let us first consider two principles applied by an attacker when designing a HT: (1) avoid being
+triggered accidentally and (2) introduce small side-channel effects against the background.
+The first principle implies that a deliberately designed HT should only be triggered under rare
+events or by designate patterns. Hence a HT’s inputs should come from rare nets with very low
+transition probabilities or signals controlled independently. And typically speaking, nets located
+at the end of paths have lower transition probabilities, which will be shown in an experiment. The
+first principle also indicates that for HTs relying on nets with low transition probabilities, nets
+with high transition probabilities will not be a necessary for checking the full-cover. Thus they can
+removed to further derease the number of paths to test when generating the full-cover path set.
+The second principle indicated that a HT should minimize its side-channel effects to avoid being
+detected through side-channel detection methods, such as static power analysis and/or path delay
+fingerprint. For instance, while the increase of path delay of critical path is likely to cause setup
+time violation, a HT should connect to or be inserted in comparably long paths to reduce its sidechannel
+effect.
+Thus, we can deduce that a HT tends to be inserted in comparably long paths near the output.
+We conduct probability verification on benchmarks to verify this corollary. In the first step, the
+full-cover path set of a benchmark circuit is generated, and these paths are sorted according to
+their path delay. We allocate a path ID to each path and longer paths are assigned with smaller
+IDs. In the second step, for each path, its nets from input to output are printed. For each net, its
+transition probability is computed. If a net’s transition probability is smaller than a probability
+threshold ϵ, then the net is represented by a “×” in red color; otherwise, it is represented by a “·” in
+blue color. A sequential circuit, s1238 from ISCAS ’89 benchmark circuits, is used to depict where
+a HT should be inserted, as shown in Figure 6.
+In Figure 6, values of x-axis ranges from 1 to 231, representing path IDs of 231 paths in the
+full-cover path set of s1238 circuit, and values of y-axis represents the number of nets of each
+path. For example, the 1st path (ID = 1) with the largest path delay has 22 nets. The 22 nets
+are printed one by one from the 1st net (input) to the 22nd net (output) in the figure to form a
+bottom-up column. If a net’s transition probability is smaller than ϵ = 0.03, then it is represented
+by a “×” in red color; otherwise, the net is represented by a “·” in blue color. The figure shows
+that the nets at the middle and posterior of paths tend to have low transition probabilities, which
+suit for HT insertion. However, not all nets with low transition probability are suitable for HT
+insertion. The side-channel effect of path delay will increase with delay of paths decreasing if a
+HT is inserted connecting with these paths. Besides, a HT can also cause set-up violation when
+it is inserted connecting with paths with largest delay to minimize the side-channel effect. In this
+example, inserting a single AND gate connecting to paths before the first green line will incur
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:12 X. Cui et al.
+Fig. 6. The analysis of nets for HT insertion of circuit s1238. A single HT gate inserted in paths before the
+first line will incur set-up violation, and inserted in paths after the second line will incur more than 7% extra
+path delay. “×” represents nets of which transition probabilities are smaller than or equal to ϵ = 0.03 and “·”
+represents nets of which transition probabilities are larger than 0.03.
+set-up violation and connecting to paths after the second green line will incur more than 7% extra
+path delay. Thus, proper nets for inserting a HT are the nets with low transition probabilities at
+the middle and posterior of comparably long paths, shown by the area between two green lines.
+As there are a limit number of inputs driving all paths, the nets near the input are shared by
+quite a number of paths. So even with low transition probabilities, such inserting places for a HT
+will incur extra delay for many paths. This will generate more violated path pairs compared with
+a HT inserted near the output, which is verified by the experimental results in the next section.
+Hence, we conclude that, for an attacker, a HT is more likely to be inserted connecting to nets with
+low transition probabilities in comparably long paths near the output. By this way, we can gain a
+better set of path pairs with smaller scale through the removal of paths that are not suitable for
+HT insertion, i.e., removing paths lie in the right area of the second green line in Figure 6. And the
+location of the second green line can be determined by the following method.
+Assume that the 2nd green line lies on the xth path, where the side-channel effect delay(x) ×
+ζ > Δ cannot be neglected, i.e., a HT could only be inserted at paths whose delay is bigger than
+delay(x). The ζ is the parameter for evaluating extra delay incurred by a expected small-scale HT
+and Δ is the threshold of extra delay detected. Since extra delay of a path only affect the order of
+paths of which original path delay are bigger than this path, delay(x) should be bigger than Δ/ζ .
+Once x is determined, the scale of path pairs can be reduced to (
+x
+2 ).
+4.2.2 At-Speed Testing Techniques. Path delay of chips is measured by testing whether paths
+fail at a certain frequency. Many at-speed testing techniques have been developed for measuring
+path delay (Ahmed et al. 2006; Iyengar et al. 2006; Zolotov et al. 2010). However, as different paths
+within a chip fail at different frequencies, path delay measurements require a lot of different
+frequencies with very small amount of differences, which is hard and time-consuming. Li and
+Lach proposed a negative-skewed shadow registers architecture (Li and Lach 2007), which could
+be used to solve this challenge.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:13
+Fig. 7. The negative-skewed shadow register architecture for delay characterization (Li and Lach 2007).
+The architecture is shown in Figure 7. In their technique, clk1 remains constant, so the main
+function is not affected by delay testing. Meanwhile, a negative phase shift is applied to clk2 in
+small steps, triggering the Shadow Register before DestinationReдister by a precisely controlled
+amount of time. The negative skew of clk2 keeps increasing another step until the path delay is
+characterized by the first time the inconsistence between Destination Register and Shadow Register
+happens. In this way, frequencies of neither clocks are increased and the delay is measured while
+enabling at-speed delay test.
+4.3 False-Positive and False-Negative Rate
+Due to the presence of the measurement noise and process variations, the measured delay of a
+path may deviate from its designed value, which further brings the questions on false-positive
+rate and false-negative rate. False-positive rate is commonly referred to false alarm rate, which
+represents the ratio of misjudging a clean subject to dirty. False-negative rate represents the ratio
+of misjudging a dirty subject to clean, which is further related with HT detection rate under this
+scenario, i.e., detection rate equals 1 minus false-negative rate.
+Within a chip, false-positive rate can be defined as the probability of at least one pair of paths in
+a clean circuit has its order changed. While from chips’ view, the false-positive rate is defined as the
+probability of a clean chip is misjudged to be infected among all genuine chips under test; and the
+false-negative rate is defined as the probability of an infected chip is misjudged to be clean among
+all infected chips under test. All these kinds of false alarm rate mentioned here are calculated in
+the experiment.
+As the proposed technique measures the number of violated path pairs, we first present the
+calculation method of the false-positive alarm rate of path pairs within a chip as follows. Recall
+that we use a threshold λ to differentiate a path pair (A, B) whether (A ∼ B) or (A > B). The smaller
+the threshold, the more sensitive to the HT’s effect, and the higher the false-positive rate. For a
+given pair of paths, saying path pair i = (A, B), there exist two types of changes of order (i.e.,
+violated path pairs), which can be further divided into five changes of order:
+(A > B) → (A˜ ∼ B˜), or (B˜ ∼ A˜), or (B˜ > A˜), (5)
+(A ∼ B) → (A˜ > B˜), or (B˜ > A˜), (6)
+where A (or B) and A˜ (or B˜) stand for the designed delay and measured delay of path A (or B),
+respectively. For a clean circuit, the probability of having its order changed by noise and process
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:14 X. Cui et al.
+Fig. 8. An example of depiction of false alarm.
+variations (i.e., misjudged), denoted as pi
+false, can be intuitively shown by the following deduction.
+To make the description simple, let us take (A > B) → (A˜ ∼ B˜) in Equation (5) as an example.
+According to the definition of path pair, (A > B) requires (A − B)/B > λ. When (A > B) → (A˜ ∼
+B˜) happens, (A − B)/B > λ changes to (A˜ − B˜)/B˜ < λ. It is assumed that under the effects of process
+variations and measurement noise, A˜ (or B˜) obeys a normal distribution where the mean value is
+set by A (or B) and the standard deviation σ depends on the significance of variations and noise.
+Hence there exists the possibility that the difference of edge values of A˜ and B˜ is smaller than the
+threshold λ, as shown in Figure 8.
+In Figure 8, although (A − B)/B > λ, when it comes to the edge values of A˜ and B˜ between
+A and B, two values can be close enough to break up the threshold, i.e., (A˜ − B˜)/B˜ < λ. In this
+example, when A˜ = x, B˜ can be any value in [x1, x] to make (A˜ − B˜)/B˜ < λ happen, that is, having
+its order changed by noise and process variations even without the effect of HT (the probability of
+having its original order changed is shown by the shaded region in Figure 8). Hence, we have the
+following deduction for (A > B) → (A˜ ∼ B˜) to calculate pi
+false+ in clean circuits, which indicates the
+false-positive rate of path pair i = (A, B) incurred by process variations and measurement noise:
+(A˜ − B˜)/B˜ < λ
+⇒A˜ − B˜ < λB˜
+⇒A˜ < B˜(1 + λ).
+Thus, for a given value of B˜, any value of A˜ within the interval (0, B˜(1 + λ)] could make (A˜ ∼
+B˜), which violates (A > B). Assume the integral function and interval for normal distribution of
+path A are f (A˜,A) = 1 √
+2π σ exp (−(A˜−A)
+2
+2σ 2 ) and [A − 4.5σ,A + 4.5σ] with probability being 0.999997,
+respectively. Then this kind of false-positive rate can be calculated by
+pi
+false+ [(A > B) → (A˜ ∼ B˜)]
+=
+ (1+λ)B˜
+A−4.5σ
+f (A˜,A)
+ B+4.5σ
+B−4.5σ
+f (B˜, B) d(A˜)d(B˜).
+(7)
+Similarly, for the other four changes of order, we have
+pi
+false+ [(A > B) → (B˜ ∼ A˜)]
+=
+ (1+λ)A˜
+B−4.5σ
+f (B˜, B)
+ A+4.5σ
+A−4.5σ
+f (A˜,A) d(A˜)d(B˜), (8)
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:15
+pi
+false+ [(A > B) → (B˜ > A˜)]
+=
+ B+4.5σ
+(1+λ)A˜ f (B˜, B)
+ A+4.5σ
+A−4.5σ
+f (A˜,A) d(A˜)d(B˜), (9)
+pi
+false+ [(A ∼ B) → (A˜ > B˜)]
+=
+ A+4.5σ
+(1+λ)B˜ f (A˜,A)
+ B+4.5σ
+B−4.5σ
+f (B˜, B) d(A˜)d(B˜), (10)
+pi
+false+ [(A ∼ B) → (B˜ > A˜)]
+=
+ B+4.5σ
+(1+λ)A˜ f (B˜, B)
+ A+4.5σ
+A−4.5σ
+f (A˜,A) d(A˜)d(B˜). (11)
+False-positive rate tells the probability that a violated path pair is caused solely by process
+variations and measurement noise. Hence, the false-positive rate of one violated path pair in the
+full-cover path set can be obtained through calculating its pi
+false+ . For instance, if the path pair
+i = (A > B) in the design phase changes to (A˜ ∼ B˜) in the test phase, then i = (A > B), pi
+false+ can
+be calculated from Equation (7).
+According the calculation of the false-positive rate of a path pair above, the value of threshold
+λ can affect the transformations between relative orders, that is, the HT detection rate (1-falsenegative
+rate) and false-positive rate. The reason is as follows.
+• When λ is bigger than intra-die variation, few order changes will be caused by intra-die
+variation, which reduces false-positive rate. Meanwhile, small HTs will be also covered by
+λ, causing decreased detection rate or increased false-negative rate;
+• When λ is smaller than intra-die variation, intra-die variation will cause a number of order
+changes even there is no HT, which results in an increased false-positive rate. Meanwhile,
+small HTs are not likely to be covered, leading to an increased detection rate or a decreased
+false-negative rate.
+5 EXPERIMENTS
+In this section, the proposed method is evaluated through a series of experiments. In summary, the
+method checks the order of the paths in each pair during test phase, compares it to the fingerprint
+generated in design phase, and records the number of violated path pairs. Meanwhile, false-alarm
+rate is used as an important measurement index to evaluate the effectiveness of method.
+5.1 Experimental Setup
+To verify the effectiveness of our proposed method, we conduct a series of experiments on
+ISCAS’89 sequential benchmark circuits. The delay model based on logical effort in Sutherland
+et al. (1999) is used to calculate path delay of these circuits, which is implemented in C programming
+language. The logical effort in the gate delay model is relative with size ratio of PMOS over
+NMOS (P/N). The size ratio of P/N being 2 is considered in the experiments. Besides, measurement
+noise is captured using a normal distribution model with zero mean and 0.3% standard deviation,
+and intra-die variation and inter-die variation are set to 8% and 20%, respectively, under a 90nm
+technology (Ferraiuolo et al. 2012). Since intra-die variation are correlated with different area of
+chips (Doh et al. 2005), we apply a more precise intra-die variation model, where paths have similar
+intra-die variations when they share on a lot of nets. In the experiment, each 10 most similar
+paths based on the proportion of shared nets is applied with the same intra-die variation.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:16 X. Cui et al.
+Table 4. Number of Inputs, Outputs, FFs, and Gates of Benchmark Circuits
+Benchmarks Inputs Outputs FFs Gates Full-cover/Total
+s298 3 6 14 119 84/242 (2.88×)
+s526 3 6 21 193 124/421 (3.40)
+s820 18 19 5 289 152/496 (3.26×)
+s1196 14 14 18 529 254/2,541 (10.00×)
+s1238 14 14 18 508 231/3,509 (15.19×)
+s5378 35 49 179 2779 1,857/7,681 (4.14×)
+s9234 36 39 211 5597 4,263/7,671 (1.80×)
+s13207 62 152 638 7951 6,542/8,571 (1.31×)
+“Full-cover/Total” denotes the number of paths in full-cover path set over that in the
+complete path set.
+Generally speaking, the less number of gates a HT has, the more difficult to detect it using
+side-channel countermeasures. Similar to work in Jin and Makris (2008) and Nejat et al. (2014),
+we inserted two types of HT for each benchmark circuit to calculate the number of violated path
+pairs. The trigger parts are a 4-input AND gate and a 4-bit comparator, respectively. And they are
+followed by a same payload, which is a XOR gate. The XOR gate is inserted in the path where the
+HT is located. For each type of HT, three inserted locations in a benchmark circuit (near the input,
+in the middle stage and near the output) are chosen to study the impact of different locations on
+the number of violated paths. All inputs of HTs are internal signals from benchmark circuits. As
+full-cover path sets covering all nets are used, the net coverage of benchmark circuits is 100%.
+5.2 Experimental Results
+5.2.1 Results for Violated Path Pairs. We list the characteristics of each benchmark used in our
+experiments in Table 4, including the number of inputs, outputs, flip-flops, and gates. Besides, the
+table also reports the ratio between the number of paths in the full-cover path set and that in the
+complete set, denoted as “Full-cover/Total.” For convenience, we also list the decreased times of
+scale of full-cover set compared to the complete path set in the parentheses behind “Full-cover/
+Total.”
+In our experimental results, we use “L1, L2, and L3” to represent the locations where the HT may
+be inserted: near the input, in the middle stage, near the output, respectively. For each location,
+nets that are connected to HTs are randomly chosen 10 times. Then the method reports the average
+number of violated path pairs.
+In Table 4, we see that the number of paths to be checked can be reduced to up to 15× by using a
+full-cover path set. It is also observed that the number of paths in the full-cover set of a benchmark
+circuit is positive correlated with its number of FFs. Benchmark circuits that have more FFs tend
+to have more full-cover paths, such as s5378, s9234, and s13207. This is because, for a set of nets,
+more FFs incur more paths and more paths incur fewer nets in each path. Thus, covering all nets
+needs more paths.
+The number of violated path pairs for HT’s trigger part being a 4-input AND gate and a 4-bit
+comparator is shown in Figure 9. We use “AND4 Li” and “CMP4 Li” to denote the HT’s trigger
+part being a 4-input AND gate and a 4-bit comparator with different locations respectively,
+where i could be 1, 2, or 3, representing near the input, in the middle stage, and near the output,
+respectively.
+In Figure 9, it is observed that the inserted HT with its trigger being 4-bit comparator incurs more
+violated paths. This is because such a type of HT connects to more nets, and hence affects paths.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:17
+Fig. 9. The number of violated path pairs for two types of HTs in three locations, where two types of trigger
+parts are 4-input AND (AND4) gate and 4-bit comparator (CMP4), respectively, and three locations are near
+the input (L1), in the middle stage (L2), and near the output (L3), respectively.
+Fig. 10. The percentage of increased violated path pairs after maximizing side-channel effect by using shortest
+paths.
+Meanwhile, the experimental results show that, the proposed technique can detect a quite small
+HT inserted near output even for large-scale circuits, which confirms the accuracy and efficiency
+of the proposed technique.
+To further explore the effect on the number of violated path pairs brought by full-cover path
+sets with different characteristics, we change Algorithm 1 to generate another full-cover path set.
+In the new generated path set, a path with minimum path delay is found for each net, which aims
+to maximize the side-effect brought by HTs. The original Algorithm 1 sorts paths in terms of path
+delay in a descending order and searches long paths first, which is a greedy method. Hence, we can
+sort paths in a ascending order to gain paths with minimum delay for each net. With this change,
+we use the new generated full-cover path set to study the increased side-channel effect with the
+same type of HTs described above. The percentage of increased violated path pairs is shown in
+Figure 10.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:18 X. Cui et al.
+Table 5. False-Positive Rate of Violated Path Pairs
+Benchmarks s298 s526 s820 s1196 s1238 s5378 s9234 s13207 Average
+false alarm MIN 0000 0 0 0 0 0
+(AND4-L3) MAX 6.2E-2 3.2E-2 3.3E-2 3.2E-2 3.3E-2 6.2E-2 6.2E-2 6.2E-2 4.7E-2
+AVG 1.2E-2 7.9E-3 1.6E-3 2.2E-3 1.8E-3 3.5E-2 4.2E-2 4.5E-2 1.8E-2
+false alarm MIN 0000 0 0 0 0 0
+(CMP4-L3) MAX 2.9E-2 3.3E-2 3.0E-3 3.1E-2 3.2E-2 6.2E-2 6.2E-2 6.2E-2 3.9E-2
+AVG 1.6E-3 2.8E-3 1.5E-3 1.5E-3 8.9E-4 2.5E-2 2.6E-2 1.9E-2 9.8E-3
+In Figure 10, we observe that the increase of violated path pairs is significant for HTs in different
+locations for all benchmarks circuits. This is mainly because when paths with small delay are chosen,
+the extra path delay incurred by the inserted HTs account for a larger proportion, which is easy
+to exceed the threshold. As a result, this leads to more violated path pairs. Hence, it is necessary to
+maximize the side-channel effects when detecting HTs using side-channel countermeasures. The
+next subsection checks false-alarm rate of each violated path pair.
+5.2.2 Results for False Alarm Rate of Path Pairs. In Section 5.2.1, we see that HTs inserted near
+the output incur fewer violated path pairs, which will be more difficult to detect. Hence, we measure
+the false-positive rate of each violated path pair of each benchmark circuit in which HTs are
+inserted near the output. The calculation is according to Section 4.3. For each benchmark circuit,
+we record minimal (MIN), maximal (MAX) and average (AVG) false-positive rate of all violated
+path pairs, as shown in Table 5.
+In Table 5, the average false-positive rate of all benchmark circuits is also calculated, which is
+denoted as “Average” in the table. It is observed that for all benchmark circuits, there are always
+violated path pairs with their false-positive rate being 0, which indicates that HT’s impact on some
+path pairs is significant enough to be detected by the proposed method.
+In addition, we can see that the HT with its trigger part being a 4-bit comparator incurs smaller
+average false-positive rate compared with that of the HT with its trigger being a 4-bit AND gate
+in most cases. This indicates that the HT with its trigger being a 4-bit comparator is more easy
+to be detect. Besides, under the large number of violated path pairs, the false-positive rate of one
+benchmark circuit (the product of all violated path pairs ’s false-positive rate) goes to 0, which
+confirms the effectiveness of the proposed method.
+5.3 Case Study on Emulation
+In this subsection, we conduct further case study on DES to verify the effectiveness of the proposed
+method. We use Synopsys Design Compiler to synthesize RTL code to gate-level netlist. Then,
+we insert a HT with its trigger being a 4-bit counter and its payload being an XOR gate. Both
+the genuine netlist and the infected netlist are feed to Synopsys IC Compiler for placement and
+routing. The library used is Synopsys generic (SAED_EDK90nm) library.
+Figure 11 shows the placement and routing of the infected netlist. We trace the cells that used
+by the inserted HT and mark them on the figure, where the blue rectangle is the trigger and the
+red rectangle is the payload.
+We use the path selection algorithm to generate a full-cover path set in the genuine netlist and
+then extract the path delay of the same full-cover path set of both genuine and infected designs
+after placement and routing. A maximum of 8% intra-die variation and a maximum of 20% interdie
+variation are applied to the path delay to simulate chips, and 1,000 genuine and 500 infected
+chips are generated. A half number of genuine chips are used to generate a “golden” path delay
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:19
+Fig. 11. The placement and routing of DES infected netlist, where the blue rectangle is trigger and the red
+rectangle is payload.
+Fig. 12. The number of violated path pairs of genuine chips and infected chips of DES.
+order by calculating their average path delay of each path. Once the “golden” order is established,
+it is used to compare with the path delay order of the rest genuine chips and all infected chips.
+The comparison results in terms of the number of violated path pairs for each chip are shown in
+Figure 12.
+It is observed in the figure that the number of violated path pairs of infected chips is far larger
+than that of genuine chips. And the number of violated path pairs of none of infected chips falls
+into the scope of that of genuine chips, and vise versa, implying both the false-positive rate and
+false-negative rate are 0.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+33:20 X. Cui et al.
+Table 6. Number of Cells in
+Mapped Gate-level Netlists
+Benchmarks STjf ree STrojan
+s15850_T100 2,156 27
+s35932_T100 5,426 15
+s38417_T100 5,329 11
+s38584_T100 6,473 9
+Fig. 13. The number of violated path pairs of genuine chips and infected chips.
+We also conduct the same experiment on 4 gate-level benchmark circuits from TrustHub
+(Salmani et al. 2013). These benchmark circuits are already mapped to Synopsys generic
+(SAED_EDK90nm) library. For each mapped benchmark circuit, the number of cells in HT free
+(STjf ree ) gate-level netlist and the number of cells of the HT inserted (STrojan) are reported in
+Table 6. The experimental results of these benchmark circuits are shown in Figure 13. We can
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 14, No. 3, Article 33. Pub. date: October 2018.
+Hardware Trojan Detection Using the Order of Path Delay 33:21
+see that there is a clear gap between the number of violated path pairs of genuine chips and that
+of infected chips, which can be used to judge whether a chip is infected or clean. That is, when the
+number of violated path pairs of a chip is smaller than or falls into the scope of violated path pairs
+generated in the design phase, it is clean; otherwise, it is judged to be infected. The experiment
+further verifies the effectiveness of the proposed technique.
+6 CONCLUSION
+This article proposes a two-phase technique, which initially makes use of the order of path delay for
+hardware Trojan detection. In the design phase, a full-cover path set is generated. Each two paths
+in the full-cover path set can form a path pair. Relations of paths in a pair are defined according
+to the order of path delay, which serves as a fingerprint in the test phase. During the test phase,
+the method compares the fingerprint generated in the design phase with the order of paths in
+pairs extracted from a chip-under-test. Any violated order of paths in path pairs implies a HT
+insertion. The effectiveness of the proposed technique are confirmed by the experimental results.
+Meanwhile, further case study on emulation shows that the proposed method detects all HTs in
+benchmark circuits with false-positive rate being 0.

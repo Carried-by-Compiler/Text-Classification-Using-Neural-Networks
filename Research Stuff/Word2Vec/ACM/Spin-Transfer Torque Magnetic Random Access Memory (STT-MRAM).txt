@@ -1,0 +1,1434 @@
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM)
+
+Spin-transfer torque magnetic random access memory (STT-MRAM) is a novel, magnetic memory technology
+that leverages the base platform established by an existing 100+nm node memory product called MRAM to
+enable a scalable nonvolatile memory solution for advanced process nodes. STT-MRAM features fast read
+and write times, small cell sizes of 6F2 and potentially even smaller, and compatibility with existing DRAM
+and SRAM architecture with relatively small associated cost added. STT-MRAM is essentially a magnetic
+multilayer resistive element cell that is fabricated as an additional metal layer on top of conventional CMOS
+access transistors. In this review we give an overview of the existing STT-MRAM technologies currently
+in research and development across the world, as well as some specific discussion of results obtained at
+Grandis and with our foundry partners. We will show that in-plane STT-MRAM technology, particularly the
+DMTJ design, is a mature technology that meets all conventional requirements for an STT-MRAM cell to
+be a nonvolatile solution matching DRAM and/or SRAM drive circuitry. Exciting recent developments in
+perpendicular STT-MRAM also indicate that this type of STT-MRAM technology may reach maturity faster
+than expected, allowing even smaller cell size and product introduction at smaller nodes.
+Categories and Subject Descriptors: B.3.1 [Memory Structures]: Semiconductor Memories
+General Terms: Experimentation
+Additional Key Words and Phrases: MRAM, magnetic memory, spin transfer torque, tunneling magnetoresistance, spin polarization, magnetic tunneling junction
+
+1. INTRODUCTION
+For many decades, existing memory technologies have been successfully scaled down
+and improved to achieve higher densities, faster speeds with lower production costs.
+Now, however, the miniaturization level of these technologies is approaching the physical
+limits for scalability. This raises the importance of urgent development of new
+memory technologies. One of the most promising candidates is spin-transfer torque
+magnetic random access memory (STT-MRAM) [Chen et al. 2010], which combines the
+capacity and cost benefits of DRAM, fast performance of SRAM, virtually unlimited
+endurance in addition to being nonvolatile and radiation hard. Conventional semiconductor
+memory technology typically involves the charge of electrons and completely
+This work was supported in part by US Department of Commerce NIST ATP co-op grant no. 70NANB7H7012,
+a US Department of Defense DARPA-MTO STT-MRAM Universal Memory contract no. HR0011-09-C-0023,
+and US National Science Foundation SBIR grant no. 740877, 924041.
+Author’s address: D. Apalkov, email: d.apalkov@ssi.samsung.com.
+Permission to make digital or hard copies of part or all of this work for personal or classroom use is granted
+without fee provided that copies are not made or distributed for profit or commercial advantage and that
+copies show this notice on the first page or initial screen of a display along with the full citation. Copyrights for
+components of this work owned by others than ACM must be honored. Abstracting with credit is permitted.
+To copy otherwise, to republish, to post on servers, to redistribute to lists, or to use any component of this
+work in other works requires prior specific permission and/or a fee. Permissions may be requested from
+Publications Dept., ACM, Inc., 2 Penn Plaza, Suite 701, New York, NY 10121-0701 USA, fax +1 (212)
+869-0481, or permissions@acm.org.
+c 2013 ACM 1550-4832/2013/05-ART13 $15.00
+DOI: http://dx.doi.org/10.1145/2463585.2463589
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:2 D. Apalkov et al.
+Fig. 1. Structure of conventional field-switched MRAM cell as compared to STT-MRAM cell.
+ignores the other important property of an electron: quantum-mechanical spin. While
+the electron charge determines how the electrons behave in an electric field, the spin
+of an electron determines its behavior in a magnetic field.
+This property is used as a foundation of spintronics or spin electronics: an exciting and
+rapidly evolving field in which both the charge and spin of electrons are used to process
+information [Wolf et al. 2001]. The first use of spintronics was in the hard disk drive
+industry when the magnetic reader relied on giant magnetoresistive (GMR) elements,
+which have resistance very sensitive to external magnetic fields. In STT-MRAM, a
+similar effect is used for reading the state of the memory [Chen et al. 2010]. Another
+important spintronic effect: spin-transfer torque, is central to the switching mechanism
+in STT-MRAM. The precursor of STT-MRAM is MRAM (Magnetic Random Access
+Memory) [Tehrani et al. 2003], which uses a different switching mechanism based on
+an external magnetic field. MRAM has already been in production by Freescale since
+2006 and is used in critical aircraft and automotive applications. The major difference
+between STT-MRAM and MRAM is way the information is recorded. In MRAM, the
+switching between two memory states is achieved by application of an external field,
+which is generated by passing current through two metallic lines: word and bit lines,
+as shown in Figure 1. This first generation MRAM provides important characteristics
+such as relatively fast operation, nonvolatility, radiation hardness, and high density,
+however, its widespread future use is restricted by serious limitations. One of the most
+crucial is scalability. As the size of the MRAM element shrinks, the field required for
+switching increases, which means more current has to be passed through the metal
+lines. This in turn greatly increases power consumption. In STT-MRAM, when the
+technology moves towards smaller nodes, the switching current reduces faster than
+available transistor drive current, making it easier to scale down the STT-MRAM
+technology (Figure 2). The other important limitation consists of an issue known as
+“half-select.” The switching of a given cell is achieved by passing current through two
+orthogonal metallic lines: the bit line, which is above the storage cell, and the word
+line, which is below the storage cell (Figure 1). Thus, other cells, which are located
+below or above the current-carrying metallic lines also experience a magnetic field,
+which although smaller in magnitude may introduce inadvertent switching of these
+half-selected cells. This problem has been approached by introducing various special
+shapes for the MRAM element or by using synthetic antiferromagnetic (SAF) free
+layers. In STT-MRAM, the switching is achieved by passing current directly through
+magnetic layers in the selected cell, eliminating this problem entirely. In addition to the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:3
+Fig. 2. The write current as a function of cell width for field and current switching under the assumption of
+constant thermal stability factor equal to 55.
+above-mentioned issues with conventional MRAM, the design of the STT-MRAM cell is
+much simpler: the bypass line and word line are eliminated. The smallest size for STTMRAM
+cell is 6F2 for in-plane design, 4F2 for perpendicular design and even smaller
+for multiple-level cell (MLC) design, which employs two or more storage elements per
+single nanopillar.
+The clear advantages of STT-MRAM technology have led to significant, international
+R&D activity in both the public and private sectors. In 2002 Grandis was established to
+develop STT-MRAM and together with customers, bring it to market. In 2005 Grandis
+and Renesas signed an agreement for joint development of STT-MRAM. SONY Corporation
+demonstrated a 180nm logic STT-MRAM test chip in 2005 [Hosomi et al. 2005],
+while Hitachi demonstrated a circuit design for a 2Mb STT-MRAM chip based on a
+200nm CMOS process in 2007 [Kawahara et al. 2007]. In January of 2008, Samsung
+and Hynix, the world’s two largest memory manufacturers, announced that they were
+collaborating to develop future STT-MRAM technology, with funding support from the
+Korean government. In April, 2008 Hynix and Grandis announced long-term licensing
+agreement in developing STT-MRAM, which subsequently resulted in the demonstration
+of a fully-integrated test chip for high density applications in 2010 [Chung et al.
+2010]. In 2009, TSMC and Qualcomm described an STT-MRAM macro based on 45nm
+logic technology for embedded memory in low-power mobile applications (Lin et al.
+2009). In 2010, independent efforts by Tohoku University [Ikeda et al. 2010] and IBM
+[Worledge et al. 2010, 2011] have resulted in new perpendicular cells using conventional
+materials. The momentum in pursuing STT-MRAM technology as a future universal
+memory is greater than ever before.
+For STT-MRAM to be adopted as a universal mainstream semiconductor memory, it
+must be dense (∼10F2), fast (below 10ns read and write speeds), and operate at low
+power. It must be demonstrated at a leading edge CMOS logic node such as 90nm
+or below, and show a clear path for scalability to future nodes such as 45nm, 32nm
+and beyond. It also must demonstrate manufacturability for high yield, low cost and
+reliability for long term operation in products. Many challenges remain for STT-MRAM
+to achieve these goals.
+2. STT-MRAM
+In this section we will go over the basics of STT-MRAM memory and various ways to
+implement it. Before going any further, we need to set up the terminology and explain
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:4 D. Apalkov et al.
+Fig. 3. STT-MRAM nanopillar stack based on single MgO tunneling barrier and SAF pinned layer.
+the main equations governing the behavior of STT-MRAM element. The simplest STTMRAM
+element has several components (Figure 3).
+—Free layer (FL), which is used to store information. A classical example for the free
+layer material is CoFeB of various compositions. This layer is usually relatively
+thin (2–4nm) so that it can be easily switched by passing a spin-polarized current
+through it.
+—Pinned layer (PL), sometimes called reference layer, which does not switch during
+memory operations and is used to provide a reference frame for the free layer magnetization.
+The pinned layer is often made of two sublayers separated by Ruthenium
+to form a “synthetic antiferromagnet” (SAF) structure. This helps to cancel out the
+magnetostatic field in the free layer. The pinned layer is fixed by an antiferromagnetic
+layer (AFM) such as PtMn or IrMn so that it cannot rotate or switch during
+memory operation.
+—Tunnel Barrier: very important thin (∼1nm) insulating nonmagnetic layer between
+the free and pinned layer, which is used to provide the means for recording and
+reading the state of the memory. The tunnel barrier is typically made of crystalline
+MgO.
+Together, all three layers form a magnetic tunneling junction (MTJ). This structure
+has two stable magnetic configurations: free layer parallel to the pinned layer or
+antiparallel. If a voltage is applied to the MTJ two effects occur the following.
+—TMR effect. The electrical resistance of the structure in the parallel and antiparallel
+states is different. The origin of this effect can be explained based on a simplified
+model (Figure 4). The electrons of a certain spin orientation can tunnel to the other
+electrode only if there are empty states available in the second electrode corresponding
+to this spin orientation. Thus assuming that spin is conserved during tunneling,
+if the magnetic moments in the FM electrodes are parallel, the majority spin electrons
+can fill majority states in the second electrode, while minority spins will fill
+the minority states in the second electrode. This will result in large conductance and
+small resistance. On the other hand if the magnetic moments of the two electrodes
+are oriented antiparallel, the majority spins from one electrode fill minority states
+in the other electrode resulting in much smaller, attenuated current. The strength of
+the effect determines the TMR –tunneling magnetoresistance ratio, which is defined
+as [Butler et al. 2001]:
+TMR = RAP − RP
+RP
+, (1)
+where RP and RAP are resistances in the parallel and antiparallel states respectively.
+The MgO based MTJ has been theoretically predicted to have TMR above 1000%
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:5
+Fig. 4. Origin of TMR effect.
+[Butler et al. 2001] and experimentally demonstrated values are close to 600% at
+room temperatures.
+—Spin-transfer torque effect. It has been theoretically predicted independently by Slonczewski
+and Berger in 1996 [Berger 1996; Slonczewski 1996] that passing current
+through an MTJ element causes the free layer magnetization to switch to an alignment
+that is either parallel or antiparallel to the pinned layer depending on the
+direction of the current. Spin-transfer torque switching was first observed in 2000
+[Albert et al. 2000; Katine et al. 2000] on all-metallic spin valve structures which
+have a Cu spacer rather than the MgO barrier in MTJ’s. Due to the relatively low
+degree of spin polarization in such metallic structures, switching currents were very
+high, typically in 107–108A/cm2 range. In 2004, Grandis for the first time demonstrated
+STT switching of a memory cell based on MTJ with AlOx tunnel barrier
+[Huai et al. 2004]. Due to improved polarization, the switching current was greatly
+reduced but the TMR for AlOx-based MTJ is still limited to less than 80%. In 2005
+Grandis for the first time demonstrated spin transfer switching on MgO-based MTJ
+and the switching current was as small as 2–3 × 106A/cm2 [Diao et al. 2005]. The
+MgO-based MTJ is now the standard for the field.
+2.1. Key Parameters
+The critical properties of an STT-MRAM cell that determine operational suitability for
+a particular memory design and node are its resistance, TMR, switching current and
+thermal stability. The resistance of an MTJ is determined by the tunnel barrier and
+is characterized by the resistance-area (RA) product. This can often be measured at
+the full-film level with the Current-In-Plane-Tunneling (CIPT) technique [Abraham
+et al. 2006], which enables faster optimization and process feedback and control. The
+TMR was described in the previous section, and can be obtained by driving the device
+between parallel and antiparallel states either with field or with current. TMR values
+typically reported in the literature are in the low-bias condition; however it is important
+to keep in mind that the MTJ is a non-linear device and that TMR typically is reduced
+with increasing bias. In a memory cell the TMR that matters is the value at read
+voltage.
+A key challenge for STT-MRAM is the simultaneous achievement of low switching
+current and high thermal stability. Similar to magnetic recording media, the thermal
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:6 D. Apalkov et al.
+stability is characterized by the ratio of the energy barrier opposing magnetic reversal
+and the operation temperature:
+ = KuV
+kBT , (2)
+where the anisotropy energy density Ku = 1
+2 HkMS is determined by the saturation
+magnetization MS and the anisotropy field Hk of the freelayer (FL), and V is the
+FL volume. This factor characterizes the tendency of thermal fluctuations to randomize
+the magnetic orientation of the FL, and thus the storage lifetime of the memory cell
+and read disturb probability: the probability of causing inadvertent switching while
+applying a small reading current. Experimentally the parameter can be determined in
+a number of ways, including retention measurements (how long the bits retain their
+state), read disturb rates (retention under relatively low-bias conditions), or by simply
+measuring and/or estimating the values of MS, Hk, and V.
+The switching current depends on the magnetic properties of the FL and the efficiency
+with which the current transports spins, and moreover is a function of current
+pulse width, temperature and other factors. An important parameter that is somewhat
+independent of many of these factors, and thereby allows comparison of switching performance
+across different STT-MRAM cell designs and sizes, is the critical switching
+current density Jc0, the current density at which sustained precession of the FL magnetic
+moment with infinitesimal amplitude is obtained. As a rule of thumb, the Jc0 value
+is similar in magnitude to the median switching current density at 10ns pulse width.
+A simple expression has been obtained for Jc0 [Sun 2000]. Here we give the expression
+for in-plane STT-MRAM in which the equilibrium state of the magnetization is in the
+plane of the film:
+Jc0 = 1
+η
+2αe
+h¯ (Mst)
+ H⊥eff
+2 + HK
+
+, (3)
+where η is the spin transfer efficiency, and α, t, HK, H⊥eff are the magnetic damping
+constant, thickness, in-plane anisotropy field and out-of-plane demagnetizing field of
+the FL, respectively.
+Experimental determination of Jc0 is typically done in the thermal activation regime
+(see Figure 5) of relatively long pulsewidth (above 100ns). In this regime, the median
+switching current density Jc at a particular pulsewidth tpw is related to Jc0 by Koch
+et al. [2004].
+Jc = Jc0
+
+1 − 1
+I
+ln tpw
+τ0
+
+(4)
+where I is the thermal stability under finite bias and τ0 is an intrinsic attempt time of
+order 1ns. Jc0 can be extrapolated from measurements of the median switching current
+density Jc at different pulsewidths spanning a few decades (for an example refer to
+Figure 5). We note that the slope of the Jc as a function of ln(tpw/τ0) trend has often
+been interpreted as the thermal stability , however we are careful to distinguish the
+two since technically only I (Jc  Jc0) = , and this is rarely the case experimentally.
+It is also possible to determine Jc0 in the precessional regime (Figure 5) for shorter,
+nanosecond pulses, where the switching is less sensitive to thermal stability and mostly
+determined by the overdrive Jc/Jc0. This switching current corresponds to average
+switching current, which means 50% probability to get an error during writing. For
+reliable switching, the desired probability of an error – write error rate (WER) is much
+smaller, close to 10−3 for storage-class memory and 10−9 or even smaller for workingclass
+memory.
+In Table I we summarize the parameters already discussed as well as a few others
+relevant to reliability and error rates.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:7
+Fig. 5. Dependence of normalized switching current density on current pulse width, in the macrospin
+approximation. Thermal activation regime: behavior of the STT-MRAM cells with equal Jc0 but different I
+is shown, according to Equation (4). Behavior in the precessional regime is shown according to the prediction
+of Koch et al. [2004].
+Table I. STT-MRAM Parameters
+Parameter Performance impact Measurement methodology
+Jc0 Ic, Vc, cell size, read disturb Fitting Ic(tp) to 1ns to get Ic0 and dividing
+Ic0 by area
+ Retention, read disturb Measuring Hk, measuring Hc distribution
+for different field sweep frequencies
+TMR Read speed, read voltage,
+read disturb
+Measuring resistance loop
+RA MTJ resistance, read speed,
+Vc, VBD
+Measuring resistance and multiplying by
+area
+VBD Breakdown characteristics Breaking cells by applying higher voltages
+WER (Write Error
+Rate)
+Reliability of switching Measuring probability of not switching as
+a function of applied voltage (above
+average switching voltage)
+PRD Read disturb, read current Measuring probability of switching at
+voltages well below average switching
+voltage and extrapolating to required
+read disturb error.
+2.2. Types of STT-MRAM
+For any successful memory, three functionalities are required: recording information,
+reading information and storing information. Improvement of any single one of the
+functionalities will likely cause deterioration of one or both of the other two, which may
+be regarded as the STT-MRAM trilemma. For example, to improve the data storing capabilities
+of STT-MRAM, larger free layer thickness can be used, which in turn will
+increase the switching current and power. Another example is improvement of TMR.
+Higher TMR can be achieved easier at thicker tunneling barriers, however making
+barrier thicker will increase the switching voltage and will cause higher power consumption
+of the memory during switching. Below we describe several main approaches
+to overcome these challenges and to design STT-MRAM with the best performance.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:8 D. Apalkov et al.
+Fig. 6. Comparison of several MTJ realizations: (a) in-plane single MTJ; (b) in-plane dual MTJ (DMTJ);
+(c) thermally-assisted switching (TAS) structure; (d) Pr-MTJ – structure providing precessional switching;
+(e) PMTJ – perpendicular structure; (f) domain-wall motion (DWM) based MTJ.
+2.2.1. In-Plane STT-MRAM. For in-plane STT-MRAM (Figure 6(a)), the equilibrium magnetization
+state is in the plane of the free layer and thermal stability is achieved by
+making the bit elongated with typical aspect ratio of 2–3 and cross-section close to
+elliptical. This STT-MRAM variety has shown the lowest switching current density
+[Chen et al. 2010; Diao et al. 2007] and is the main approach for near-term commercialization.
+Grandis has been working on in-plane since its foundation in 2002 and
+has achieved significant improvements. Grandis has improved its in-plane design using
+several approaches. First, the MTJ cell has to have very good spin-transfer torque
+efficiency η and therefore a great deal of know-how and optimization go into improvement
+of PL/MgO/FL interfaces. At the same time, the damping in the free layer has
+to be quite small. The lowest damping we achieved is close to 0.004 on the optimized
+free layers. An additional improvement can be achieved by maximizing the effects
+of the partial perpendicular anisotropy (PPMA) hk⊥ to reduce H⊥eff = 4π MS (1 − hk⊥)
+where hk⊥ = HK⊥
+
+4π MS. We have achieved PPMA of 90% and even higher at free layer
+thicknesses up to 4nm (for example, refer to Figure 12 later in the article). Another
+advantage is brought in by using dual MTJ (DMTJ) designs (Figure 6(b)). In such
+design, there is an additional pinned layer separated by a 2nd MgO barrier from the
+free layer. If the magnetization of the 2nd PL is opposite to the magnetization of the 1st
+PL, then the spin-transfer torque on two surfaces of the free layer will add, decreasing
+the switching current. All these inventions combined provide a path to reduction of
+Jc0 below 106A/cm2 with a thermally stable free layer. One disadvantage of the DMTJ
+structure is reduction in TMR. For two identical barriers, the two resistances (AP and
+P) are the same and TMR is zero. To achieve high levels of TMR, one of the barriers has
+to be thicker. This will be the main barrier and determine whether the total resistance
+is low or high. Using this approach, we have demonstrated TMR of 165% for the DMTJ
+structure [Apalkov et al. 2010b], sufficient for very fast and reliable reading.
+2.2.2. Thermal Assist (TAS). In thermal-assist STT-MRAM [Prejbeanu et al. 2007],
+(Figure 6(c)), the thermal stability of the free layer is achieved by exchange bias with
+an adjacent antiferromagnetic layer on top of the free layer. During switching, the free
+layer is heated up, the exchange bias is lost and the free layer is easily switched to the
+required state. After that, the heating current is removed and the free layer is cooled
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:9
+down and exchange bias is restored. This approach typically requires higher switching
+energy, more complicated design, often using special thermal barrier layers to help
+increase the heating of the structure, which introduce potential issues with reliability
+and slower switching speeds. Nonetheless, this approach provides a way to separate
+requirements on switching current and thermal stability [Prejbeanu et al. 2007].
+2.2.3. Precessional Switching. This is another variation of in-plane STT-MRAM. In this
+design (Figure 6(d)), there are a second tunneling barrier (as was the case for the
+DMTJ) and pinned layer, with the moment of the latter normal to the plane of the
+free layer [Kent et al. 2004]. The first pinned layer has an in-plane moment and is
+used for reading the state and can be called reference layer. The operation principle
+is based on strong demagnetizing field for in-plane structures as the magnetization
+is tilted out-of-the-plane. As the current is applied and the free layer magnetization
+experiences spin-transfer torque from the normal-to-the-plane pinned layer, it is pulled
+out-of-plane. This causes a strong opposing demagnetizing field and the precessional
+torque due to this field causes fast precession around the field into the opposite state.
+Typical switching times for this case are in 10–200ps range. However, if the current
+continues to flow, the magnetization will keep precessing around z-axis and will switch
+back. That constitutes the main difficulty in this approach: making switching reliable.
+Several ways to do this have been proposed. The simplest though least reliable way is
+to interrupt the current pulse at the correct moment so that the magnetization relaxes
+into the correct state. This leads to a very narrow operating window in pulsewidthamplitude
+(tp, Ic) phase space. One innovative solution uses a second pulse with opposite
+polarity [Kent et al. 2004]. The spin-transfer torque from this second pulse will cause
+magnetization to move back into the plane of the free layer but complicates the circuit
+design and poses strict requirements on tight pulse shape control. Yet another solution
+was proposed using a hard-axis magnetic field in addition to the current pulse [Morise
+and Nakamura, 2006]. In this case, the field helps to bring the magnetization out of
+the plane in one state but helps to bring magnetization back to the plane in the other
+state. If the field is small, the operating window in (tp, Ic) mentioned above becomes
+much wider and if the field becomes larger, the switching becomes reproducible and
+independent of pulsewidth. The big disadvantage of this approach is the requirement
+to have an external field, which has to increase for smaller technology nodes bringing
+back the main culprit of conventional MRAM.
+2.2.4. Perpendicular STT (Interfacial PMA: I-PMA). The major interest in the perpendicular
+approach arose from the elimination of the demagnetizing field factor in Equation (3) for
+Jc0. Since this factor is very large in conventional in-plane STT-MRAM this will potentially
+reduce Jc0 by factor of 10x or more. However, in recent improvements of in-plane
+STT-MRAM with partial perpendicular magnetic anisotropy (PPMA), the effective demagnetizing
+term has been reduced to nearly HK/2 and potential improvement in Jc0
+is close to 1.5x in this case.
+Recent advances in PPMA for in-plane STT-MRAM have made it possible to increase
+PPMA past 4πMs values so that the equilibrium state of the free layer magnetization
+is normal to the plane, making this a perpendicular structure. In this case, the shape of
+the free layer does not have to be elongated and can be made circular, making fabrication
+easier at smaller technology nodes. Several groups reported achievement of large
+perpendicular anisotropy fields HK of the order of 2-3,000 Oe, which should provide
+enough thermal stability down to 25–30nm nodes. The big advantage of this approach
+is that the materials used for the free layer and potentially the pinned layer are the
+same as well-studied materials for in-plane STT-MRAM. These have been shown to
+have low damping, high spin-transfer torque efficiency, good TMR and good compatibility
+with the MgO barrier, as compared to perpendicular design using crystalline
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:10 D. Apalkov et al.
+anisotropy, which often requires use of new materials with higher damping and reduced
+STT efficiency and TMR. The disadvantage of this surface-anisotropy approach
+is that it typically requires a very thin ferromagnetic layer, making spin-transfer torque
+and TMR smaller and increasing damping. Maintaining thermal stability while scaling
+to smaller nodes becomes harder as well. For in-plane STT-MRAM making the
+free layer thicker at smaller nodes improves thermal stability in two ways: increasing
+shape-induced anisotropy field HK and increasing the volume of the free layer. For capinduced
+anisotropy, making the free layer thicker increases the volume but reduces
+the anisotropy field and the combined effect of these two changes cause degradation
+of thermal stability. Thus for smaller nodes if the surface anisotropy energy is not
+changed, the free layer has to be made thinner to maintain thermal stability at 60 or
+higher value. This makes it even more difficult to maintain damping and good STT
+efficiency and TMR. If the pinned layer is made stable by using surface anisotropy as
+well, this introduces one more complication: potential switching of the pinned layer
+by spin-transfer torque. Since the STT efficiency is different for the two switching directions
+(larger for AP→P switching and smaller for P→AP switching, where AP is
+antiparallel, and P is parallel), the switching current is higher for P→AP switching.
+Thus, as we apply higher switching current to switch the free layer from P to AP
+state (corresponding to electron flow from free layer to pinned layer), as soon as the
+free layer switches to the AP state there will be large spin-transfer torque acting on
+the pinned layer. This may cause the pinned layer to switch to an alignment parallel
+to the free layer if the switching current for the pinned layer is small. This has to be
+compensated by making the pinned layer as hard to switch as possible, which often
+requires a different material set for pinned layer.
+2.2.5. Perpendicular STT (Crystalline PMA: C-PMA). This STT-MRAM variety is similar
+to the one discussed in the previous paragraph but now the origin of anisotropy is
+crystalline (bulk). In this case, it is easier to increase thermal stability of the free layer
+for smaller technology nodes since increasing the thickness of the free layer makes the
+volume larger and may even increase the anisotropy energy density or HK slightly. The
+biggest complication in this method is choosing and optimizing the proper material for
+the free layer, which has to meet the following requirements:
+—be compatible with MgO barriers;
+—provide high spin-transfer torque efficiency and good TMR;
+—have high perpendicular crystalline anisotropy energy;
+—provide low (0.005 or lower) magnetic damping.
+Some of these material parameters are not easily compatible with each other, for
+instance, having high crystalline anisotropy often involves high Z materials, such as
+Pt or Pd, which have high spin-orbit coupling and result in increased damping. In
+addition to that, having good compatibility with MgO barrier, high STT efficiency and
+good TMR is often not compatible with materials displaying perpendicular anisotropy.
+This has often lead to the use of an interfacial insertion layer of CoFeB-like materials
+next to high PMA material, which has provided little improvement. The limited impact
+of these insertion layers on TMR and STT efficiency can be explained by suboptimal
+crystallization of CoFeB and MgO in this environment.
+2.2.6. Domain-Wall Switched STT-MRAM. Another approach to implementing STT-MRAM
+being actively developed by NEC [Fukami et al. 2009] is based on a way to switch the
+free layer that is quite different – by moving a domain wall between two stable states
+rather than completely switching a nanomagnetic element. The STT-MRAM structure
+used for domain-wall switching is shown in Figure 6(f). The free layer is now shaped
+as an extended layer, which has two pinned layers on the two opposite sections. The
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:11
+Fig. 7. Multiple-level cell realizations and two-pulse switching mechanism.
+goal of these two pinned layers is to ensure that the two opposite ends of the free layer
+have opposite orientation and there is a domain wall between the two ends. The two
+memory states in this case would correspond to two possible positions of the domain
+wall as depicted by broken lines in Figure 6(f). The reading of the state of the memory
+is done by using a reference layer separated by MgO tunneling barrier from the central
+section of the free layer, which can be parallel or antiparallel to the reference layer
+depending on the position of the domain wall. The switching is done by passing the
+current through the free layer, which forces the domain wall motion. The advantage
+of this implementation of STT-MRAM is the possibility of achieving fast 1–2ns pulses
+without a large increase of the switching current. The disadvantages of this approach
+include the complicated structure and difficulty in reaching high densities in addition
+to the challenge of maintaining thermal stability of the domain wall, which often relies
+on small notches or other pinning mechanisms that are difficult to control.
+2.2.7. Multiple-Level Cell (MLC) and Cross-Point Architecture. For any memory, including
+STT-MRAM, achievement of highest possible density especially for future applications
+is one of the crucial requirements. The in-plane STT-MRAM cell size can be as small as
+6F2 whereas a perpendicular cell can be as small as 4F2 (due to circular shape of the
+cell). Further improvement in density can be achieved by cross-point architecture and
+multiple-level cell stacks. In cross-point architecture, instead of adopting a design with
+one transistor per cell (1T1MTJ) design, one drive transistor is shared by a number of
+MTJ cells along a single bit line similar to the approach in conventional field-switched
+MRAM approach. Selection of a cell is achieved by activating a bit line transistor and a
+word line transistor: the cell at the intersection of the selected bit and word lines will be
+switched. Several common architectures involving usage of diodes and unidirectional
+cells can be used.
+Another way to increase the density is to have several MTJ elements per single
+nanopillar. An example of this is shown in Figure 7. In this case, two MTJ cells are
+combined in one pillar. To get different resistances of the MTJs, different RA barriers
+can be used or different MTJ sizes. This gives four resistance states corresponding to
+{00, 01, 10, 11} states of the two MTJs. To get reliable switching, the switching currents
+for the two MTJs have to be different (Ic1 < Ic2). Then the switching can be done in two
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:12 D. Apalkov et al.
+steps as shown in Figure 7. First the cell, having larger switching current is switched
+into the correct state and then the current is reduced and the other MTJ cell is switched.
+In 2010, Hitachi and Tohoku University demonstrated a multilevel cell STT-MRAM
+with series-connected MTJ elements [Ishigaki et al. 2010]. In order to achieve two
+different levels of MTJ resistance, the area of the two cells were different by multistep
+patterning achieved by a self-aligned process. The dimensions were 70 × 140nm2 and
+75 × 150nm2. A two-step, two-pulse write technique was used to program the cell into
+the desired resistance state. Reading of the cell state was achieved by a multi-reference
+sense amplifier via two-step read operation. The sense amplifier has three reference
+resistance levels; each is between the two adjacent resistance states in the multilevel
+cell. Each reference resistance was achieved using two reference memory cells.
+2.3. STT-MRAM scalability
+The crucial question in developing any memory solution, including STT-MRAM, is
+whether it will be able to fulfill future requirements at smaller technology nodes.
+Because write current scales down with MTJ size, STT-MRAM, whether in-plane or
+perpendicular, is an inherently scalable memory technology. The key issue during such
+scaling is maintaining thermal stability. Some approaches for achieving the required
+thermal stability at advanced semiconductor nodes include: increasing the aspect ratio
+(for in-plane STT-MRAM), increasing thickness of the free layer (for both in-plane and
+C-PMA perpendicular), and material HK improvement (for perpendicular STT-MRAM).
+If material set and thermal stability are fixed, the resulting write current decreases
+with smaller node size for both in-plane and perpendicular STT-MRAM [Apalkov et al.
+2010].
+3. MTJ MATERIALS DEVELOPMENT
+3.1. MgO MTJs
+The first demonstration of spin-transfer torque was performed on all-metallic spinvalve
+structures based on Co-Cu-Co multilayers [Albert et al. 2000; Katine et al.
+2000]. Because the spin-transfer efficiency is much lower for all-metallic structures,
+the switching current density was considerable, close to 108A/cm2, which makes the
+switching current too high for practical applications. In addition, the typical resistance
+of such all-metal stacks is of the order of Ohms, which makes it incompatible with
+CMOS due to impedance mismatch with the transistor and the rest of the circuit. This
+shifted scientific interest to structures with higher resistance and lower currents based
+on tunneling barriers.
+The TMR effect for an AlOx tunneling barrier was first demonstrated in 1995, however,
+it was not until 2004 when STT switching was demonstrated for the first time by
+Grandis on an AlOx-based MTJ [Huai et al. 2004]. The switching current was about
+8 × 106A/cm2 for MTJ’s with TMR of up to 20% and RA of 0.5–10μm2. The big boost
+in spin-transfer torque and TMR was expected to come from MgO barrier. In 2001 it
+was theoretically predicted that Fe-MgO-Fe tunneling junctions give very high TMR
+values due to different decay rates of Bloch states in the crystalline MgO barrier. For
+this structure, one particular state with 1 symmetry has the slowest decay rate in the
+barrier and since this symmetry is present only in the majority spin channel, it provides
+an efficient channel for majority spins tunneling in the parallel state (Figure 8).
+If transmission coefficients are plotted as a function of electron k-vector, this results in
+large and wide maximum at  point (Kx = 0, Ky = 0). For the antiparallel state, most of
+the tunneling occurs through interfacial resonance states shown as high narrow peaks
+in Figure 9 and the resultant conductivity is much smaller. It was theoretically predicted
+that TMR in MgO-based tunneling junctions with an ideal interface can reach
+percentage values of several thousand.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:13
+Fig. 8. Tunneling in AlOx and MgO MTJ’s.
+Fig. 9. Tunneling coefficients as a function of k-vector for majority and minority spins for parallel and
+antiparallel orientation of Fe electrode magnetizations for MgO thickness of 4 monolayers. First-principle
+simulation results.
+Experimentally, high room-temperature TMR above 200% was demonstrated in 2004
+[Parkin et al. 2004; Yuasa et al. 2004]. To get such a high TMR, it is critical to achieve
+very good crystallization of both the MgO barrier and the electrodes and good lattice
+match with small levels of oxidation at the interface (Figure 8). Growth and deposition
+conditions have to be optimized to yield a nearly stoichiometric MgO barrier with high
+degree of epitaxy between MgO and the ferromagnetic electrodes. Both electrodes have
+to be crystallized as a BCC lattice with (001) texture and the MgO should form FCC
+(NaCl-structure) lattice with (001) texture and 45-degree rotation of the in-plane lattice
+with respect to ferromagnetic electrode lattice. In this case, the mismatch between
+the lattices at the interface becomes very small (less than 4%) and formation of surface
+defects should be minimized. To investigate tunneling spin polarization (TSP) relevant
+to spin-transfer torque, superconducting tunneling spectroscopy technique can be used.
+In this technique, the upper electrode is replaced by thin superconducting layer (e.g.,
+AlSi) and large (∼2T) magnetic field is applied, which causes Zeeman split between
+spin-up and spin-down electrons providing a way to measure TSP. This has been done
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:14 D. Apalkov et al.
+for CoFe-MgO combination and TSP was found of the order of 75–85%, which is significantly
+higher than values achieved on CoFe-AlOx combination or CoFe electrode alone.
+This confirms the significance of coherent tunneling through a crystalline MgO barrier,
+which provides additional screening for spin-down electrons as predicted by the theory.
+Further experimental work on MgO-based MTJ showed increased TMR, with values
+as high as 500–600% at room temperature having been demonstrated [Lee et al. 2007).
+Switching in an MgO-based single MTJ was first shown by Grandis in 2005 [Diao
+et al. 2005] and demonstrated greatly improved switching current density Jc0 of 2–
+3 × 106A/cm2 and TMR of 150%, which constituted a significant improvement over
+AlOx-based MTJs. Further advancement came from adding a second MgO layer and a
+second PL to make dual MgO-based MTJ structures. This was shown again by Grandis
+in 2007 [Diao et al. 2007] to result in switching current density as small as 1×106A/cm2,
+providing a very promising approach for eventual introduction into STT-MRAM chip.
+In addition to the requirement of having high TMR and spin polarization, the MgO
+barrier needs to have very high breakdown voltage (Time Dependent Dielectric Breakdown
+or TDDB) so that the MTJ will not degrade or breakdown over repeated writing
+of a single bit over the lifetime of the product (typically 10 years). This translates into
+having very low levels of defects in the MgO barrier. However, for STT-MRAM this is
+not the limiting factor since the typical voltage drop across the MTJ cell is limited to
+0.4–0.6 V whereas TDDB voltage is typically closer to 1V.
+3.2. PPMA
+In striving to reduce the switching current density of in-plane STT-MRAM, Grandis
+discovered the benefits of introducing partial perpendicular anisotropy (PPMA) to partially
+compensate the demagnetizing field arising when the magnetization of the free
+layer rotates out of the plane. This directly reduces the switching current density:
+Jco = 1
+η
+2αe
+h¯ (Mst)
+ H⊥eff
+2 + HK
+
+, (5)
+where H⊥eff = 4π MS (1 − hK⊥). The dimensionless PPMA is defined as the effective perpendicular
+anisotropy field normalized by the demagnetizing field: hK⊥ = HK⊥
+
+4π MS.
+For increasing PPMA, the trajectory of the magnetization precession becomes less compressed
+along Mz axis as depicted in Figure 10, which results in increased energy input
+due to spin-transfer torque (proportional to sine of the angle between the magnetization
+of the free layer and the X-axis, assuming that the pinned layer magnetization is
+along the X-axis).
+Since the critical current Jc0 is defined as the current at which the energy input due
+to spin-transfer torque averaged over one complete orbit is equal to energy loss due
+to damping, higher energy input for a given current results in reduced Jc0. This was
+confirmed by both modeling and experiments. Figure 11 shows macrospin modeling
+of the effect of partial perpendicular anisotropy on the value of Jc0. One can see that
+the introduction of 80% of PPMA allows reduction of the current from more than
+4 × 106A/cm2 down to 1 × 106A/cm2. We have observed this effect experimentally as
+well, as shown on Figure 12. In this case, we have modified PPMA without changing
+the free layer material by using different capping layers that induce PPMA. Cap A
+induces a very small PPMA that increases for thinner free layer thickness tFL, which
+is an expected behavior for surface anisotropy. Cap B induces somewhat larger PPMA.
+Cap C is another cap providing even larger PPMA. Figure 12(b) shows the switching
+current Ic0 for caps A, B, and C, confirming the expected decrease of Ic0 with increase
+of PPMA. For cap C the low value of Jc0 = 1 × 106A/cm2 is observed, whereas for
+cap A Jc0 = 2 × 106A/cm2. The measured improvement is slightly smaller than what
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:15
+Fig. 10. Trajectory change by introducing PPMA.
+Fig. 11. Reduction of the switching current by introducing partial perpendicular anisotropy (modeling
+results).
+is expected based on the modeling. This can be explained by other changes in the free
+layer due to the modified caps, such as MS and damping.
+One significant advantage of using PPMA to reduce the switching current is that
+PPMA does not change the thermal stability of the free layer as long as the lowenergy
+switching path for thermal activation lies in the plane of the free layer, which
+is true as long as the effective demagnetizing field remains larger than the in-plane
+anisotropy field due to the elongated shape. If this is not the case then thermal reversal
+will proceed along the lower energy pathway via rotation out-of-plane and thermal
+stability will therefore be governed by the effective demagnetization field. Requiring
+that H⊥eff > HK does impose some scaling limitations on PPMA at smaller nodes since
+HK scales inversely with the device dimension. For example, at 20nm node and fairly
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:16 D. Apalkov et al.
+Fig. 12. Effect of partial perpendicular anisotropy (PPMA) on STT switching.
+conventional material parameters, HK should be of the order 2 to 3kOe to maintain
+thermal stability of 60, thereby restricting PPMA to approximately 75% or lower (but
+still enabling significant reduction of Jc0).
+3.3. DMTJ
+In the previous section, we have discussed a very efficient way to reduce switching
+current without degrading thermal stability. Another reduction of Jc0 without Delta
+decrease can be achieved by improving spin-transfer torque efficiency η. For a single
+barrier MTJ this can be done by barrier and free layer optimization to increase effective
+spin polarization of the electrode-barrier combination. Another way to increase η is to
+have two-barrier structure: dual MTJ or DMTJ, which has an additional MgO barrier
+on top of the free layer and an additional pinned layer [Diao et al. 2007]. In this case,
+the free layer will experience spin-transfer torque at both interfaces and depending on
+the relative orientation of the two pinned layers, the total torque can either be smaller
+(for parallel PL’s) or larger (for antiparallel PL’s) than the torque experienced by FL in
+single barrier MTJ environment. This has been experimentally confirmed as shown in
+Figure 13. We built three different structures with the same CoFeB-based free layer.
+Each point on the graph corresponds to median of Ic0 of more than 50 devices of the
+same designed size. To get the value of critical current density, the slope of the data is
+calculated. The baseline structure BMTJ gives Jc0 of 1.9×106A/cm2 (AP to P switching)
+and 4.6 × 106 A/cm2 (P to AP switching). The difference between the two values of
+the current is related to different STT efficiency for these two directions. The second
+sample, denoted as advanced BMTJ has higher level of PPMA and gives switching
+current density of 1.3 × 106A/cm2 and 2.8 × 106A/cm2. Notice that the asymmetry
+between the two directions is higher than 2x, which makes designing the STT-MRAM
+memory module difficult since the transistor has to be designed to give enough current
+for the worst direction. For the last sample, a DMTJ with two pinned layers and MgO
+barriers was built, which gave Jc0 of 1.0 × 106A/cm2 and 1.5 × 106A/cm2, which gives
+close to 2x reduction of switching current for the worse P to AP direction.
+To perform another study of the effect of the second pinned layer and MgO barrier, we
+built a special structure, which does not have PtMn pinning layer on the second pinned
+layer. This allows switching the second PL between two opposite states: parallel and
+antiparallel to the bottom pinned layer. In the first case, which we call “antidual”, the
+spin-transfer torques from the two pinned layers subtract and the switching current
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:17
+Fig. 13. Critical switching current Ic0 for P to AP and AP to P switching as a function of calculated area.
+Fig. 14. Switching current comparison for dual MTJ in two states: dual (with two pinned layers parallel)
+and antidual (with two pinned layers antiparallel).
+is expected to be higher, whereas in the second “dual” case, the STT torques add and
+the switching current should be decreased. This is indeed what has been observed
+experimentally [Apalkov et al. 2010b] as shown on Figure 14. Each point is a median
+value for a number of devices with same width and AR, which are changed from point
+to point. In AP to P switching, we see 2× improvement in the current between dual
+and antidual states and 3× improvement for P to AP switching.
+However, our further analysis of spin transfer efficiencies of the two barriers showed
+significant degradation of the two barriers in the dual structure as compared to the
+single barrier in a single MTJ structure [Apalkov 2010b]. This important conclusion
+leads us to believe that even smallest reported value of Jc0 = 1×106 A/cm2 on thermally
+stable (Delta > 60) dual MTJ can be improved with further optimization of barriers
+and free layer.
+One disadvantage of the dual structure with two antiparallel pinned layers is a
+reduction of total TMR since in this case one of the barriers will necessarily be in the
+high-resistance state whereas the other is in the low-resistance state. For identical
+barriers the total TMR would be zero. We have solved this challenge by optimizing
+the two barriers to have different resistance values and using simple pinned layer
+(no SAF) and eliminating AFM pinning layers to create ultra-thin DMTJ (UT-DMTJ)
+[Apalkov et al. 2010]. Elimination of Ru and PtMn layers allows annealing at higher
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:18 D. Apalkov et al.
+Fig. 15. Performance of Grandis’ utra-thin DMTJ (UT-DMTJ) structure (Wang X, 2010).
+temperature further enhancing TMR. By doing this, we have achieved TMR of 165%
+on dual structure (Figure 15).
+In addition to the described mechanism for enhancing the spin-transfer torque efficiency
+η, additional phenomena have been theoretically explored that may become
+particularly relevant for very thin free layers in structures with very smooth and
+flat interfaces. Those studies employed Non-Equilibrium Green’s Functions (NEGF) to
+study electronic transport and, in the case of the paper by Theodonis et al. [2007], a
+simultaneous and self-consistent solution of the Landau-Lifshitz-Gilbert-Slonczewski
+equation for magnetization dynamics. It was concluded that quantum confinement and
+resonant tunneling through the two barriers could substantially decrease the switching
+current. [Theodonis et al. 2007]. An alternative description of the result considers
+the net torque on the free layer at fixed current as a function of free-layer and barrier
+parameters in the model, with spin-dependent energies arising for the quantum well
+states within the free layer. Certain free-layer thicknesses lead to positions of those
+energy levels with respect to the Fermi level which, in turn, lead to maximum net
+torque when one spin channel transfers much more effectively than the other. Studies
+such as these have led to suggestions for design parameters which promise increased
+energy efficiency as well as lower switching currents.
+In addition to providing a large decrease in the switching current (without affecting
+thermal stability), the dual MTJ provides the following benefits.
+—It is not limited to in-plane structures and can be combined with a perpendicular
+free layer and can also be combined with PPMA and an in-plane free layer
+—Since for two barriers, the voltage drop on each barrier is smaller than for the case
+of single MTJ, overall breakdown voltage can be increased
+—Addition of the 2ndMgO barrier provides an effective way to reduce the spin pumping
+effect, leading to reduced damping
+—The decrease in TMR with voltage is smaller for dual MTJ. This is due to the fact
+that resistances of both AP and P states now reduce with voltage as compared to
+single MgO MTJ, which has only AP state resistance reducing with voltage, while P
+state remains virtually independent of voltage.
+All the advantages mentioned before make usage of the DMTJ very promising for
+STT-MRAM.
+3.4. C-PMA Perpendicular
+As we discussed before, the perpendicular approach provides a way to reduce the switching
+current density by eliminating the demagnetizing field term in the expression for
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:19
+Jc0, provided that other parameters such as damping or STT efficiency are unchanged:
+JP−ST T
+c0 = 1
+η
+2αe
+h¯ (Mst) HK = 1
+η
+2αe
+h¯
+
+kBT A, (7)
+where the effective anisotropy field HK is related to bulk anisotropy energy densityKbulk
+U :
+HK = 2Kbulk
+U
+MS
+− 4π MS = 2KU
+MS
+(8)
+and thermal stability  is related to the effective anisotropy energy density KU :
+ = KU At
+kBT , (9)
+where A and t are the area and thickness of the free layer. Because of this potential improvement
+in switching current, many research groups have been focusing great efforts
+on developing perpendicular materials, which can be used as a free layer and pinned
+layer in STT-MRAM. For a magnetic material to have perpendicular magnetization, the
+magnetic anisotropy has to be large enough to overcome the demagnetizing field, which
+is of the order of 10–15kOe. Material requirements for FL and PL are slightly different.
+For PL we would like to have high thermal stability (twice or more than that of free
+layer is ideal), high spin polarization, compatibility with MgO barrier and STT-MRAM
+processing, which often involves high temperatures (up to 400–450 degrees for short
+period of time). For the free layer, in addition to these requirements, we would like to
+have small damping. Based on these requirements, the following groups of materials
+have been studied:
+—multilayered structures, for instance, [Co/Pd], [Fe/Pd], [Co/Pt], [Fe/Pt], [Co/Ni], and
+—alloy structures, for instance, TbCoFe, L10-FePt.
+For the alloy-based structures, the anisotropy is crystalline, whereas for the
+anisotropy of the multilayered structures, the mechanism is more complicated. Originally,
+Neel discussed such an anisotropy based on a pair interaction model and related
+it to the reduced symmetry at the interface or surface of ferromagnetic material, which
+connected to spin-orbit coupling gives a source of anisotropy. There were many improvements
+and corrections to this originally proposed model and a number of first-principle
+simulations predicting interfacial anisotropy in multilayered structures with good
+agreement with experimental results [Johnson et al. 1996, 1995]. Typically, roughness,
+formation of interface alloys and microstructure (e.g., columnar growth or patches)
+are seen to reduce the surface anisotropy which makes engineering of the free layer
+or pinned layers based on interfacial anisotropy quite challenging. In addition to the
+above effect, stress in the vicinity of the interface can also contribute to the anisotropy.
+The first observation of STT switching in a perpendicular structure was done independently
+by researchers at HGST and Tohoku University in 2006 [Mangin et al.
+2006; Seki et al. 2006] on GMR structures. The first study used a FL made of Co/Ni
+multilayer while the pinned layer involved a combination of Co/Ni and Co/Pt multilayers.
+Materials such as Pt or Pd introduce high spin-orbit scattering and an increase
+in damping, which results in higher STT switching current. The switching current for
+DC switching mode was 2–4 × 107 A/cm2 and GMR was 1%. For the second study [Seki
+et al. 2006], Fe/Pt multilayers were used for free and pinned layers and the switching
+current of ∼108A/cm2 was achieved.
+The first observation of switching in an all-perpendicular STT-MRAM cell with MgO
+tunneling barrier was accomplished by Toshiba in 2008 [Nakayama et al. 2008] based
+on TbCoFe perpendicular material. In order to increase the spin polarization and STT
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:20 D. Apalkov et al.
+efficiency, thin interfacial layers of CoFeB were deposited next to the MgO so that
+the whole structure was TbCoFe/CoFeB/MgO/CoFeB/TbCoFe. The device showed good
+thermal stability of 107 for diameter of a circle of 130nm, however the STT switching
+current density was of the order of 5 × 106A/cm2 – too high for commercial applications.
+The TMR was also quite small, close to 15%. At that time, the structure was not annealed
+and the low TMR was attributed to incomplete crystallization of MgO and
+interfacial CoFeB [Nakayama et al. 2008]. High temperature annealing reduces the
+anisotropy of TbCoFe and such free layers may not withstand some of the processing
+steps during STT-MRAM fabrication. Nonetheless, the target for Jc0 to make a
+commercially-viable product is 1 × 106A/cm2 so significant efforts are still needed. In a
+constant search for new materials, researchers looked at special tetragonal L10-phase
+materials, such as FePt. The anisotropy of L10-FePt material can be changed by doping
+with certain elements, using a matched underlayer or buffer layer and optimizing deposition
+conditions. One complication with such materials is that they typically require
+in-situ heating at high temperatures, which would jeopardize the CMOS underlayers
+needed for a fully functional memory chip.
+Recent reports from Toshiba [Daibou et al. 2010; Yoda et al. 2010] on FePd L10
+material showed very small switching current of 9μA in one direction and 11μA in the
+other at long switching pulse of 5ms with quite low thermal stability of 32. This would
+translate to current density of 0.5 × 106A/cm2 at 5ms. For such low thermal stability,
+however, obtaining Jc0 by extrapolating is difficult and gives values that are higher by
+a factor of at least 2.
+Notably, a recent study by researchers at Bielefeld University [Kugler et al. 2011]
+looked at Co/Pd multilayer-based MTJ. There was also an insertion layer of CoFeB
+at the MgO interfaces, so the complete structure was [Co/Pd]x/CoFeB/MgO/CoFeB/
+[Co/Pd]y. Hc values up to 5kOe were achieved by optimization of the thickness of the
+layers and number of repetitions in the multilayers, however the highest TMR at room
+temperature was close to 10%, achieved after 150◦C annealing, which was not enough
+to achieve good crystallization of the MgO and adjacent CoFeB. This was confirmed
+by X-ray diffraction study, which showed FCC (111) orientation of Co/Pd multilayers.
+This texture is not compatible with BCC (001) texture for CoFeB, needed to get high
+TMR. In addition, diffusion of Pd towards MgO has been observed, which explains the
+reduction of TMR with increased annealing temperature.
+3.5. I-PMA Perpendicular
+Continuous improvements of PPMA for in-plane CoFeB-based materials by optimizing
+capping and seeding layers enabled achievement of PPMA as high as 80–90% and
+higher. Since this anisotropy is based on the surface of CoFeB and capping layer, reduction
+of CoFeB thickness allows further increase of anisotropy, which will at some thickness
+overcome the demagnetizing energy and result in total perpendicular anisotropy.
+The effective anisotropy field in this case is related to surface anisotropy energy σ:
+HK = 2σ
+MSt − 4π MS (10)
+and the thermal stability in this case is given:
+ =
+
+σ − 2π M2
+St
+
+A
+kBT . (11)
+Notice that if the thickness is increased, thermal stability is in fact decreased, which
+is opposite to the previously considered case of bulk anisotropy. The main advantage
+of interfacial anisotropy is that it can be achieved with conventional materials such as
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:21
+Fig. 16. 1T1MTJ (a) Structural view, (b) Schematic view, (c) MTJ R-V characteristic.
+CoFeB and MgO, which are well studied for the in-plane approach and are known to
+give high TMR and spin polarization. This indeed has been confirmed by researchers
+at Tohoku University [Ikeda et al. 2010]. The structure was very similar to in-plane
+STT cell with free layer at the bottom: Ta/CoFeB/MgO/CoFeB/Ta where the thicknesses
+of the free and pinned layers were chosen to give high perpendicular anisotropy. TMR
+for this structure was as high as 124% and average Jc0 was 3.9 × 106A/cm2. Even
+though the STT efficiency should be quite high in this case since the materials are the
+same as for in-plane structure, the current density is quite large. This can be partially
+explained by the increase of damping with decrease of FL thickness [Ikeda et al. 2010].
+Additional work on reducing damping for thin FL films is needed for reduction in the
+switching current. An independent and similar approach has been implemented by IBM
+[Worledge et al. 2010, 2011] using a similar free layer with a different pinned layer.
+The switching current density for this case was close to 2 × 106A/cm2 with slightly
+reduced TMR and larger device size. IBM researchers had integrated this new cell
+with the transistors, and their evaluation is based on fabrication and measurement of
+thousands of devices. It is clear that for this approach to work in a commercial product,
+further reduction in damping and increase in the surface anisotropy σ are needed.
+4. STT-MRAM CHIP DEVELOPMENT
+4.1. STT-MRAM Architecture
+The core of the STT-MRAM memory chip architecture is the memory unit cell. The
+smallest STT-MRAM cell design is a 1T1MTJ (one transistor, one magnetic tunneling
+junction) device. An NMOS transistor is used to access the MTJ device since NMOS
+devices typically have higher current drives, lower threshold voltages, and smaller
+layout area requirements. In the STT-MRAM convention, the low resistance or parallel
+(P) state, Rlow is defined as logic “0,” and high resistance anti-parallel (AP) state, Rhigh
+is defined as logic “1.”
+The gate of the access transistor is driven by the word-line (WL); the transistor
+source is connected to the source-line (SL), and drain is connected to the MTJ pinned
+layer (PL). The MTJ free layer (FL) is connected to the bit-line (BL); see Figure 16(a)
+and 16(b). Figure 16(c) shows the MTJ R-V curve.1 Assuming an initial Rlow state,
+when a positive voltage is applied to the MTJ (SL is taken positive and BL is ground),
+1The RV curve in Figure 16(c) is an illustrative drawing. Measured results for actual devices depend on
+detailed characteristics of the MTJ, as well as on the testing procedure. The magnitude of the resistance
+change observed during switching, for example, is largest for devices with smallest switching voltages and
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:22 D. Apalkov et al.
+the MTJ switches from P to AP state, and resistance is increased. When the applied
+voltage is removed, the MTJ resistance settles at Rhigh. Similarly, when the opposite
+voltage is applied, the resistance switches back to the low state. The TMR of the MTJ
+cell provides a measure for the sense amplifier read margin. For a fully functional chip,
+the minimum requirement for the read margin is approximately R/σR > 20, where
+R is the difference between Rhigh and Rlow, and σR is the standard deviation of RLOW 2.
+The size of the transistor depends on the transistor’s ability to provide the necessary
+voltage and current levels to switch the cell MTJ. Looking at Figure 16(b), it is clear
+that writing a “1” (switch P→AP state) is more difficult since the transistor voltage is
+now a function of the voltage VMTJ across the MTJ. This voltage is shared across the
+voltage divider network of MTJ and NMOS transistor. With the transistor turned on
+and BL at ground or negative voltage, a positive write voltage is applied to SL. Current,
+IP→AP, starts to flow through the transistor and MTJ. The voltage drop across the MTJ
+is VMTJ = Rlow × IP→AP and IP→AP = IDS. Since VGS = VW L-VMTJ, IDS is reduced
+compared to the case for writing a “0.” In both cases, the current will eventually either
+saturate or be limited by the MTJ resistance. VMTJ and VDS will settle according to the
+voltage divider network. The P→AP switching voltage of the MTJ must be smaller than
+VMTJ in order for switching to occur. Boosting the gate voltage allows higher current
+to flow, effectively lowering VDS and increasing VMTJ. To ensure a high probability of
+successful writes, an overdrive write voltage is designed into the circuitry. As for the
+switching current, the overdrive voltage depends on the write pulse width (tp) and the
+required write error rate (WER). VWR is the write voltage and Vc0 is the critical voltage.
+The overdrive factor VWR/Vc0 can be larger than 2 for tp < 20ns at WER < 10−9.
+As with all high density memory designs, the STT-MRAM chip has hierarchical
+architecture as shown in Figure 17. Here we show a chip design for which the memory
+array tile (MAT) consists of 16Kbit (128-WL× 128-BL/SL, Poly WL, M0-SL, M1-BL)
+of STT-MRAM. It also includes 4 reference BL/SLs, 16 redundant WLs, 8 redundant
+BL/SLs, and 4 redundant reference BL/SLs. MATs are driven by sub-word line (SWL)
+drivers (not shown) and local column select (LCS) circuits. Each Global WL (M2) runs
+the entire width of the memory bank and connects four SWL drivers in each SWL
+section. Each LCS is shared between two MATs. The even BL/SL pairs are connected
+to one LCS and the odd BL/SL pairs are connected to the opposite LCS. Isolation
+Transistors driven by ISOT and ISOB signals select the MAT being accessed and
+isolate the MAT not being accessed. The global column select (CS) lines run in M3 over
+the entire length of each bank. Each CS line activates four pairs of BL/SLs and two
+sets of Rlow/Rhigh reference BL/SL pairs. Reference BL/SLs are positioned in the middle
+of the MAT to minimize resistance offset. M3 Global BL (GBL) and global reference BL
+(GRBL) are designed to match closely in parasitic loads.
+The memory density of this architecture can be increased by adding more MATs
+as shown in Figure 18. The MAT size should be chosen such that Rlow > RRDPATH
+(total read path resistance load) which should take into account the TMR distribution.
+Most of the parasitic resistances in the read path are in the local M0 SL, M1 BL, and
+pass transistors within the MAT and LCS. BL/SL metals are thin and tight-pitched
+resulting in very high resistances compared to the low resistance M2 ISL/IBL and M3
+GBL/GWRL lines. The architecture is thus scalable to higher densities since multiple
+MATs can be added with minor impact to sense amplifier margin.
+vice versa. Stack details also influence the degree of asymmetry between threshold voltages for transitions
+in positive vs. negative voltage, and the difference in slopes along high and low R branches.
+2The minimum ratio between R and σR will depend on circuit design details, among other factors. Lower
+values could be tolerated, for example, at the expense of read time. A value of 20 is typical of state-of-the-art
+designs.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:23
+Fig. 17. Schematic of hierarchical STT-MRAM.
+Fig. 18. Scalable hierarchical STT-MRAM memory architecture.
+To further increase scalability, a current mirror preamplifier can be introduced in
+place of the read pass gate in the array, gap as shown in Figure 19. The current flowing
+through the MTJ during reading can be made small to eliminate read disturbs while
+the read signal can be amplified to offer suitable read margin to the sense amplifier.
+In Table II we review different bit cell design options, their requirements and benefits.
+Item 1 gives the smallest silicon area, lowest power consumption and requires simple
+CMOS process, but requires the highest performance MTJ device. Item 4 combines
+items 2 and 3. The design allows for the most relaxed MTJ device characteristics but has
+the highest power consumption. It also requires more complex circuitry and additional
+process steps. It does provide the smallest memory cell area but not necessarily the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:24 D. Apalkov et al.
+Fig. 19. Common plane 1T1MTJ with current mirror pre-amplifier.
+Fig. 20. Cross-section through two STT-MRAM unit cells with integrated CMOS access transistors. The
+unit cell size is 6F2. In the future, vertical transistors will enable reduction of the cell size to 4F2, and with
+multi-level cells to 2F2 and beyond.
+smallest overall die area. Item 5 uses both NMOS and PMOS access transistors for
+maximum current drive in both directions but results in the largest memory cell area.
+However, the advantages are lower power consumption, relaxed MTJ requirement, and
+minimum needed circuitry. Note that values in this table are based on actual designs
+at the time when this article was written. The amount of power consumption depends
+on a few factors such as leakage current, resistive and capacitive loads, and efficiency
+of charge pumps. If we assume the memory array consumes 1μA of leakage current
+during standby, then with the charge pumps active, the standby current will be 40μA
+to 70μA + 1μA which is 40× to 70× larger.
+4.2. Process Integration
+An STT-MRAM memory cell consists of an access transistor and a magnetic tunnel
+junction (MTJ) storage element (Figure 20). Unlike most other memory technologies,
+STT-MRAM is easily embedded in standard CMOS processes with the addition of just
+two extra masks, one that defines the via contact beneath the MTJ and the other that
+defines the MTJ itself. The MTJ layer can be inserted between any two metal layers
+depending on the process or cell size requirements. In applications where achieving the
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:25
+Table II. Comparison of Bit Cell Design options: Requirements and Benefits
+Bit-Cell Architecture Minimum
+Process
+Requirement
+Additional
+Circuitry
+Requirement
+Estimated
+Normalized
+Array Stand-by
+Power
+Commemts
+1 1T1MTJ Conventional,
+single supply
+drive scheme
+CMOS Process None 1 Small cell size,
+simple CMOS
+process, low standby
+power, lowest write
+energy requirement
+for MTJ
+2 1T1MTJ Negative-BL
+Write scheme
+CMOS,
+Triple-Well
+Multiple-level BL
+Driver, level
+Shifters, control
+circuitry, charge
+pumps for
+negative voltage
+generation
+10–20 ∼2.8X increased in
+write energy for the
+same cell size;
+increased power
+consumption due to
+charge pump
+3 1T1MTJ Boosted WL
+scheme
+CMOS, Dual-gate Level shifter
+drivers
+30–50 ∼1.5X increased in
+write energy for the
+same cell size;
+increased power
+consumption due to
+charge pumps
+4 1T1MTJ Boosted WL
+scheme and
+NegativeBLWrite
+scheme
+CMOS,
+Triple-well,
+Dual-gate oxide
+Level shifter WL
+drivers,
+multiple-levlel
+BL Driver,
+control circuitry,
+positive and
+negative charge
+pumps for
+boosted and
+negative voltage
+generation
+40–70 >3X increased in
+write energy for the
+same cell size;
+increased power
+consumption form
+two charge pumps
+5 2T1MTJ CMOS access
+transistor
+CMOS Process Simply
+complementary
+WL driver
+1 >3X cell size with
+∼1.8X increased in
+write energy; low
+stand-by power
+smallest possible cell size is important, the MTJ layer is inserted at the lowest metal
+layer where design rules are tightest. Using in-plane MTJ technology and a shared
+source line architecture (Figure 20), the minimum STT-MRAM cell size is 6F2, which
+is competitive with DRAM and NOR Flash and far superior to SRAM. Using perpendicular
+MTJ technology and vertical access transistors, the minimum STT-MRAM cell
+size can be further reduced to 4F2 because the perpendicular MTJ shape is circular, not
+elliptical. By incorporating multi-level cells (Section 2b7), the effective cell size can be
+reduced to 2F2 and beyond. At these very small cell sizes, the cost of STT-MRAM can become
+competitive even with NAND Flash. And in embedded applications, STT-MRAM
+actually provides a significant cost reduction compared to other embedded nonvolatile
+memory technologies such as embedded Flash because more than 10 masks can be
+eliminated and there is no need for circuitry to boost the write voltage. The following
+are six important considerations in STT-MRAM process integration:
+(1) Via contact beneath the MTJ needs to be polished very flat prior to deposition of
+the MTJ. A typical specification would be less than 0.2nm r.m.s. local flatness. Any
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:26 D. Apalkov et al.
+significant roughness that propagates into the MTJ stack can impact its properties
+and performance.
+(2) The MTJ stack deposition process needs to be well controlled and very uniform
+across the wafer. Total stack thickness is approximately 20nm, with the thinnest
+layers such as the critical MgO tunnel barriers being only 1nm thick.
+(3) The MTJ etch and encapsulation process requires attention due to the non-volatile
+magnetic materials involved. Typically, a thick metal or oxide hard mask and a
+carbonyl (CH3OH) gas chemistry are used to mask and etch the MTJ stack. Sufficient
+hard mask material needs to remain after etching in order to make reliable
+contact to the top of the MTJ at the next step, and a steep MTJ wall angle (greater
+than 80 degrees) after etch is required, particularly for high-density applications.
+Immediately after MTJ etch and preferably without breaking vacuum, the MTJ
+is encapsulated with nitride or oxide in order to protect it from contamination or
+degradation.
+(4) The BEOL (backend of the line) process thermal budget needs to be controlled. The
+relevance of this issue was greater in the past than it is now, because earlier MTJs
+with alumina tunnel barriers would degrade if they were subjected to temperatures
+greater than 200 C for more than 2 hours. However, the latest advanced MTJs with
+MgO tunnel barriers can withstand temperatures greater than 425 C for more than
+2 hours without any degradation in magnetic or switching properties.
+(5) Semiconductor fabs need to be aware of the introduction of new magnetic materials
+into their fabs. Again, this was more of a concern in the past, but is less so now
+because MRAM and STT-MRAM materials and processes have been successfully
+implemented in multiple fabs. The latest MTJ deposition and annealing equipment
+have tight specifications on particle and contamination levels, and once the MTJs
+have been etched and encapsulated (in equipment dedicated to STT-MRAM) they
+are never exposed to the fab environment again.
+(6) Depending on the application, there is a potential need for magnetic shielding on
+top of chips incorporating STT-MRAM. Most applications will not require shielding
+because the maximum field strength experienced in everyday life (strong magnetic
+field pulses in metal detectors, airport security systems, alternators in automobiles,
+etc.) is less than 1Oe, more than one order of magnitude less than the safe
+specification for reliable STT-MRAM operation of less than 10Oe magnetic field
+at the MTJs (note that the acceptable field at the MTJs in STT-MRAM is significantly
+higher than conventional, field-switched MRAM because the STT effect is
+by its nature less susceptible to external field). But if the application requires an
+external field specification of 25Oe or even 100Oe, then this can be achieved by
+depositing a 2 or 3 micron thick permalloy shield above the MTJs t the end of
+the wafer process. Such a shield reduces the magnetic field experienced by the
+MTJ to much less than the required 10Oe, and by incorporating the shield in
+the wafer process instead of at the package level, the additional cost per chip is
+minimal.
+4.3. Sensing Schemes and Read Disturb
+In this section we will discuss two important STT-MRAM cell properties related to
+the thermal stability parameter. Consider an ensemble of magnetic moments, with
+mx being the fraction of the ensemble aligned along the positive x-axis. For complete
+magnetization alignment (parallel) along positive x, mx takes the value of +1. Then the
+rate equation can be written starting from a parallel (p) state as
+d
+dt mx = (1 − mx) τ −1
+ap→p − mx τ −1
+p→ap, (12)
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:27
+Fig. 21. Read disturb probability as a function of read current.
+where, τp→ap is the relaxation time with the ensemble in an initial parallel state.
+Following Boltzmann statistics, this relaxation time is given by
+τp→ap = τ0 exp 
+
+
+1 − Iread
+Ic0
+ , (13)
+where Iread is the read current, and  is the thermal stability factor. A similar expression
+for τap→p can be shown. Under the read current which favors parallel to
+anti-parallel transition, the rate equation can be simplified to include the parallel to
+anti-parallel term only, since τap→p would be very large. Therefore,
+1
+mx
+d
+dt mx ≈ −τ −1
+p→ap. (14)
+For a read current applied during a duration of tp, one can integrate the rate equation
+over time from zero to tp, and renormalize, yielding an expression for mx as a function
+of tp:
+	
+mx(tp)
+
+
+= 1 − exp[−tp/τp→ap]. (15)
+Thus the probability to be switched (or disturbed) after one read event with duration
+tp follows the functional form:
+PRD (Iread) = 1 − exp
+−tp
+τ0 exp 
+
+1 − Iread
+Ic0
+
+, (16)
+which is plotted on Figure 21 for 10ns read time. Typical requirement for STT-MRAM
+read disturb varies from 10−21 to 10−23, as depicted in Figure 21. This requirement
+directly translates into maximum allowed read current for a given value of thermal
+stability. As one can see from equation (12), shorter read pulse will translate to smaller
+read disturb probability. This can be utilized in the design of STT-MRAM, taking a
+shorter read but longer write pulse.
+Equation (16) can also be used to calculate requirements for thermal stability. In
+this case, tp becomes the desired data retention time span, which is typically taken as
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:28 D. Apalkov et al.
+Table III. Required Room-Temperature Values for 10 Year Data
+Retention
+Capacity 1000 FIT @ 80C 0.1 FIT @80C 0.1 FIT @ 160C
+1 Mb > 66.6 > 77.4 > 95.0
+16 Mb > 69.9 > 80.7 > 99.0
+256 Mb > 73.1 > 84.0 > 103.0
+512 Mb > 73.9 > 84.8 > 104.0
+1 Gb > 74.7 > 85.6 > 105.0
+10 years and Iread is set to 0:
+Pth = 1 − exp −tp
+τ0 exp ()
+
+(17)
+The requirements on this in terms of single Failure in Time (FIT) becomes
+Pth = FIT
+NB
+(18)
+where NB is the total number of bits in the chip. From the above expressions, we have
+a requirement for thermal stability (Table III):
+ = −Ln
+−τ0
+tp
+Ln
+1 − FIT
+NB
+ (19)
+The application of an external field during read operations can be used to stabilize
+memory cells by “skewing” the RV curve [Wang et al. 2010]. Naturally, this approach
+reintroduces design issues associated with field-written MRAM, which partially motivate
+the transition to STT-MRAM. The same reference also describes additional sense
+schemes, and reports the results of implementing them in a 16kB chip produced at the
+130nm node. Despite variations of over a factor of 3 in MTJ resistances across the chip,
+the self-referencing schemes implemented by Chen et al. resulted in sense margins
+greater than 20mV, which they compared to earlier results in which sense margins
+were as low as 8mV.
+4.4. Write Schemes and Write Error Rate
+The switching speed of an STT-MRAM cell depends on cell characteristics and the
+overdrive factor – Ic/Ic0. Based on a macrospin model, one can derive the following
+expression for inverse of the switching speed.
+1
+tsw =
+⎛
+⎝
+2
+γ + ln 
+π2
+4
+
+⎞
+⎠
+μBη
+eMSV (I − Ic0) , (20)
+where μB is the Bohr magneton, e is the electron charge, V is the free layer volume,
+and γ is Euler’s constant (approximately 0.577) [Worledge et al. 2011]. Based on this
+expression, one can plot the reciprocal of pulse width (or switching speed) as a function
+of write current I as depicted on Figure 22. As the partial perpendicular anisotropy is
+increased from 0% to 50% and 85% for the same size of 80nm, there is no change in
+the slope of the curves but there is a horizontal shift towards smaller currents. This
+is due to the fact that Ic0 becomes smaller with increasing PPMA. If the single MTJ is
+replaced by a dual MTJ, there is a large increase of the slope due to much higher STT
+efficiency for the dual MTJ structure, especially for P→AP switching. If the size of the
+cell is further reduced from 80nm down to 40 and 20nm, the volume and total magnetic
+moment of the free layer are reduced and the slope is greatly improved. Based on this,
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:29
+Fig. 22. Reciprocal of pulse width (or switching speed) as a function of write current for Single MTJ with
+various levels of PPMA (from 0 to 85%) and Dual MTJ with PPMA = 85% and various sizes.
+Fig. 23. Left – measured write error rate as a function of write current for Grandis’ in-plane DMTJ structure
+with 60nm width and 50ns pulsewidth. WER level of 10−6 achieved near 200 and 230μA for AP→P and
+P→AP directions respectively. Right – simulations for conventional perpendicular and Grandis’ advanced
+perpendicular structures. The improvement becomes higher for faster switching and lower WER.
+we see a good trend of increasing speed of the STT-MRAM cell when going to smaller
+nodes.
+Another important characteristic of the writing process is the failure probability –
+cell not switched. This failure is described by the write error rate (WER), which is
+defined as the probability of not switching after a given current pulse is applied. For
+a typical application as a storage memory, WER has to be less than 10−3, whereas for
+working memory, the desired level of WER is around 10−9 if there is error correction
+on the chip or 10−18 without error correction. Figure 23 shows WER as studied experimentally
+on one of Grandis’s in-plane DMTJ cells at the 60nm node (width of the
+cell) for 50ns switching pulse width. We can easily see that currents of ∼200μA and
+∼230μA are enough to get 10−6 WER for AP→P and P→AP switching with very steep
+slope, providing a good success in applying such low WER cells for working class memory
+applications with small overdrive factor for intermediate speeds (20–50ns). For
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:30 D. Apalkov et al.
+Fig. 24. Endurance of STT-MRAM: (a) Number of write cycles before an MTJ cell is broken down as a
+function of voltage (this is a destructive test, that is, a number of MTJ cells were broken down during this
+test). (b) – Projection to switching voltage shows endurance of close to 1020 writes. (c) Normalized TMR as a
+function of number of write cycles – no drift or degradation in TMR.
+ultrafast speeds (5ns and beyond) and very low write error rates, Grandis’ advanced
+perpendicular MTJ design is projected by micromagnetic simulations to provide large
+improvement compared to conventional perpendicular design, as shown in Figure 23,
+especially for faster switching and lower WER.
+In a typical Bottom MTJ (BMTJ) cell the pinned layer is located at the bottom of
+the stack, under the MgO barrier. In this case, the transistor Bit line is connected to
+the free layer and the transistor driving current asymmetry results in larger current
+being available to switch the free layer from AP to P state rather than the opposite hard
+direction from P to AP. Without resorting to using DMTJ structures, two solutions exist.
+One may use inverted connection between the driving transistor and MTJ element. In
+this case, additional current paths are created to connect the Bit line to the pinned layer,
+which makes it difficult to achieve high densities. This approach was demonstrated by
+Qualcomm and TSMC in 2010 (Lin et al. 2009). In the second approach, there is no
+additional current path created, instead the MTJ element is reversed so that the pinned
+layer is at the top of the structure and the free layer is at the bottom of the structure.
+This approach was demonstrated by Fujitsu in 2010 [Lee et al. 2010].
+Another relevant characteristics to STT-MRAM is endurance, that is how many times
+a cell can be switched before the MTJ barrier breaks down. This is typically measured
+at increased voltage and projected to operating voltage. For a given voltage, a cell is
+constantly written and read until it breaks down. This procedure is then repeated on
+the next cell and so on until enough statistical data are obtained. Next, the same test
+is done for decreased voltage as shown in Figure 24(a). Then, projection to switching
+voltage gives expected endurance of STT-MRAM cell, which was shown to be close to
+1020, more than enough for even the most demanding applications.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:31
+4.5. Chip Development
+STT-MRAM chip development has also advanced significantly over the past years. Sony
+Corporation demonstrated for the first time a 180nm logic 4Kb STT-MRAM test chip
+in 2005 at IEDM. The MTJ free layer size was 100 × 150nm2. The switching voltage
+was quite large at 0.8V and 1.2V at 100ns pulse. The critical switching currents were
+close to 300 and 400μA for AP→P and P→AP directions respectively.
+Hitachi and Tohoku University demonstrated a circuit design for a 2 Mb STT-MRAM
+chip in 2007 at ISSCC using a 200nm CMOS process [Kawahara et al. 2007]. Another
+demonstration of fully-functional STT-MRAM chip was reported by Renesas and Grandis
+in 2008. The chip was based on 90nm CMOS technology with 4 Cu metal process.
+The capacity was 256Kb, the write current was less than 200 μA and write/read speed
+was 20ns. The endurance was shown to be above 1013. In 2009, TSMC and Qualcomm
+described an STT-MRAM macro based on 45nm logic technology for embedded memory
+in low-power mobile applications [Lin et al. 2009]. The MTJ size was 40nm with aspect
+ratio of 2.5-3. TMR and RA were 110% and 9 μm2. In this demonstration, a reverse
+connection between MTJ and transistor was used (Bit line connected to pinned layer),
+which resulted in more efficient utilization of single MTJ switching current asymmetry:
+the asymmetry of the transistor drive current matches the asymmetry of MTJ, supplying
+larger current for the more demanding P→AP switching. One recent significant
+advance in STT-MRAM chip demonstration has been the design and characterization of
+fully-integrated STT-MRAM chips for high-density memory applications [Chung et al.
+2010]. Fabricated in a 54nm modified DRAM process with a density of 64Mb and a
+cell size of 14F2, these are the most advanced STT-MRAM chips with the smallest
+unit cell size announced to date. The switching currents were 100μA and 80μA for
+P→AP and AP→P directions respectively and the switching voltages were 0.75V and
+0.65V for the design size of 54 × 108nm2. The switching voltages are relatively high
+due to the measured RA value being higher than target. The thermal stability of 57
+was obtained by analysis of Hc variations. Although these STT-MRAM chips incorporated
+in-plane MTJ with single barriers, superior performance that meets the design
+requirements for commercialization of 1Gb STT-MRAM chips is expected in the near
+future with the incorporation of the latest DMTJ structures with 165% TMR and less
+than 1.0 × 106A/cm2 write current density.
+5. STT-MRAM APPLICATIONS AND ROADMAP
+Worldwide interest in and development of STT-MRAM has increased very significantly
+over the past two years for two main reasons. One is that existing memory technology is
+facing increasing challenges beyond 20nm. Embedded SRAM has high power consumption,
+and leakage current is increasing significantly with each technology node. DRAM
+refresh current is increasing and it is becoming very difficult to scale the high aspect
+ratio capacitor structures below 20nm. And Flash, despite leading other technologies
+in terms of scaling to smaller technology nodes, is suffering from decreased performance.
+It has limited endurance, high write power and very slow write speed. Flash
+also requires evermore complicated controllers, especially for MLC. The second reason
+for increased interest in STT-MRAM is that memory performance is fast becoming the
+key bottleneck limiting system performance. Critical applications center increasingly
+around data, and depend less on computations. Instant-on is becoming a requirement
+for many applications. At the same time, it has become increasingly clear to semiconductor
+manufacturers that, due to its limited speed and endurance, Phase Change
+Memory (PCM) cannot deliver on its initially perceived potential as a DRAM replacement.
+STT-MRAM and RRAM are therefore now accepted as the only two viable future
+memory technologies, the former as a high-speed nonvolatile replacement for mobile
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+13:32 D. Apalkov et al.
+Fig. 25. Grandis STT-MRAM roadmap. STT-MRAM technology is expected to intersect the DRAM roadmap
+by 2015 and the Flash roadmap by 2018. The transition from in-plane to perpendicular STT-MRAM is
+expected to occur at around the 16nm node in 2017. i-PMA refers to interfacial perpendicular anisotropy and
+c-PMA refers to crystalline perpendicular anisotropy.
+RAM, DRAM, embedded Flash and embedded SRAM, the latter as a replacement for
+standalone NAND Flash.
+Grandis’s best estimate of the future path of STT-MRAM, derived both from internal
+projections and from discussions with its partners, is shown in Figure 25. The first
+standalone applications of STT-MRAM are expected to be as a mobile MCP (multi-chip
+package) and mobile DRAM replacement in 2012–2013. The STT-MRAM technology
+node is expected to intersect DRAM by 2015 and Flash by 2018 (with MLC technology).
+In-plane STT-MRAM technology is expected to scale beyond 20nm using Grandis’ advanced
+DMTJ technology. Perpendicular STT-MRAM is expected to be introduced at
+around 16nm in 2017, or perhaps earlier if the development of perpendicular materials
+reaches the required performance for mass production before then. In the embedded
+space, STT-MRAM’s entry point can be as a replacement for embedded Flash and other
+types of nonvolatile memory in microcontroller units (MCUs) and field-programmable
+gate arrays (FPGAs), and later on as a replacement for high-speed SRAM cache in
+mobile chipsets and central processing units (CPUs). In all these embedded applications,
+STT-MRAM’s value proposition is its lower cost, lower power consumption and
+better performance. It is difficult, however, to draw a single roadmap for embedded
+STT-MRAM due to the large variation in types of applications and technology nodes
+used in production.
+In terms of the material and performance specifications in the roadmap, write current
+Iw and write energy per bit Ew both reduce with technology node due to the
+inherent scalability of STT-MRAM technology. Similarly, MTJ resistance–area product
+RA, which is controlled by MTJ tunnel barrier thickness, decreases with technology
+node and with the transition to perpendicular STT-MRAM, but remains within the
+range that has already been demonstrated in the hard drive industry (MTJs with RA
+less than 1μm2 are in the read head of every hard drive today). Data retention can be
+maintained at greater than 10 years by engineering the MTJs with sufficient thermal
+stability, and endurance remains essentially unlimited (greater than 1016 cycles) due to
+the low write voltage. That leaves TMR as the one specification requiring the greatest
+attention and material development over the coming years. TMR greater than 150%
+has been demonstrated using in-plane STT-MRAM technology to date, but further materials
+development is required, especially in perpendicular STT-MRAM technology, to
+deliver the required specifications of 200 to 300% in the later part of the decade.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 9, No. 2, Article 13, Pub. date: May 2013.
+JETC0902-13 ACM-TRANSACTION May 7, 2013 18:11
+Spin-Transfer Torque Magnetic Random Access Memory (STT-MRAM) 13:33
+6. CONCLUSIONS AND OUTLOOK
+STT-MRAM builds upon the foundation already established by the pioneering MTJbased
+MRAM, in production since 2006 by Freescale/Everspin. However, MRAM is not
+expected to be scalable to advanced nodes below 90nm primarily because of the fieldwrite
+scheme. This is where STT-MRAM steps in: based on the same type of storage
+cell as MRAM, but with an inherently scalable writing scheme and simplified overall
+cell design. In this review we have described a number of design approaches for
+STT-MRAM. This variety in itself demonstrates the engineering flexibility that magnetism
+and spintronics bring to the table. The focus of research and development work
+on STT-MRAM to date has primarily been to establish direct replacement compatibility
+with existing DRAM and SRAM products, while adding the benefits of nonvolatility
+and projected sub-20nm scalability associated with magnetic-based cells. These are significant
+advantages over conventional charge-based memories. However we would like
+to emphasize that this just scratches the surface of the additional functionalities that
+could be possible, for instance combining nonvolatile programmable logic with memory
+or cache functionality directly on the CPU; multi-state cells utilizing the vector nature
+of the magnetic moment and spin-polarized current; integrated MTJ-based microwave
+oscillators, and so on.
+We have provided a detailed description of work on in-plane, perpendicular and alternative
+approaches to STT-MRAM development. At Grandis, we have demonstrated
+in-plane based STT-MRAM structures and particularly DMTJ structures that simultaneously
+combine all the required characteristics for stability, switching current, TMR
+and RA. We believe that this type of structure has excellent potential for near-term commercialization.
+Traditional perpendicular structures have been described as a somewhat
+longer-term prospect for introduction at sub-30nm nodes due to the additional
+material research and development expected. Recent demonstrations of perpendicular
+structures based on conventional STT-MRAM material sets, however, suggest that this
+timeline will perhaps contract. In either case, we believe that STT-MRAM is mature
+and ready for a concerted push to enter into production at any node 65nm and below,
+for any of various applications such as embedded, SRAM, and DRAM products.

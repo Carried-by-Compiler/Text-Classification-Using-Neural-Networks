@@ -1,0 +1,116 @@
+Correcting coherent errors with surface codes
+
+Abstract
+Surface codes are building blocks of quantum computing platforms based on 2D arrays of qubits responsible for detecting and correcting errors. The error suppression achieved by the surface code is usually estimated by simulating toy noise models describing random Pauli errors. However, Pauli noise models fail to capture coherent processes such as systematic unitary errors caused by imperfect control pulses. Here we report the first large-scale simulation of quantum error correction protocols based on the surface code in the presence of coherent noise. We observe that the standard Pauli approximation provides an accurate estimate of the error threshold but underestimates the logical error rate in the sub-threshold regime. We find that for large code size the logical-level noise is well approximated by random Pauli errors even though the physical-level noise is coherent. Our work demonstrates that coherent effects do not significantly change the error correcting threshold of surface codes. This gives more confidence in the viability of the fault-tolerance architecture pursued by several experimental groups.
+
+Introduction
+Recent years have witnessed major progress towards the demonstration of quantum error correction and reliable logical qubits.1,2,3,4,5,6 Such qubits can be protected from noise by measuring syndromes of suitable parity check operators and applying syndrome-dependent recovery operations. Topological quantum codes such as the surface code7,8 are among the most attractive candidates for an experimental realization, as they can be implemented on a two-dimensional grid of qubits with local check operators.
+
+It is believed that such codes can tolerate a high level of noise9,10,11 which is comparable to what can be achieved in the latest experiments.6 The general confidence in the noise-resilience of topological codes primarily rests on considerations of Pauli noise—a simplified noise model where errors are Pauli operators X,Y,Z drawn at random from some distribution. An example is the case where each qubit j experiences noise described by the channel
+
+Nj(ρ)=(1−εj)ρ+εxjXρX+εyjYρY+εzjZρZ
+(1)
+with suitable probabilities εxj,εyj,εzj and εj=1−εxj−εyj−εzj. This kind of noise can be fully described by the stabilizer formalism.12 In pioneering work, Dennis et al.9 exploited this algebraic structure to establish the first analytical threshold estimates, see also.13 The effect of Pauli noise also is efficiently simulable thanks to the Gottesman-Knill theorem, providing numerical evidence for high error thresholds of topological codes.14 The efficient simulability property has recently been extended beyond Pauli noise to random Cliffords and Pauli-type projectors.15
+
+While such algebraically defined noise models are attractive from a theoretical viewpoint, they often do not correspond to noise encountered in real-world setups. They are—in a sense—not quantum enough: they model probabilistic processes where errors act randomly on subsets of qubits. Rather than being of such a probabilistic (or incoherent) nature, noise in a realistic device will often be coherent, i.e., unitary, and can involve small rotations acting everywhere. A typical situation where this arises is if e.g., frequencies of oscillator qubits are misaligned: this results in systematic unitary over- or under-rotations. On a single-qubit level, this means that (1) should be replaced by noise of the form
+
+Nj(ρ)=UjρU†j
+(2)
+with a suitable unitary operator Uj∈SU(2). Since such errors generally cannot be described within the stabilizer formalism, understanding their effect on a given quantum fault-tolerant scheme is a challenging problem.
+
+Prior theoretical work indicates that the difference between coherent and incoherent errors could be significant. In particular, it was observed16,17,18,19,20 that coherent errors can lead to large differences between average-case and worst case fidelity measures suggesting that a critical reassessment of commonly used benchmarking measures is necessary. This observation motivates the question of how much coherence is present in the effective logical-level noise21,22 experienced by encoded qubits. Depending on whether or not the logical noise is coherent one may choose different metrics for quantifying performance of a given fault-tolerant scheme. Significant progress has been made towards understanding the structure of the logical noise for concatenated codes.21,22,23 However, these studies are not directly applicable to large topological codes such as those considered here.
+
+Brute-force simulations of coherent noise in small codes were presented in24,25,26,27 for Steane codes and surface codes with up to 17 qubits. Simulating coherent errors by brute force clearly requires time (and memory) exponential in the number of qubits n. For the surface code, Darmawan and Poulin28,29 proposed an algorithm with a runtime exponential in n1/2 based on tensor networks, and simulated systems with up to 153 qubits. This algorithm can handle arbitrary noise (including, e.g., amplitude damping). Unfortunately, its formidable complexity prevents accurate estimation of error thresholds, e.g., for the systematic rotations considered here. In,30 threshold estimates for the 1D repetition code were obtained. To our knowledge, there are no analogous threshold estimates for topological codes subject to coherent noise.
+
+Results
+Coherent noise and quantum memory
+We shall consider a particular version of the surface code proposed in Refs.31,32 A distance-d surface code has one logical qubit and n = d2 physical qubits located at sites of a square lattice of size d × d with open boundary conditions, see Fig. 1.
+We consider the situation where a logical state ψL initially encoded by the surface code undergoes a coherent error U = U1⊗…⊗Un which applies some (unknown) unitary operator Uj to each qubit j. To diagnose and correct the error without disturbing the encoded state we assume the standard protocol based on the syndrome measurement is applied. It works by measuring the eigenvalue (syndrome) sf = ±1 of each stabilizer Bf on the corrupted state U|ψL〉 and then applying a Pauli-type correction operator Cs depending on the measured syndrome s = {sf}f. The correction Cs is computed by a classical decoding algorithm (for example, one may choose Cs as a minimum-weight Pauli error consistent with s). We note that the syndrome s is a random variable with some probability distribution p(s) since the error U maps the initial logical state to a coherent superposition of states with different syndromes. We only consider noiseless syndrome measurements, and also assume that the correction operations Cs can be executed noiselessly. These assumptions (which can be relaxed by adapting our methods) are motivated by our focus on the effect of coherent errors. They also imply that we can assume that the correction Cs always returns the system to the logical subspace resulting in some final logical state |ϕs〉. Thus the process of (noisy) storage with error U and subsequent error correction maps an initial encoded state |ψL〉 to a certain final logical state |ϕs〉 with probability p(s), while also providing the classical syndrome s.
+
+The main question addressed here is how close the final state |ϕs〉 and the initial state |ψL〉 are as a function of the noise. Here we will assume that the error applied to qubit j is of the form Uj = exp(iηjZ) for some (unknown) angle ηj. The restriction to Z-rotations is dictated by the limitations of our simulation algorithm for storage. It provides a paradigmatic example of coherent noise. We also discuss a related problem—that of state preparation—and provide analogous results for general SU(2) coherent errors (see Supplementary Note 2).
+
+Effective coherent logical noise
+We show analytically that the syndrome probability distribution p(s) is independent of the initial logical state ψL whereas the final logical state has the form
+
+|ϕs⟩=exp(iθsZL)|ψL⟩
+(3)
+for some logical rotation angle θs∈[0, π) depending on the syndrome s (see Supplementary Note 1). In other words, the error correction process converts physical-level coherent noise U to effective coherent noise exp(iθsZL) on the logical qubit, with a strength θs depending on the (randomly distributed) syndrome s.
+
+The parametrization (3) concisely captures the effect of coherent noise, providing us with a window into the nature of this conversion. We use the quantity
+
+PL=2∑sp(s)|sinθs|
+(4)
+as a measure of the (average) logical error rate: this is the average (over syndromes) diamond-norm distance33 ∥Λs−id∥♢=2|sinθs| between the conditional logical channel
+
+Λs(ρ)=eiθsZρe−iθsZ
+(5)
+and the identity channel id. While the quantity PL provides a meaningful measure for how well the initial state is preserved, the full information of the structure of residual logical errors is given by the distribution p(s) over logical rotation angles θs.
+
+Polynomial-time classical simulation
+We construct a polynomial-time classical algorithm which takes as input |ψL〉 and the rotation angles η1,…,ηn, samples a syndrome s from the distribution p(s), and outputs s as well as the associated final state |ϕs〉 (i.e., the logical rotation angle θs). The runtime of this algorithm scales as O(n2), where we measure complexity in terms of the number of additions, multiplications, and divisions of complex numbers that are required. Strictly speaking, the simulation time scales as O(n2) + t(n), where t(n) is the runtime of the decoding algorithm that computes the correction Cs. In our simulations the decoding time was negligible compared with the time required to sample the syndrome and compute the final logical state. By sampling sufficiently many syndromes, one can thus learn how frequently and in which ways error correction may fail in the presence of coherent noise. In particular, we may estimate the quantity PL. By providing both the syndrome s and the the logical rotation angle θs conditioned on s, our algorithm also gives us a unique opportunity to investigate the full structure of the logical-level noise.
+
+Numerical results
+Using our algorithm, we perform the first numerical study of large topological codes subject to coherent noise, performing simulations for surface codes with up to n = 2401 physical qubits, see Table 1 for a timing analysis.
+
+This shows that efficient classical simulation of fault-tolerance processes under coherent noise is possible, and allows us to extract key characteristics of these codes in the limit of large system size.
+
+In more detail, in our simulations we consider translation-invariant coherent noise of the form (eiθZ)⊗n, where θ∈[0, π) is the only noise parameter. The Pauli correction Cs was computed using the standard minimum weight matching decoder9,34 with constant weights independent of θ.
+
+Our numerical results for the logical error rate PL are presented in Fig. 2. Using the symmetries of the surface code one can easily check that PL is invariant under flipping the sign of θ; accordingly, it suffices to simulate θ ≥ 0. The data suggests that the quantity PL decays exponentially in the code distance d for θ<θ0, where
+
+0.08π≤θ0≤0.1π
+(6)
+can be viewed as an error correction threshold. We observe the exponential decay of PL as a function of the code distance d in the sub-threshold regime.
+Surprisingly, the threshold estimate Eq. (6) agrees very well with the so-called Pauli twirl approximation35,36 where coherent noise of the form N(ρ)=eiθZρe−iθZ is replaced by its Pauli-twirled version, i.e., dephasing noise of the form Ntwirl(ρ)=(1−ε)ρ+εZρZ with ε=sin2θ. For the latter the threshold error rate is around ε0 ≈ 0.11, see Ref.9 Solving the equation ε0=sin2(θ0) for θ0 yields θ0 ≈ 0.10π, in agreement with Eq. (6).
+
+Applying the Pauli twirl at the physical level amounts to ignoring the coherent part of the noise. To assess the validity of this approximation, let us compare logical error rates PL computed for coherent physical noise N and its Pauli-twirled version Ntwirl. Let PL(Ntwirl) be the logical error rate corresponding to Ntwirl. The plot of PL(Ntwirl) and the ratio PL/PL(Ntwirl) are shown on Fig. 3. It can be seen that applying the Pauli twirl approximation to the physical noise gives an accurate estimate of the error threshold but significantly underestimates the logical error probability in the sub-threshold regime. We conclude that coherence of noise has a profound effect on the performance of large surface codes in the sub-threshold regime which is particularly important for quantum fault-tolerance. This phenomenon was previously observed in,23,28 but has not been studied for large topological codes prior to our work.
+More information about the structure of the effective noise can be gained from Fig. 4, which shows the empirical probability distribution of the logical rotation angle θs obtained by sampling 106 syndromes s for the physical Z-rotation angle θ = 0.08π (which we expect to be slightly below the threshold). We compare the cases d = 9 and 25. In both cases the distribution has a sharp peak at θs = 0 (equivalent to θs = π). This peak indicates that error correction almost always succeeds in the considered regime. It can be seen that increasing the code distance has a dramatic effect on the distribution of θs. The distance-9 code has a broad distribution of θs meaning that the logical-level noise retains a strong coherence. On the other hand, the distance-25 code has a sharply peaked distribution of θs with a peak at θs = π/2 which corresponds to the logical Pauli error ZL. Such errors are likely to be caused by “ambiguous” syndromes s for which the minimum weight matching decoder makes a wrong choice of the Pauli correction Cs. We conclude that as the code distance increases, the logical-level noise can be well approximated by random Pauli errors even though the physical-level noise is coherent.
+To get a deeper insight into this phenomenon, we introduce and numerically study associated measures of “incoherence”. To define a metric quantifying the degree of coherence present in the logical-level noise, let us consider the twirled version of the logical channel Λs,
+
+Λtwirls(ρ)=(1−εs)ρ+εsZρZ,εs≡sin2(θs),
+and the corresponding logical error rate
+
+PLtwirl=∑sp(s)∥∥Λtwirls−id∥∥♢=2∑sp(s)sin2(θs).
+(7)
+Comparison of Eqs. (4,7) reveals that PL≥PLtwirl with equality iff the distribution of θs has all its weight on {0,π/2}, that is, when the logical noise is incoherent. It is therefore natural to measure coherence of the logical noise by the ratio PL/PLtwirl. This “coherence ratio” is plotted as a function of θ on Fig. 5(a). The data indicates that the coherence ratio decreases for increasing system size approaching one for large code distances. This further supports the conclusion that the logical noise has a negligible coherence. Finally, in Fig. 5(b), we show the analogous quantity for the average logical noise channel21 defined as Λ=∑sp(s)Λs. This average channel provides an appropriate model for the logical-level noise if the environment has no access to the measured syndrome. This may be relevant, for instance, in the quantum communication settings where noise acts only during transmission of information. Thus one can alternatively define the coherence ratio as
+
+PL/PLtwirl=∥Λ−id∥♢∥∥Λtwirl−id∥∥♢,
+(8)
+where Λtwirl is the Pauli-twirled version of Λ. A straightforward computation gives PL/PLtwirl=ε2+δ2√ε where ε=∑sp(s)sin2(θs) and δ=∑sp(s)sin(2θs)/2. The coherence ratio of the average logical channel is plotted as a function θ on Fig. 5(b). It provides particularly strong evidence that in the limit of large code distances, coherent physical noise gets converted into incoherent logical noise.
+
+Discussion
+Our work extends the range of noise models efficiently simulable on a classical computer. It allows—for the first time—to numerically investigate the effect of coherent errors in the regime of large code sizes which is important for reliable error threshold estimates. Our simulation algorithms make no assumptions about the particular decoder used. Hence the proposed approach should be universally applicable to benchmarking the performance of different fault-tolerance strategies in the presence of coherent noise. Although we simulated only translation-invariant noise models, all our algorithms apply to more general qubit-dependent noise. This enables numerical study of recently proposed state injection protocols,37 e.g., preparation of logical magic states, in the presence of coherent errors. Another possible application could be testing the so-called disorder assisted error correction method38,39,40 where artificial randomness introduced in the code parameters suppresses coherent propagation of errors due to the Anderson localization phenomenon. We leave as an open problem whether our algorithm can be extended to more general codes, such as as color and hyperbolic codes, as well as more general noise models such as those including systematic cross-talk errors.
+
+Our numerical results spell good news for quantum engineers pursuing surface code realizations: thresholds for state preparation and storage are reasonably high, suggesting that coherent noise is not as detrimental as one could expect from the previous studies. The numerical investigation of the logical-level noise gives rise to a conceptually appealing conjecture: error correction converts coherent physical noise to incoherent logical noise (for large code sizes). Whether this is an artifact of the considered error correction scheme or manifestation of a more general phenomenon is an interesting open question.
+
+Methods
+Our algorithm is based on a fermionic representation of the surface code proposed by Kitaev41 and Wen,31 see Fig. 6. It works by encoding each qubit of the surface code into four Majorana fermions in a way that simplifies the structure of the surface code stabilizers. The Kitaev-Wen representation has previously been used by Terhal et al.42 to design fermionic Hamiltonians with topologically ordered ground states. Here we show that this representation is also well-suited for the design of efficient simulation algorithms.
+
+The fermionic version of the surface code is described by Majorana operators c1,…,c4n that obey the standard commutation rules c†p=cp, c2p=I, and cpcq = −cqcp for p ≠ q. Each vertex u of the surface code lattice contains a copy of a simple Majorana fermion code41 with four Majorana modes, a single logical qubit, and a stabilizer Su = ±cpcqcrcs. It has logical Pauli operators X¯¯¯¯u=icpcq and Z¯¯¯¯u=icqcr. We call this Majorana code the C4-encoding of a qubit. Each Pauli operator P has a fermionic counterpart P¯¯¯¯ obtained by applying the C4-encoding independently to each qubit of P.
+
+The first step towards the construction of our algorithm is to translate notions from the surface code to the fermionic setting (see Supplementary Note 1). For example, we find that the fermionic counterpart B¯¯¯¯f of a surface code stabilizer Bf associated with a face f can be expressed as a product
+
+B¯¯¯¯f=∏e∈∂fLe
+(9)
+of link operators (see Fig. 6) associated with edges bordering f. This implies that the syndrome measurement may effectively be replaced by the measurement of the commuting link operators by taking the product of the corresponding measurement outcomes. Similarly, we find that the logical operators XL and ZL (see Fig. 1) have fermionic counterparts of the form
+
+X¯¯¯¯L=ic1c2∏e∈LEFTLe,Z¯¯¯¯L=ic2c3∏e∈TOPLe
+(10)
+for suitably chosen subsets LEFT and TOP of edges. Given the eigenvalues of the link operators, we may thus use these identities to compute final logical states from expectation values of the unpaired modes. Finally, as the problem of simulating storage requires considering arbitrary surface code states, we need to identify fermionic version |ψ¯L⟩ of an encoded (logical) state ψ∈C2. This takes the form
+
+|ψ¯L⟩∼∏u∈V12(I+Su)|ψ¯⟩⊗|ϕlink⟩.
+(11)
+where ψ¯ is a C4-encoded version of ψ on the unpaired modes, and ϕlink is the unique state of 4n−4 Majoranas stabilized by all link operators. Eq. (11) implies that we may replace the initial logical state by a simpler state at the expense of measuring additional stabilizers.
+
+Using these relationships, we show (see Supplementary Notes 2 and 3) that the error correction protocols considered in this paper can be decomposed into a sequence of O(n) elementary gates from a gate set known as a fermionic linear optics (FLO), see Refs.43,44 It includes the following operations:
+
+1.
+Initialize a pair of Majorana modes p,q in a basis state |0〉 satisfying icpcq|0〉 = |0〉.
+
+2.
+Apply the unitary operator U = exp(γcpcq). Here γ∈[0, π) is a rotation angle.
+
+3.
+Apply the projector Λ = (I + icpcq)/2. Compute the norm of the resulting state.
+
+It is well-known that quantum circuits composed of FLO gates can be efficiently simulated classically.43,44,45,46 The simulation runtime scales as O(n) for gates of type (1,2) and as O(n2) for gates of type (3). By exploiting the geometrically local structure of the surface code we are able to reduce the number of modes such that at any given time step the simulator only needs to keep track of O(n1/2) modes. Accordingly, each FLO gate can be simulated in time at most O(n). Since the total number of gates is O(n), the total simulation time scales as O(n2).

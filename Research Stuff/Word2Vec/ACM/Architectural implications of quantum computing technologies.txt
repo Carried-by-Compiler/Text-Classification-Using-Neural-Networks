@@ -1,0 +1,1251 @@
+Architectural Implications of Quantum Computing Technologies
+
+In this article we present a classification scheme for quantum computing technologies that is based
+on the characteristics most relevant to computer systems architecture. The engineering trade-offs
+of execution speed, decoherence of the quantum states, and size of systems are described. Concurrency,
+storage capacity, and interconnection network topology influence algorithmic efficiency, while
+quantum error correction and necessary quantum state measurement are the ultimate drivers of
+logical clock speed. We discuss several proposed technologies. Finally, we use our taxonomy to explore
+architectural implications for common arithmetic circuits, examine the implementation of
+quantum error correction, and discuss cluster-state quantum computation.
+Categories and Subject Descriptors: C.1.m [Processor Architectures]: Miscellaneous; B.m
+[Hardware]: Miscellaneous
+General Terms: Design
+Additional Key Words and Phrases: Quantum computing, quantum computer architecture
+1. INTRODUCTION
+Quantum computing is a rapidly evolving field. Researchers are motivated by
+the enormous computational potential [Shor 1997; Grover 1996; Deutsch and
+Jozsa 1992] compared to classical machines. Much of the effort thus far has
+been focused on the two extremes of research: algorithms and complexity theory
+at the top end, and quantum gate and qubit storage technology at the
+bottom [ARDA 2004]. The role that architects play in bridging this gap, designing
+practical machines that can run quantum algorithms efficiently, is only
+This work is supported in part by the DARPA QuIST Program (ARFL-F30602-01-2-0521), NSF
+Nanoscale Program (CCF-0210373) and NSF CAREER grants (CCF-0133188). Additional support
+is provided by the A. P. Sloan Foundation.
+Authors’ address: R. Van Meter, Keio University, 3-14-1 Hiyoshi, Kohoku-ku, Yokohama-shi,
+Kanagawa 223-8522, Japan; email: rdv@tera.ics.keio.ac.jp. M. Oskin, University of Washington.
+Permission to make digital or hard copies of part or all of this work for personal or classroom use is
+granted without fee provided that copies are not made or distributed for profit or direct commercial
+advantage and that copies show this notice on the first page or initial screen of a display along
+with the full citation. Copyrights for components of this work owned by others than ACM must be
+honored. Abstracting with credit is permitted. To copy otherwise, to republish, to post on servers,
+to redistribute to lists, or to use any component of this work in other works requires prior specific
+permission and/or a fee. Permissions may be requested from Publications Dept., ACM, Inc., 1515
+Broadway, New York, NY 10036 USA, fax: +1 (212) 869-0481, or permissions@acm.org.
+C 2006 ACM 1550-4832/06/0100-0031 $5.00
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006, Pages 31–63.
+32 • R. Van Meter and M. Oskin
+beginning to be explored [Oskin et al. 2003; Steane 2003; Van Meter and Itoh
+2005].
+The architecture of these systems cannot be an afterthought. A well-designed
+system will be faster, have higher storage capacity, and be more error-resistant
+than a poorly built one developed from the same underlying technology. It will
+therefore be capable of attacking larger, more interesting problems. System
+architects can also help shape the device research agenda, by demonstrating
+system-level trade-offs and establishing the relative importance and necessary
+maturity levels of various technological features. Thus, the system architecture
+of quantum computers is critical to their success and conducting research on it
+now is important to the field.
+In this article, we hope to provide a useful road map in the form of a taxonomy
+and survey of some of the many promising quantum computing technologies,
+written from the perspective of an architecture researcher. We also demonstrate
+in a concrete fashion how to apply the information from such a taxonomy by
+evaluating quantum arithmetic algorithms, quantum error correction, and the
+new topic of cluster-state quantum computation.
+When examining a proposal for a new quantum computing technology, the
+architect is going to ask several basic questions. Among them are:
+(1) Does it work (or can it be made to work)?
+(2) How do you control it (both hardware and software)?
+(3) How does it scale?
+(4) How fast is it?
+(5) What trade-offs can we make?
+In this article we will focus on questions 2–5, with some attention paid to
+the current state of knowledge vis-a-vis question 1. Question 1 is largely a matter
+for device physicists, however, architects need to be aware of the potential
+challenges in the manufacture of a large-scale system because those challenges
+will also ultimately dictate when and if a quantum computer is built. Furthermore,
+architects can help to mitigate [Isailovic et al. 2004] those challenges by
+exploiting their design expertise.
+Question 2 is important to architects because the classical control of these
+quantum technologies is a complicated architectural problem in its own right.
+Some of these technologies will permit the integration of significant classical
+logic alongside the quantum bits (qubits), while others will require the classical
+control to be “off chip.” The parallelism on the quantum side of the device,
+the operation speed, and the necessity of fast, accurate qubit measurement
+and control create a need for a high-bandwidth interface between the control
+subsystem and the quantum device itself.
+Question 3 is paramount. If you cannot build a large-scale system with hundreds
+to thousands of application-level qubits, then the device is never going
+to leave the “lab bench” stage. However, the question is extremely complex
+to answer, depending upon technological limits as well as fundamental physical
+characteristics. For this reason, scalability is addressed throughout this
+text.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 33
+The speed of these technologies (question 4) is important for two reasons.
+First, the speed of computation as it relates to the error rate of that computation
+(called decoherence in the quantum world) determines whether a quantum
+computer can even be built and what that computer will be capable of doing.
+Second, despite the advantage in computational complexity that the quantum
+computing model has compared to classical machines on some problems, computing
+interesting results using quantum algorithms requires large numbers of
+gates. Factoring of kilobit-length numbers, for example, is O(n3). To handle the
+high error rates of the fragile quantum states, a significant constant (potentially
+in the hundreds of thousands) is also in front of this term. Thus, the underlying
+speed of computation is still an important consideration for quantum systems
+and their ultimate usefulness [Van Meter et al. 2005].
+Finally, question 5 is at the heart of architecture research. We will explore
+features of different technologies that can be traded off against each other. For
+example, concurrent gate execution is highly desirable for both error correction
+and application algorithms. However, for some technologies, manufacturing a
+concurrent architecture is complex or expensive (e.g., requiring large numbers
+of lasers for ion trap systems), while for other technologies concurrency results
+in higher error rates or more complex signal handling (e.g., isolation of qubits
+in an NMR system).
+This article does not require a detailed knowledge of the theory of quantum
+computing to read. We refer the interested reader to popular [Williams and
+Clearwater 1999] and technical [Nielsen and Chuang 2000; Preskill 1998a;
+Spiller et al. 2005; Galindo and Martin-Delgado 2002] texts on the subject.
+We begin in the next section by describing well-known fundamental criteria
+for quantum computing devices, followed by the framework for our taxonomy.
+Section 4 uses this framework to place several promising quantum technologies
+in context. Section 5 shows some of the ways in which applications, architecture,
+and technology interact. We conclude with a discussion in Section 6.
+2. FUNDAMENTAL REQUIREMENTS
+DiVincenzo [1995] described five capabilities which a real-world quantum computing
+device must have. A quantum computer must:
+(1) be a scalable physical system with well-defined qubits;
+(2) be initializable to a known state prior to computation;
+(3) have adequately long decoherence times;
+(4) have a universal set of quantum gates; and
+(5) permit high efficiency quantum measurements.
+Two additional criteria focus on moving quantum information between two
+different quantum computers. A viable quantum communications technology
+must:
+(6) be able to convert between physical realizations of qubits that are stationary
+and moving; and
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+34 • R. Van Meter and M. Oskin
+(7) be able to faithfully transmit a physical realization of a qubit between specified
+locations.
+These criteria are fairly straightforward. Item 1 means there must be some
+physical entity, such as the energy levels of an ion, the polarization of a photon,
+or the spin of an electron, that is the actual carrier of the qubit; it must meet
+basic criteria of quantum behavior and support two distinct states which can be
+treated as zero and one. Item 1 also refers to “scalability,” which means different
+things in different contexts; we will explore its system aspects. Item 2 is pretty
+obvious: it is just restating the “garbage in—garbage out” principle [Schulman
+and Vazirani 1999].
+The critical issue of decoherence, or loss of the quantum state (item 3),
+is a function of time, gate errors, and qubit transport. A fundamental, theoretical
+calculation places the threshold above which a quantum computer
+will not function at 10−4, or one error per 104 gates executed [Aharonov
+and Ben-Or 1999], but quantum technologies need to achieve error rates
+well below this critical threshold to avoid undue overhead from error correction
+processes [Steane 2003]. Technology- and architecture-specific estimates
+sometimes differ dramatically from this theoretical threshold, as discussed in
+Section 5.2.
+To satisfy criterion 4, a computer must be able to compute a small number
+of “universal” gates that can be used to synthesize larger, more complex
+gates. This is equivalent to saying that a classical computing technology should
+be able to perform at least a NOR or NAND operation. For quantum computers,
+one such set of universal gates is X, H, T, and CNOT. The most important thing
+to know about these gates is that the X, H, and T are single bit operations,
+while CNOT involves two qubits. Of secondary importance is that X, H and CNOT
+are relatively simple to make fault tolerant, while T requires a more complex
+circuit.
+Item 5 demands that there be a reliable way to read out the state of a qubit.
+Measurement is far more important than retrieving results at the end of a
+computation; it occurs almost continuously as part of quantum error correction
+and the fault-tolerant execution of gates on encoded bits [Shor 1996; Calderbank
+and Shor 1996; Steane 2003; Gottesman 1999; Steane 2002].
+Items 6 and 7 deal specifically with moving quantum information across
+long distances for purposes of computation. One important caveat on criterion
+6 is that it only applies to systems that compute complex quantum algorithms
+via shared state. It does not apply to other uses of quantum effects, such as
+quantum cryptography [Bennett and Brassard 1984; Elliott et al. 2003] and
+basic demonstrations of quantum teleportation [Bennett et al. 1993; Furusawa
+et al. 1998] (though teleportation may be used in quantum computer architectures
+[Gottesman and Chuang 1999; Grover 1997]).
+These criteria have been used as a basis for the evaluation of quantum
+computing technologies [Nielsen and Chuang 2000; Spiller et al. 2005; ARDA
+2004]. They are a necessary set of capabilities, but not sufficient to understand
+the difficulty of building a quantum computer or its speed and utility once
+built.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 35
+3. TAXONOMY FRAMEWORK
+To provide architecture researchers with a useful guide to evaluating quantum
+computing technologies, we have developed a set of classification criteria. We
+will describe each criterion as well as some of its high-level architectural implications.
+In the next section we will use this taxonomy to evaluate several
+proposed computing technologies.
+3.1 Basic Features
+Stationary, flying, and mobile. Quantum computing technologies can be divided
+into two categories: those in which the qubits are represented by constantly
+moving phenomena (photons) and those in which qubits are represented by
+static phenomena (nuclear or electron spins). For phenomena that move, gates
+are physical devices which affect qubits as they flow through the gate. These
+qubits are called “flying qubits.” Optical implementations generally fall into this
+category. For “stationary” phenomena, qubits occupy a physical place and gate
+operations from an application are applied to them. The “stationary” notion
+applies only during gate operation. Some stationary technologies, such as the
+proposed scalable ion trap [Kielpinski et al. 2002], permit the physical qubit
+carrier to be moved prior to application of a gate; we will call these “mobile”
+qubits.
+The key reason to make the distinction between stationary and flying implementations
+is dynamic control. In a flying qubit device, the order and type
+of gates must typically be fixed in advance, often at device construction time;
+different program execution is achieved by classical control of switches that
+route qubits through different portions of the circuit. A stationary qubit device
+has more flexibility to reconfigure gates. In this sense, stationary devices are
+like classical programming, while flying qubit designs are more like classical
+circuit design [Yao 1993].
+Single system versus ensemble. A significant distinction in quantum computing
+technologies is the choice of ensemble computing or singleton computing.
+In ensemble computing, generally implemented on static qubit systems, there
+are many identical quantum computers all receiving the same operators and
+executing the same program on the same data (except for noise). Singleton systems
+have the ability to directly control a single physical entity that is used to
+represent the qubit.
+From a technology perspective, ensemble systems are easier to experiment
+with, as techniques for manipulating and measuring large numbers of atoms or
+molecules are well understood. Hence, the largest quantum computing system
+demonstrations to date have all been on bulk-spin NMR [Vandersypen et al.
+2001; Boulant et al. 2003], which uses an ensemble of molecules to compute.
+Measurement. In order to compute reliably, and to be able to observe the result
+of computation, computing technologies must support a readout process.
+This readout, called measurement, observes the state of the quantum bit and
+produces a classical result. Four features characterize different measurement
+schemes: (1) can measurement of multiple quantum bits be performed in parallel
+or must they be serialized? (2) does measurement of a quantum bit require
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+36 • R. Van Meter and M. Oskin
+interaction with another “clean” qubit in order to produce a result? (3) is the
+speed of measurement about as fast (in the same order of magnitude) as performing
+an operation? (4) can measurement be performed almost anywhere, or
+must the physical entities that are used to represent the qubits be moved to
+specialized measurement sites?
+Reliably computing on a quantum system will mean that many, if not most,
+of the total quantum operations will be measurements [Steane 2002]. From
+an architectural perspective, if measurements must be performed serially or
+are inordinately slow, then Amdahl’s Law [Amdahl 1967] will apply and measurement
+will be the bottleneck in computation. Furthermore, if additional
+“clean” qubits are required for measurement to take place, then we must plan
+for the initialization process to occur frequently. Similarly, if technologies restrict
+where measurement can occur, then those restrictions will need to be
+designed into the architecture.
+Error processes and suppression. The basic theory of quantum error correction
+(QEC) has been known for almost a decade [Shor 1996; Steane 2003], but
+its application turns out to be technology-specific [Gottesman 1999]. QEC traditionally
+depends on interleaving measurement and logic gates, and there has
+been recent experimental progress on this front [Roos et al. 2004]. However, it
+is possible to perform QEC without measurement, at a cost of a number of ancillae
+(“temporary” variable qubits) that grows with the number of applications
+of error correction [Nielsen and Chuang 2000].
+Qubits in some technologies suffer from independent errors, making them
+amenable to correction via QEC. Additional techniques known as decoherence
+free subspaces (DFSes) [Lidar et al. 1998; Lidar and Whaley 2003] are especially
+useful when nearby qubits are subject to collective error processes.
+In optical systems, the principal source of error is loss of photons. In this
+case, erasure codes (in contrast to error correcting codes) work well [Knill et al.
+2000], because it is easy to determine which qubit has been lost, much like
+parity is used in a RAID array [Patterson et al. 1988].
+3.2 Manufacturing and Operating Environment
+At the moment, all scalable quantum computing technologies are proposals and
+significant advances in manufacturing will be required to bring them to reality.
+Nevertheless, some proposals have less onerous technological hurdles in front of
+them than others. Furthermore, certain proposed technologies integrate better
+with existing classical silicon-based computing.
+Fabrication challenges. To what extent do the proposed technologies rely
+on difficult-to-achieve advances in manufacturing? For example, early siliconbased
+NMR relied upon the ability to dope silicon with precisely placed individual
+phosphorus atoms, and to align these with overlaid structures created
+using standard VLSI lithography [Kane 1998]. All of the solid-state circuit
+techniques require classical control lines (e.g., [Fujisawa et al. 1998;
+Nakamura et al. 1999]), which may benefit from expected improvement in
+VLSI feature sizes following Moore’s Law [Moore 1965; ESIA et al. 2003]. In
+our taxonomy we will highlight the major technological challenges facing each
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 37
+quantum computing proposal and discuss the latest advances in overcoming
+them.
+Control parallelism. Despite the algorithmic advantages quantum computing
+promises, it is still important to extract parallelism from quantum algorithms.
+On some proposed technologies, such as silicon NMR [Skinner et al.
+2003], serial execution of algorithms will be time-consuming. For example,
+Kunihiro [2005] has estimated the sequential running time of Shor’s algorithm
+factoring a 530–bit number at 1.18 years for a 1kHz device (approximately
+NMR speeds), 10 hours for a 1MHz device, or 37 seconds for a 1GHz device.
+Fortunately, there is significant parallelism available [Moore and Nilsson
+2001] in quantum software (error correction [Steane 2003] and factoring [Van
+Meter and Itoh 2005]). The ability to exploit this parallelism, however, requires
+technologies with parallel control. This parallel control will require significant
+classical support circuitry. If this circuitry cannot be located “on chip” near the
+qubits, then a high-bandwidth interface between a classical device generating
+control pulses and a quantum device containing the actual qubits will be
+required.
+Operating temperature. In order to control noise, most proposals call for extremely
+low temperatures achievable only with liquid helium. Others require
+still colder millikelvin temperatures achieved through a dilution refrigerator.
+These low temperatures are not only operationally challenging, but also affect
+the ability of classical circuits to operate, complicating the design of the control
+process [Oskin et al. 2003].
+Supporting equipment. Some technologies require complex supporting equipment,
+notably high-frequency microwave and voltage signal generators. One or
+more of these per qubit may be needed; as systems scale, switching or sharing
+of this equipment or direct integration into on-chip systems is likely to be
+required.
+3.3 Algorithmic Efficiency Features
+Many features of the various quantum computing proposals will have profound
+implications for the execution of quantum algorithms on realistic architectures.
+Total available qubits. The feature with the single largest impact on the
+scalability, usefulness, and reliability of the computer is the actual number
+of physical qubits available. Beyond the minimum requirement for a given
+algorithm, additional qubits can be utilized to increase reliability via error
+correction or for algorithmic parallelism, as we show in Section 5.
+All entries in Table II are followed by question marks because of very high
+uncertainty; in some cases, even which factors will prove to be the practical
+limits are not yet clear. As most researchers are still focusing on very small
+numbers of qubits, they have not yet attempted to circumscribe this upper
+limit.
+Addressability. In some systems, addressing specific qubits is difficult, because
+it is hard to localize the classical control (e.g., microwave-frequency electromagnetic
+field) required to just the small region that a single qubit occupies.
+One solution, the original Lloyd model, proposes forming small groups of qubits
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+38 • R. Van Meter and M. Oskin
+into cellular automata [Lloyd 1993]. Each qubit position in the automaton can
+be addressed via a specific electromagnetic frequency. Each automaton follows
+the same program, effected by electromagnetic radiation blanketing the whole
+device, which is, in effect, a fully concurrent SIMD machine. One technique
+for turning a cellular automata into a more easily controlled serial machine
+is to include in the cellular automata a token that is passed from automaton
+to automaton; only the automaton holding the token performs the indicated
+action. We expect that designing architectures and software systems for technologies
+without the ability to address and operate on specific qubits will be
+difficult.
+Wiring. Optimization of the architecture to support the data movement of
+a useful class of algorithms is one of the key areas to which computer architects
+can contribute. In many proposed technologies, only neighboring qubits
+are allowed to perform two-qubit gates. Either the physical entities representing
+the qubits (using a control process [Kielpinski et al. 2002]) or just the
+state (using quantum wires [Oskin et al. 2003]) must be moved around within
+the machine to support computation. In some cases, technological constraints
+limit the interconnection topology to a one-dimensional line; in others, a loose
+two-dimensional lattice, full 2-D mesh, or even 3-D structure has been proposed
+[Lloyd 1993]. A few proposals support long-distance gates with various
+trade-offs, such as limited concurrency [You et al. 2002].
+3.4 Time and Gate Characteristics
+Natural gates. Various sets of gates have been shown to form elementary basis
+sets [Barenco et al. 1995; DiVincenzo 1994]. The standard set of universal gates
+(X, H, T, CNOT) is just one example, and all serious proposals for quantum computing
+technologies include enough operations to provide this or an equivalent
+universal set. Beyond universality, however, are three important characteristics.
+(1) Does the technology provide an arbitrary single qubit rotation, or must
+it be synthesized from X, H and T [Nielsen and Chuang 2000]; (2) How complex
+is the synthesis for a three qubit controlled-controlled-not (called a Toffoli gate,
+for its inventor), which is commonly used in quantum algorithms [Barenco et al.
+1995]; (3) Do specific gates have unwanted effects on qubits that are not the
+intended operands (that is, are other qubits being implicitly manipulated)? We
+will discuss these in more detail below.
+Arbitrary single qubit rotation and controlled-arbitrary rotation are extremely
+useful primitives. Technologies that support arbitrary single qubit
+rotations do not need to utilize any of the synthesis techniques developed to
+approximate them, saving a polynomial time overhead. Arbitrary controlled
+rotation (a two qubit operation) is useful, particularly for the quantum Fourier
+transform (QFT) at the heart of Shor’s algorithm [Shor 1994; Hales and
+Hallgren 2000; Barenco et al. 1996].
+The TOFFOLI gate is a three qubit gate that can be used to synthesize conventional
+logic from quantum bits (NAND, NOR, etc.), and it appears prominently
+in Shor’s algorithm, which relies heavily on arithmetic circuits. We will take a
+closer look at this in Section 5.1. Efficient constructions of TOFFOLI are possible if
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 39
+the underlying technology supports certain single qubit operations or arbitrary
+single qubit rotations.
+In static qubit devices such as ion traps or NMR systems, several electromagnetic
+pulses are generally required to implement each gate. A typical number
+is five or six, though the exact number and timing are dependent on the gate to
+be executed. One side effect in NMR systems is that nearby qubits are affected
+by these pulses and are implicitly operated on by them. To overcome this, additional
+control sequences called decoupling pulses are required [Beckman et al.
+1996; Leung et al. 2000].
+Coherence versus operation time. The upside to good isolation from environmental
+effects is long coherence time, or the time which a qubit can be “kept.” As
+a broad generalization, those technologies relying upon electrons to maintain
+quantum state have short coherence times because electrons are fairly mobile
+and tend to interact with their surrounding environment. Technologies that
+utilize nuclear effects are more stable. However, the downside to good isolation
+from environmental effects is relatively slow operation times for two-qubit
+gates. Across the technologies we examine, the gate speed and decoherence
+time vary over eight orders of magnitude or more [Ladd et al. 2003]. Coherence
+time is an especially important research area and will be subject to potentially
+large advances as QC technology progresses. Gate operation time, however, is
+often tied directly to physical processes with limited flexibility in engineering
+parameters.
+3.5 Other Features
+Logical encoding. Quantum algorithms are written to manipulate abstract, logical
+qubits. Logical qubits, however, are not always represented by a single
+physical phenomenon such as a single ion or photon. We call the entities that
+software manipulates “logical qubits” (or “encoded qubits” when quantum error
+correction is involved) and the entities that technologies use to implement them
+“elementary qubits.” This is not the same as the ensemble/singleton distinction
+outlined above.
+In some technologies, such as electron count (charge) in quantum dots, a
+“dual rail” encoding is used. Similarly, a single photon may take either the
+left or right path through a circuit, corresponding to different logical quantum
+states (i.e., 0 or 1). In both of these technologies, it is possible to talk about a
+single quantum dot (or path) as a single qubit, but we arrange computation and
+measurement to take place on the encoded pair.
+Scalability limits. Scaling to large numbers of qubits is, for most architectures,
+a function of all of the above factors and more. Other factors not yet
+described are technology specific. For example, in lithography-based systems,
+they include I/O pads on the chip, the supporting infrastructure such as rackmount
+microwave generators, and the practical challenge of simply providing
+enough control wires to such a small device. Few of the proposals suggest that
+an actual numerical upper bound exists because of any of these factors, yet they
+are critical to the success of building systems. In the next section, we will highlight
+what the primary scalability limit is perceived to be for each technology.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+40 • R. Van Meter and M. Oskin
+Table I. Qubit Technology Basic Characteristics
+(Question marks under QIO indicate that experimental verification has not yet been shown. JJ:
+Josephson junction, LOQC: linear optics quantum computing.)
+Stationary/ Single/
+Technology Flying/Mobile Ensemble QIO? Measurement References
+Si NMR stationary ensemble N mechanical vibration,
+concurrent,
+frequency analysis
+[Ladd et al. 2002]
+solution
+NMR
+stationary ensemble N concurrent, frequency
+analysis
+[Vandersypen et al.
+2001]
+quantum dot
+charge
+stationary single Y? concurrent, on-chip
+auxiliary structures,
+similar to quantum
+dots in size and
+structure
+[Loss and
+DiVincenzo
+1998]
+scalable ion
+trap
+mobile single Y? limited concurrent,
+optically induced
+flourescence
+[Cirac and Zoller
+1995; Kielpinski
+et al. 2002]
+JJ charge stationary single Y? concurrent, on-chip
+charge probe
+[Pashkin et al.
+2003; You et al.
+2003]
+Kane model stationary single N? concurrent,
+single-electron spin
+measurement
+[Kane 1998]
+LOQC flying single Y single qubit
+polarization via
+single photon
+number resolving
+optical detectors
+[Knill et al. 2001]
+Quantum I/O. We may want to move quantum state from one device to
+another. There are a variety of reasons this may be important: we may simply
+be aggregating multiple devices into a larger device, or the far node may provide
+different computational capabilities (e.g., long-term storage) or have access to
+different data. In some cases, we may wish to move quantum data between
+devices of different technologies.
+Quantum I/O (QIO) is a very error-prone process. Therefore, it is done by
+first using QIO on “empty” qubits, which we will call QIO sites, creating an
+entangled state between a pair of devices. Once the existence of the entangled
+state is confirmed through a process called purification, it can be used to transfer
+any desired quantum state by using quantum teleportation [Bennett et al. 1993;
+Furusawa et al. 1998; Lloyd et al. 2000; Matsukevich and Kuzmich 2004].
+Question marks appear in the QIO entries in Table I because experimental
+demonstration in structures similar to those expected to be used in quantum
+computers has not yet been done, or because adequate fidelity has not been
+shown. In some cases, basic experimental confirmation or proposals backed by
+relatively solid analysis exist; in others, only a few sentences in a longer article.
+4. QUANTUM TECHNOLOGIES
+In this section we survey a variety of proposed quantum computing technologies
+using the taxonomy framework described in the last section. We have chosen
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 41
+Table II. Features Affecting Algorithm Efficiency on Specific Qubit Technologies
+(The maximum number of qubits in all technologies remains undetermined with any reliability.
+Question marks in topologies indicate that the natural area for layout is 2-D, but practical
+engineering constraints may limit full 2-D layout.)
+Wiring ops on
+Technology Concurrency Max Qubits Topologies Addressability All Qubits?
+Si NMR limited by
+ability to
+suppress
+activity of
+uninvolved
+qubits
+hundreds? linear nearest
+neighbor
+by frequency, all
+independent
+Y
+solution
+NMR
+limited by
+ability to
+suppress
+activity of
+uninvolved
+qubits
+low tens? linear nearest
+neighbor,
+limited
+non-neighbor
+by frequency, all
+independent
+Y
+quantum
+dot
+charge
+limited by
+control
+mechanism
+large? linear nearest
+neighbor
+localized, independent
+control via onchip
+systems
+Y
+scalable
+ion trap
+limited by # of
+action sites
+with lasers
+large? open, irregular,
+up to 2-D?
+individual ions and
+chains moved
+from addressable
+storage to action
+sites
+N
+JJ charge limited by
+coupling
+mechanism
+large? 1-D, 2-D?,
+long-distance
+possible?
+localized,
+independent
+control via
+on-chip systems
+Y
+Kane
+model
+limited by
+control
+mechanism
+large? 1-D or 2-D? localized,
+independent
+control via
+on-chip systems
+Y
+LOQC unlimited? large? physical routing,
+essentially
+unlimited
+physical position Y
+to focus on seven technologies: Si-NMR, P-NMR, solution NMR, quantum dot
+charge, scalable ion traps, Josephson junction charge, and linear optics-based
+systems. This selection should by no means be interpreted as exhaustive; many
+other viable proposals exist [Brennen et al. 1999; Folman et al. 2000; Shahriar
+et al. 2002; Pellizzari et al. 1995; Childress et al. 2005]. These systems were
+chosen for their near and long term implementability, and/or scalability and/or
+pedagogical interest. The information is summarized in Tables I–V. Below we
+will briefly discuss each technology and its architectural implications.
+4.1 Solution NMR
+Probably the most complete demonstrations of quantum computation to date
+are the solution NMR experiments [Vandersypen et al. 2001; Boulant et al.
+2003]. In an NMR system, the qubit is represented by the spin of the nucleus
+of an atom. When placed in a magnetic field, that spin precesses, and the spin
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+42 • R. Van Meter and M. Oskin Table III. Clock Speed and Gate Characteristics Single-Qubit Gate Two-Qubit Gate Natural Two-Qubit Technology Decoherence Time Measurement Time Clock Speed Clock Speed Gate Si NMR 25s long 40kHz 400Hz
+J coupling
+solution
+NMR
+seconds long 50kHz 50Hz
+J coupling
+quantum dot
+charge
+a few ns 10–100ns [Fujisawa
+et al. 1998; Loss and
+DiVincenzo 1998]
+10GHz 10GHz exchange [Loss and
+DiVincenzo 1998]
+scalable ion
+trap
+1ms 100
+μs [Metodiev
+et al. 2003] to
+10msec
+[Schmidt-Kaler
+et al. 2003]
+14kHz to 100kHz
+(speed v.
+fidelity);
+∼ 20kHz (ion
+movement)
+∼ 10
+μsec conditional phase
+shift
+JJ charge a few ns 10ns 10GHz 10GHz conditional phase
+shift
+Kane model long? long 75kHz 75kHz
+J coupling
+LOQC limited by
+scattering and
+absorption
+5–10ns
+<1ns limited by detector
+time
+several possibilities,
+including conditional
+phase shift
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 43
+Table IV. Other Features
+Logical:elementary Gate-Level
+Technology Encoding Timing Control Scalability Limit
+Si NMR 1:1 slow gates make
+precise timing
+feasible
+quality of initialization (no
+more than 1/n copies
+may be mis-polarized for
+large n, to achieve
+adequate SNR),
+precision of placement in
+static magnetic field,
+area of high-quality
+magnetic field
+solution NMR 1:1 slow gates make
+precise timing
+feasible
+SNR falls exponentially in
+n
+quantum dot charge 1:3 gates must be
+precise, but jitter
+is not a problem
+external wiring/control
+scalable ion trap 1:1 use of decoherencefree
+subspaces
+recommended to
+reduce jitter
+probably ability to
+accurately track large
+numbers of individual
+ions, and their
+movement times
+JJ charge 1:1 active control of
+phases
+cross-qubit interference;
+inductance of Josephson
+junctions; large numbers
+of rack-mount
+microwave generators
+and getting wires into
+the dilution refrigerator
+Kane model 1:1 manufacturing complexity
+LOQC 1:1 “stopped” light
+[Fleischhauer and
+Lukin 2000]
+skew and jitter in both
+input generation and
+gates; single-photon
+photodetector
+efficiencies of ∼0.9 will
+scale poorly when used
+for large numbers of
+independent qubits;
+deep circuits subject to
+loss
+can be manipulated via microwave radiation. In solution NMR, a carefully designed
+molecule is used. Some of the atoms in the molecule have nuclear spins,
+and the frequency of radiation to which they are susceptible varies depending
+on their position in the molecule, so that different qubits are addressed by frequency.
+Many copies of the molecule are held in a liquid solution; each molecule
+is a separate quantum computer, run independently, with the large numbers
+providing adequate signal strength for readout. This is the canonical ensemble
+system. Solution NMR has been used to factor the number 15 using Shor’s algorithm,
+which required 720 milliseconds [Vandersypen et al. 2001]. The largest
+demonstration to date is 12 qubits [Cory 2004].
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+44 • R. Van Meter and M. Oskin
+Table V. Manufacturing and Operating Environment. K, degrees Kelvin; mK, milliKelvin.
+Technology Manufacturing Operating Environment Supporting Equipment
+Si NMR Si micromachining 4 K,7Tmagnetic field r.f. signal generator
+solution
+NMR
+chemical room temperature, 11 T
+magnetic field
+r.f. signal generator
+1-D quantum
+dot charge
+GaAs lithography 20 mK GHz voltage pulse
+generator (per qubit?)
+scalable ion
+trap
+macroscopic electromechanical
+assembly
+supercooled ions in
+room temperature
+vacuum
+multiple lasers (gates
+and measurement),
+electronic signal
+generators (ion
+movement control),
+CCD cameras (state
+detection)
+JJ charge Si lithography 30 mK GHz voltage pulse
+generator (per qubit?)
+1-D Kane
+model
+P implanted in Si
+lithography
+1.5 K, 2 T magnetic field
+LOQC macroscopic electromechanical
+assembly
+dependent on optical
+detectors; liquid
+helium to room
+temperature
+high speed optical
+switches, atomic
+clocks
+No special cooling apparatus is required for this ensemble system. However,
+its scalability is believed to be quite limited due to falling signal/noise ratio as
+the number of qubits increases.
+—strengths. good decoherence time, room temperature operation, advanced experimental
+verification.
+—weaknesses. slow gates, poor scalability, difficult concurrent operations.
+4.2 Josephson Junction
+Josephson junction-based quantum computing devices are superconducting
+systems [Shnirman et al. 1997]. They come in three flavors: those that represent
+qubits using charge (such as the device shown in Figure 1) [Nakamura et al.
+1999; Pashkin et al. 2003], those that use flux [Mooij et al. 1999; Chiorescu et al.
+2004], and those that use phase [Yu et al. 2002; Martinis et al. 2002]; most of the
+information in the tables applies to all three. Fabrication is done using conventional
+electron-beam lithography and shadow evaporation of Al onto an SiNx
+insulating substrate. In the JJ charge qubit, a sub-micron size superconducting
+box (essentially, a small capacitor) is coupled to a larger superconducting
+reservoir. In a superconductor, electrons move in pairs known as Cooper pairs.
+The qubit representation is the number of Cooper pairs in the box, controlled
+to be either zero or one, or a superposition of both. Similarly, for the flux qubit,
+Cooper pairs are introduced into a superconducting ring, where they circulate
+and induce a quantized magnetic flux. Because the flux qubit has slower gate
+times but a relatively even longer coherence time, experimental efforts appear
+to be shifting toward the flux qubit approach.
+In one proposed scalable form of the charge qubit it is possible to address
+any two qubits and couple them [You et al. 2002]. This is done through a shared
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 45
+Fig. 1. A pair of coupled Josephson-junction charge qubits (labeled Box 1 and Box 2). This device
+is designed to execute a two-qubit gate between the qubit labeled “Control” and the one labeled
+“Target.” The coupling between the two qubits is fixed in hardware in this device. Image courtesy
+of Y. Nakamura and T. Yamamoto, NEC.
+inductance. In this case, the restriction of operations involving only neighboring
+qubits in a linear array is removed, but execution is limited to one gate at a time.
+A different proposal links neighboring qubits in a one-dimensional structure
+with nearest-neighbor-only gates, but potentially may allow concurrent gates
+on independent qubits [Lantz et al. 2004].
+—strengths. very fast gates, advanced experimental demonstration, straightforward
+fabrication.
+—weaknesses. low coherence time relative to measurement time, sensitivity to
+background charge fluctuations and local magnetic fields.
+4.3 All-Silicon NMR
+Ladd et al. have proposed an all-silicon NMR-based quantum computer which
+stores qubits in the nuclear spin of 29Si (spin 1/2 nucleus) laid down in a line
+across a micromechanical bridge of spin 0 nuclei (28Si and 30Si) [2002], as
+shown in Figure 2. This is an ensemble system; 105 copies are required to get
+adequate signal for measurement. Readout is done via magnetic resonance
+force microscopy (MRFM), reading oscillations of the bridge. Initialization
+is done via electrons whose spins are set with polarized light (optical pumping).
+Operations are done via microwave radiation directed at the device. A
+micromagnet provides a high field gradient, allowing individual atoms to be
+addressed by frequency.
+—strengths. longest known decoherence time;
+—weaknesses. slow gates, no QIO, measurement still being designed.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+46 • R. Van Meter and M. Oskin
+Fig. 2. Schematic of the all-silicon NMR computer. Qubits are the spin of 29Si nuclei on a spinfree
+base of 28Si. Distance from the micromagnet determines oscillation frequency and provides
+individual qubit addressability. Image courtesy of K. M. Itoh, Keio University.
+4.4 Scalable Ion Trap
+One of the few systems which explicitly separates storage areas from interaction
+areas is the scalable ion trap [Kielpinski et al. 2002; Wineland et al. 2005;
+Kim et al. 2005; Metodiev et al. 2003]. Initially designed and built at NIST, this
+is a proposal to scale up an ion trap quantum computer [Cirac and Zoller 1995;
+Steane 1997; Sørensen and Mølmer 2000; Schmidt-Kaler et al. 2003]. In ion trap
+systems, qubits are usually stored in the energy levels of individual ions. Early
+ion trap experiments featuring small numbers of ions held in a single trap have
+given way to a large system of interconnected, individually controllable traps.
+In the scalable trap system, the ions are literally moved around using magnetic
+fields until they reach locations in the system designated for operations,
+as shown in Figure 3. Small numbers of ions are brought together and formed
+into chains to execute multi-qubit gates. Gates are effected by laser pulses, and
+readout is also accomplished by laser pulses creating flourescence (interpreted
+as a 1) or not (0), depending on the state of the atom. Gate times are moderate;
+speed can be traded off against fidelity in the range of 14-100kHz. Overall system
+performance will likely be driven by ion movement times (which naturally
+depend on distance and topology), times for creating and splitting chains of
+atoms, time to cool atoms heated by the movement process, and multiplexing
+of gate operations. The movement operations are unlikely to allow a gate rate
+in excess of 20kHz.
+—strengths. scalability of storage;
+—weaknesses. slow gates [Steane et al. 2000]; limitations on concurrent operations
+and measurements.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 47
+Fig. 3. A six-zone ion trap capable of moving individual ions. Ions are inserted in the landing zone
+L, and manipulated in the zones A, S, and B. Image courtesy of D. Wineland, NIST.
+4.5 All-Optical
+All-optical systems come in two flavors: those that depend on nonlinear effects
+to execute gates, and those in which the only necessary nonlinearity is
+measurement, known as LOQC (linear optics quantum computation) [Knill
+et al. 2001]. Research on all-optical systems has focused on photon sources
+capable of generating precise numbers of photons with the necessary timing
+precision [Santori et al. 2002], gates based on measurement [Knill et al. 2001;
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+48 • R. Van Meter and M. Oskin
+Scheel et al. 2003; Knill 2003; Browne and Rudolph 2005; Yoran and Reznik
+2003], and high-quality single-photon detectors [Miller et al. 2003; Waks et al.
+2003; James and Kwiat 2002].
+Measurement-based gates are inherently probabilistic in nature, though
+it has been shown that these gates can be built into a scalable feed-forward
+network [Knill et al. 2001; Ralph et al. 2005]. Much of the current experimental
+work is focusing on this approach, and individual gates have been shown to
+work [Pittman et al. 2002; O’Brien et al. 2003; Pittman et al. 2003; Gasparoni
+et al. 2004; Sanaka et al. 2004].
+Jitter and skew are likely to be managed by “stopped light,” created by
+electromagnetically-induced transparency [Fleischhauer and Lukin 2000;
+Harris 1997].
+—strengths. well-understood physics and easy fabrication;
+—weaknesses. photon losses; for nonlinear systems, weak nonlinear effects give
+poor gate quality; high resource requirements for probabilistic gates.
+4.6 Quantum Dot
+A “quantum dot,” as used in quantum information processing, is a
+lithographically-defined structure that confines electrons at the boundary layer
+between two materials, creating a two-dimensional electron gas (2DEG). By
+varying the surrounding electrical potential, individual electrons can be positioned
+in a small area, called the quantum dot. A qubit can be defined based
+on the number of electrons in a quantum dot or the spin or energy levels of a
+single electron held in a quantum dot.
+Several quantum dot devices are under development; one experimentally
+advanced approach uses a pair of quantum dots as a dual-rail encoded logical
+qubit, with a single electron in the left dot representing a logical 0, and the
+electron in the right dot representing a logical 1 [Fujisawa et al. 1998]. Another
+approach uses a linear array of single-electron quantum dots, and encodes the
+qubit in the spin of the excess electron [Loss and DiVincenzo 1998].
+In a third approach, DiVincenzo et al. [2000] proposed that the only operation
+needed is an exchange between two neighboring qubits, accomplished
+by lowering the electrical potential and allowing the electrons to tunnel [DiVincenzo
+et al. 2000; Loss and DiVincenzo 1998; Myrgren and Whaley 2003].
+This is easier to accomplish than precise control of a magnetic field, which
+would be required in order to effect other gates on specifically addressable
+bits.
+Perhaps the biggest drawback of this approach is that exchange-only computation
+requires encoding a single logical qubit onto multiple physical qubits. A
+CNOT, for example, requires each logical qubit to be encoded in three physical
+qubits, and the exchange times must be controlled fairly precisely. The CNOT on
+neighboring logical qubits requires 19 exchange operations [DiVincenzo et al.
+2000], though Myrgren and Whaley [2003] have found interesting optimizations
+that allow non-neighbor operations to be effected in 28% fewer total operations
+than the obvious formulation of repeated use of the 19-exchange CNOT.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 49
+Continued compiler work may reduce the encoded execution time penalty further,
+though the important storage penalty remains.
+—strengths. advanced fabrication;
+—weaknesses. low coherence time.
+4.7 Kane Solid-State NMR
+Kane has proposed a solid-state NMR system with excellent scalability, built on
+VLSI techniques for control [Kane 1998]; Oskin, Copsey et al. have followed that
+work with engineering studies, suggesting that teleportation may be required to
+move qubits long distances even for error correction [Oskin et al. 2003; Copsey
+et al. 2003], and progress in fabrication has been made [Clark et al. 2003]. In
+this system, individual phosphorus atoms are embedded in a silicon substrate,
+and standard photolithography techniques are used to build control structures
+on the surface. The qubit is held in the spin of the phosphorus nucleus, and
+interactions between neighboring qubits are mediated by electrons coupled to
+the nuclei via hyperfine interactions. The shape of the electron wave function
+is controlled via the control structures built on the Si surface; the distance
+between neighboring P atoms and the accuracy of aligning the control gates to
+the P impurities will determine the quality of qubit interactions.
+—strengths. long coherence time;
+—weaknesses. difficult fabrication, creating adequate overlap in electron wave
+functions.
+5. ARCHITECTURE AND APPLICATIONS
+In this section, we show some of the influences of technology on architecture by
+examining quantum arithmetic, the various forms of error management, and
+the new approach of cluster state computing.
+5.1 Arithmetic
+The current world record for factoring is 576 bits [RSA Security Inc. 2004].
+The previous world record, 530 bits, was accomplished in one month using 104
+PCs and workstations manufactured in 2003. Based on Moore’s Law for CPU
+speed alone (ignoring communications, memory, and I/O), the largest number
+factorable by the number field sieve (NFS) should be growing at about 18 bits
+per year in the current range of 500–600 bits, and this is indeed what the RSA
+Challenge numbers show [Knuth 1998]. Although earlier estimates place the
+factoring of a 1024-bit number as close as the year 2018, we speculate, based on
+recent progress, that it may remain out of reach for another 25 years [Cavallar
+et al. 2000; Lenstra et al. 2003].
+Using a quantum computer, factoring a 576-bit number in one month using
+Shor’s algorithm requires, first of all, that a coherent state be maintained for
+a month across several thousand logical qubits, through the use of quantum
+error correction. Second, a logical clock speed of 0.3Hz to 27Hz is required [Van
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+50 • R. Van Meter and M. Oskin
+Meter et al. 2005]. In this section, we use arithmetic as an example of how
+the architecture of a quantum computer affects both the asymptotic (O(· )) performance
+of an algorithm and its constant factors [Ercegovac and Lang 2004].
+Some algorithms are fixed in their resource requirements and execution schedule,
+while others can utilize increased space and concurrency, enabling greater
+parallelism and reducing the circuit depth.
+Consider, for example, the modular exponentiation that is the most computationally
+intensive part of Shor’s factoring algorithm. Researchers have worked
+on the overall exponentiation algorithm [Vedral et al. 1996; Beckman et al.
+1996; Zalka 1998], and on arithmetic building blocks [Gossett 1998; Draper
+2000; Cuccaro et al. 2004]. Comparatively little, however, has been done on
+mapping those algorithms to realistic architectures, with or without error correction
+[Devitt et al. 2004; Fowler et al. 2004; Yimsiriwattana and Lomonaco
+Jr. 2004; Van Meter and Itoh 2005; Vartiainen et al. 2004].
+It has been shown that, although the computational complexity is O(n3), the
+circuit depth is O(log3 n) to exponentiate an n-bit number when three important
+criteria are met: the architecture supports concurrent gates on all qubits,
+O(n3) application-level qubits are available, and any two qubits anywhere in
+the system can interact without penalty [Cleve and Watrous 2000; Van Meter
+and Itoh 2005].
+When these criteria cannot be met, performance suffers. When only O(n2)
+qubits are available, algorithmic parallelism is limited, and circuit depth increases
+to O(nlog2 n). A commonly proposed architecture is a linear chain of
+qubits with nearest-neighbor-only interaction, which increases the depth to
+O(n2 log n). Further reduction in the amount of space available again increases
+the asymptotic depth. The slow 0.3Hz quantum computer suggested above assumes
+the highest possible parallelism and support for long-distance gates,
+whereas the the 27Hz computer uses high parallelism, but nearest-neighboronly
+interactions.
+Figures 4 and 5 show two types of quantum adder circuits, the VedralBarenco-Ekert
+(VBE) carry-ripple adder [Vedral et al. 1996] and the DraperKutin-Rains-Svore
+carry-lookahead adder [Draper et al. 2004]. The first,
+most obvious difference between the two is how “busy” the diagrams appear.
+The carry-ripple adder shows that most of the qubits sit idle during
+most of the computation, waiting for the carry to ripple across the circuit
+(and back, as a cleanup operation). The carry-lookahead adder is much
+denser, accomplishing its work in fewer timesteps by executing more gates in
+parallel.
+The second most prominent visual difference is the span of the gates (vertical
+line segments). Carry-ripple adders operate only on qubits that are nearby,
+while the carry-lookahead adder leapfrogs long distances. This gives the carryripple
+adder O(n) latency, compared to O(log n) for the carry-lookahead—if longdistance
+gates are supported. This format of circuit diagram abstracts away the
+physical layout of qubits, and for any layout other than linear nearest neighbor,
+gives the wrong impression of “nearby.” Therefore, we have begun animating
+the action of some circuits for more complex topologies [Van Meter 2005].
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 51
+Fig. 4. Eight-bit quantum VBE carry-ripple adder. Each horizontal line represents a qubit; the
+horizontal axis is time (indicated at the top of the figure). Each vertical line segment or circle
+represents a gate on one, two, or three qubits. The “V” shape of the circuit shows the ripple of the
+carry down and back (necessary to clean temporary variables).
+In Table VI we list recommendations for adders that match various technologies.
+For example, the Fourier adder [Draper 2000] uses only 2n space, compared
+to the 3n of standard carry-ripple adders [Vedral et al. 1996; Beckman et al.
+1996], but requires n concurrent gates to achieve the O(n) time bound when
+performing the quantum Fourier transform (QFT) required to move numbers
+into and out of the Fourier representation, compared to concurrency of 2 for
+carry-ripple. The Fourier adder also requires precise rotations similar to those
+in the QFT, which may be hard to implement accurately. A newly designed
+carry-ripple adder uses only 2n space and small concurrency, making it now
+the preferred choice in many cases [Cuccaro et al. 2004].
+Likewise, some entries recommend both the conditional-sum and carrylookahead
+adders, which have almost identical O(log n) latencies. A conditionalsum
+adder requires more space and concurrency than carry-lookahead. However,
+it has different locality characteristics which might make it map better to
+an irregular architecture. In particular, the scalable ion trap has limited concurrency,
+but the distance an ion must move may have a factor of two or more
+performance impact, making locality desirable; the design of such a system is
+not yet advanced enough to definitively choose between the two proposed types
+of adders.
+For the two-dimensional layout of the Kane lattice, an ideal O(log n) adder
+can reach latency of only O(
+√n) due to the communications cost of moving
+qubits.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+52 • R. Van Meter and M. Oskin
+Fig. 5. Eight-bit quantum carry-lookahead adder. Each horizontal line represents a qubit; the
+horizontal axis is time (indicated at the top of the figure). Each vertical line segment or circle
+represents a gate on one, two, or three qubits.
+For the Josephson-junction qubits, we recommend using long-distance inductive
+or capacitive transfer structures only if concurrent operations can be
+preserved for at least some qubits. Alternating cycles of a single long-distance
+interaction and many nearest-neighbor interactions would be adequate. Designs
+in which only some of the qubits can transfer long distances while others
+execute concurrent nearest-neighbor operations seem physically plausible,
+and would result in intermediate performance, possibly using a carry-select
+or conditional-sum adder. Concrete performance analysis will depend on the
+details of such a heterogeneous architecture.
+The issue of concurrency highlights an important factor in system design:
+depending on the quantum memory error rate compared to the fault-tolerant
+gate error rate, and the execution times of FT gates and QEC procedures, a
+large portion of the computation time may be spent in preventing “idle” qubits
+from developing uncorrectable errors [Steane 2003; Devitt et al. 2004].
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 53
+Table VI. Qubit Technologies and Recommended Choice of Adder
+(conc., required application-level concurrency.)
+Technology Adder Conc. Latency
+Si NMR carry-ripple 2 O(n)
+solution NMR carry-ripple 2 O(n)
+1-D quantum dot carry-ripple, Fourier 2 or n O(n)
+1-D JJ charge carry-ripple, Fourier 2 or n O(n)
+1-D Kane model carry-ripple, Fourier 2 or n O(n)
+scalable ion trap carry-lookahead,
+conditional-sum
+n or 2n O(log n)
+Oskin lattice carry-lookahead,
+conditional-sum
+n or 2n O(
+√n)
+all-optical carry-lookahead,
+conditional-sum
+n or 2n O(log n)
+5.2 Error Management
+The field of error management actually consists of several types of techniques,
+each of which protects against different error processes. Quantum error correction
+(QEC) and the associated fault-tolerant (FT) methods are based on classical
+error-correction codes. The first and most important class of these is the
+Calderbank-Shor-Steane (CSS) codes [Calderbank and Shor 1996; Shor 1996;
+Steane 1996; Preskill 1998b]. The theory and practice (including both experimental
+demonstrations [Chiaverini et al. 2004; Pittman et al. 2005; Roos et al.
+2004] and system design [Svore et al. 2005; Steane 2002; Copsey et al. 2003;
+Burkard et al. 1999; Devitt et al. 2004; Metodiev et al. 2003; Szkopek et al.
+2004]) of QEC and FT operation are vast; we will not cover them in any depth
+here. Nevertheless, a basic understanding of the pressures that QEC and FT
+place on architecture is critical. QEC and FT demand the continuous preparation
+and measurement of a set of ancillae (temporary work) qubits, and raise
+the overall cost of quantum computation by as much as four orders of magnitude
+for each level of QEC built into the system—and it appears that two or
+more levels may be necessary. The logical clock speed of the system will correspond
+roughly to the QEC cycle time, and is correspondingly slower than the
+physical clock speed, though the exact ratio will depend on both technologyand
+machine-dependent details.
+These QEC codes encode one or more qubits into a code word. The error
+syndromes on this code word are continuously calculated and measured, and
+corrective actions applied to the code word. The measurement of the syndrome
+actually effects a key portion of the error control process; it forces (“projects”)
+the state either back into a good state (with high probability) and returns a
+zero (no error) syndrome, or an error state (with low probability) and returns
+a non-zero syndrome. When the syndrome is non-zero, one or two corrective
+gates are indicated and applied. Unfortunately, this syndrome calculation and
+measurement process may also introduce errors. Technologies that support
+nearest-neighbor-only interactions require swapping of qubits in order to
+calculate the error syndrome, with the swap gates possibly introducing errors
+themselves, making the threshold requirements for effective error correction
+more stringent; in some studies, as much as 175 times worse [Svore et al.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+54 • R. Van Meter and M. Oskin
+2005; Steane 2003; Aharonov and Ben-Or 1999; Fowler et al. 2004; Szkopek
+et al. 2004]. Applying two-qubit gates can result in the propagation of an error
+from one qubit to another, even from the target of the gate to its control.
+The parity calculations necessary to retrieve the error syndrome, then, cannot
+be carried out directly, but must operate indirectly on an entangled state
+prepared especially to defend against this propagation. That state preparation
+requires as many qubits as the code word itself, and may be the driver of
+the cycle time for QEC. Measurement of qubit state on some technologies is
+slow compared to the gate time, so this also figures prominently into the cycle
+time.
+The overhead of QEC is very high compared to classical systems. A single
+qubit may be encoded in five to nine qubits just to protect against a single
+error. The five-qubit encoding is difficult to manipulate, so the seven-bit Steane
+code is generally used in the literature. Larger encodings are of course possible,
+borrowing from classical systems; the storage ratio of those generally remains
+in the 3:1 area even for moderately large blocks. Logical operations on logical
+qubits stored in the same block become difficult, so qubits are swapped out of
+the block, logical gates are performed, then the qubits are swapped back [Steane
+2003; Steane and Ibinson 2003].
+QEC generally deals with independent single-qubit errors. Some error processes
+(e.g., stray magnetic fields) may affect nearby qubits similarly. Techniques
+known as decoherence free subspaces (DFSes) help defend against these
+by, effectively, encoding a logical qubit in the difference, or delta, between two
+or more qubits [Lidar et al. 1998; Lidar and Whaley 2003]. Techniques derived
+from classical erasure codes, such as those typically used in RAID arrays, can
+be helpful in optical systems where photon loss is a key error process [Knill
+et al. 2000]. QEC, via the discretization of states forced by the error syndrome
+measurement, helps to control against small errors in the analog state of qubits
+(small over- or under-rotations in gates)1. Other techniques based on NMR combine
+multiple sub-gate rotations into a single gate and suppress rotation errors
+directly during single-qubit operations [Vandersypen and Chuang 2004].
+As qubits are subject to error processes when idle as well as while being
+used, the total amount of error correction in the system is dependent on the
+size of the machine as well as the number of logical gates being executed. If
+each qubit must be “refreshed” at one-tenth the QEC cycle rate, for example,
+then we must build a system in which one-tenth of the qubits can all be undergoing
+QEC at the same time. Longer waits for correction increase the probability
+of error; this must be balanced against the number of levels of QEC and the
+engineering difficulties of initialization and measurement. Quantum dots and
+superconducting qubits require additional on-chip structures to perform measurement
+[Petta et al. 2005]. This will limit layout flexibility and consume die
+space. If possible, it will be desirable to perform entire QEC sequences on-chip;
+however, in the short run, it may be necessary to use off-chip signal generators
+and control circuitry, requiring a wide, high-bandwidth I/O interface from
+the chip itself. For scalable ion trap systems, many laser beams must excite
+1This is a key factor in the “quantum computation is not analog computation” argument.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 55
+many ions. Complex optics and photon detectors may be required to read out
+the state of many qubits at once; CCD cameras involve a direct tradeoff of speed
+versus noise, while avalanche photodiodes are difficult to integrate and photon
+counters require cryogenic operation [Kim et al. 2005].
+To manage errors effectively, then, we can say that a technology must support
+large numbers of concurrent qubit state preparations, gates, and measurements.
+As the required operations are much more complex than a DRAM
+refresh cycle and are close to the universal gate set, a large-scale difference
+in structure akin to the CPU/RAM dichotomy of classical systems is unlikely.
+However, at the small scale, systems which store qubits in nuclear spins while
+idle and shift to electron spins for active gates have been proposed [Steane and
+Lucas 2000; Kane 1998; Mehring et al. 2003; Jelezko et al. 2004; Childress et al.
+2005].
+5.3 Cluster-State Computing
+Perhaps the most exciting theoretical advance in recent years in quantum
+computing is the development of cluster-state computing, or one-way computation
+[Raussendorf et al. 2003; Nielsen 2005; Walther et al. 2005]. In theory,
+cluster-state computing offers a broader mathematical palette from which to
+design computations; in practice, the best-understood use is as a substrate on
+which the circuit model described above is implemented. Cluster-state computing
+uses quantum computational capabilities rather differently from the basic
+circuit model. Prior to the beginning of the computation proper, a very large
+entangled state called the cluster state is created. Computation itself is executed
+via single-qubit measurements only, conducted in specific sequences and
+along axes sometimes chosen dynamically, based on prior measurement outcomes.
+The growth of the cluster state can be probabilistic but heralded; that
+is, it is known whether or not the operation succeeded, allowing the operation
+to be retried if necessary. This meshes well with the capabilities of linear optics
+quantum computation (LOQC), so, although cluster-state computation is
+an abstraction, much current research excitement exists over the possibility of
+realizable quantum computation based on these technologies [Knill et al. 2001;
+Nielsen 2004].
+Cluster-state computation, like all forms of quantum computation, is subject
+to error processes that require management. Recent research has proposed
+using the cluster state as the “bottom” architectural layer, with fault tolerance
+as a middle layer and the application algorithm on top [Nielsen and Dawson
+2004; Dawson et al. 2005; Varnava et al. 2005]. Cluster-state-like techniques for
+fault tolerance have also been developed for the circuit model for optics [Ralph
+et al. 2005].
+In its most naive form, cluster-state computation requires enormous physical
+resources. The circuit diagrams shown in section 5.1 have a vertical dimension
+that corresponds to physical resources, and a horizontal dimension
+that corresponds to time. In cluster-state computation, the physical resources
+assumed correspond to the entire area of such a diagram, multiplied by a factor
+to account for the resources of a single cluster state. The time dimension
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+56 • R. Van Meter and M. Oskin
+“emerges anew” [Raussendorf et al. 2003]; for some circuits, once the cluster
+state construction is complete the entire algorithm, composed of single-qubit
+measurements, can be executed in a single time step. In practice, there are
+two obstacles. The first is the resources required; for example, a VBE adder
+uses one hundred times as many qubits in the cluster-state model as it does in
+the circuit model.2 The second is that most “interesting” algorithms, including
+any that use the Toffoli (control-control-NOT) gate, cannot be executed concurrently
+because the choice of measurement axis for the qubits is dependent on
+prior results. The execution time for a VBE adder, for example, is O(n), the
+same as in the more conventional circuit model. The first issue is mitigated
+somewhat because cluster-state creation, in linear optics, is far more efficient
+than direct gate execution. Both issues are alleviated by using a sliding window
+in the computation and creating the cluster state in a just-in-time fashion. This
+allows for fewer resources, and relaxes error management constraints as well.
+The amount of cluster state that must be buffered depends on the details of
+the success probability in growing the cluster state. The physical system must
+either support a logical topology that can be configured as a cylinder, wrapping
+the right (leading) edge of the cluster back around onto the beginning, or the
+entire cluster state must shift through the machine as resources are consumed
+on the left and demanded on the right.
+The basic cluster state is logically a two-dimensional mesh connecting nearest
+Manhattan neighbors (although other topologies have been proposed for
+specific purposes). It can be constructed on any physically realizable topology.
+Photons naturally travel long distances well; it would thus seem that clusterstate
+computation is not taking full advantage of this capability. Where gate
+operands are a long logical distance apart, as in Figure 5, a “wire” is laid out
+across the cluster state. This consumes spatial resources, but the entire wire
+can be executed in a single timestep, moving a state from one part of the cluster
+to another quickly.
+Finally, a problem with photon-based quantum computation is storage. One
+recent proposal suggests using individual solid-state qubits and an optical interconnect
+to build cluster states [Lim et al. 2005]. With a suitably rich interconnect,
+this should work well.
+6. CONCLUSIONS
+This article, so far as we are aware, is the first attempt to organize information
+about quantum computers in a way that specifically focuses on scalability, implementability,
+and architectural implications. We have broken down quantum
+technologies into stationary and flying qubits, and within the stationary have
+seen a subclass of mobile qubits. Stationary qubit technologies include both
+single and ensemble systems. The evaluation criteria we have laid out should
+make it possible to compare technologies and determine which will be useful in
+2A naive mapping of the VBE adder would grow the size of the cluster state quadratically in the
+length of the numbers to be added; Raussendorf et al. show how to perform the mapping with linear
+growth in resources, and only a constant factor larger than the circuit implementation.
+ACM Journal on Emerging Technologies in Computing Systems, Vol. 2, No. 1, January 2006.
+Architectural Implications of Quantum Computing Technologies • 57
+different roles of a system, and how application algorithms can be mapped to
+and compiled for various architectures.
+Each of the technologies discussed here has its own particular set of technological
+hurdles to overcome before it can be considered practical. NMR-based
+systems have slow gate times, but have good coherence times; if a QIO mechanism
+can be designed [Wallraff et al. 2004], they will make excellent storage devices,
+but pure NMR systems are unlikely to make adequate factoring machines.
+Josephson-junction devices and quantum dots have extremely fast gate times,
+but have poor coherence times. Both of these systems have yet to demonstrate
+scalability in implementation and addressing of qubits, though both have been
+designed. Pure optical systems need more efficient single-photon detectors. Ion
+traps have many desirable features that make them scalable architecturally.
+The complex tradeoffs in controlling a quantum computer include trading
+speed for coherence time. The quantum wiring and classical control are under
+investigation in both technology-dependent and -independent fashions, but
+many scaling questions remain. Work on both programming language design to
+support quantum computation and backend optimization for specific architectural
+characteristics has just begun [Omer 2002; Aho and Svore 2003; Nakajima ¨
+et al. 2005; Kawano et al. 2005]. Finally, the mapping of algorithms to these
+architectures will determine the performance and practicality of particular
+architectures.
+The most prominent proposed use of quantum computers is Shor’s algorithm
+for factoring large numbers, which has the potential to make the widely used
+RSA public-key cryptosystem and Diffie-Hellman key exchange protocol insecure.
+The encrypting operations and the execution of Shor’s algorithm are, not
+coincidentally, both O(n3) for n-bit keys. Both manufacturing and operating
+costs for qubits and quantum gates will remain many orders of magnitude
+more expensive than classical bits and gates for the foreseeable future. Classical
+systems can therefore afford to go to larger key lengths far more easily than
+a quantum system, staying ahead in the cryptographic arms race (although
+this cost must be borne by all users, not those breaking the codes). However,
+the known existence (or even imminent delivery) of even a single large quantum
+computer may prompt a shift away from cryptosystems perceived to be
+vulnerable.3 Thus, Shor’s algorithm alone is unlikely to be adequate economic
+incentive for the development and purchase of more than a handful of large
+quantum computers. We look forward to the continued development of important
+quantum computing algorithms.
+The field of quantum computer architecture can be said to be in its infancy.
+Researchers who have focused on the fundamental technologies are now beginning
+to examine how to build complete quantum computing systems. In practice,
+more than one of these technologies may come to fruition, providing system architects
+with a suite of capabilities from which to fashion complete systems.
+This is a scenario to be hoped for as quantum computing devices develop into
+systems that can solve real-world problems.
+3We wish to point out here that quantum key distribution [Bennett and Brassard 1984; Elliott
+et al. 2003] does not solve the problems that Shor’s algorithm creates [Paterson et al. 2004].
