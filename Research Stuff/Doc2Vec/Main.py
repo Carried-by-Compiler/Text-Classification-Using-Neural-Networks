@@ -18,13 +18,13 @@ def make_file(name, folder):
 
 if __name__ == "__main__":
     """
-    make_file("Computer virus", "Computer")
+    make_file("William Shakespeare", "Literature")
     """
 
     file_handler = FileHandler()
-    file_handler.update_path(folder="Computer")
+    file_handler.update_path(folder="Literature")
     model = gensim.models.Doc2Vec.load(file_handler.get_models_folder() + "\\exampleEPOCH600.d2v")
-    document = file_handler.read_preprocessed("Computer virus.txt")
+    document = file_handler.read_preprocessed("William Shakespeare.txt")
     new_document = model.infer_vector(document)
     print(model.docvecs.most_similar([new_document]))
     #print(model.docvecs.most_similar(positive=document))

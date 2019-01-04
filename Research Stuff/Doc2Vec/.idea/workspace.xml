@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="47046b26-1aa4-4cf5-91ed-71f05b360788" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DataSetBuilder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FileHandler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Sample Neural Network/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Sample Neural Network/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Word2Vec/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Word2Vec/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Word2Vec/src/FileHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Word2Vec/src/FileHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Word2Vec/src/Word2Vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Word2Vec/src/Word2Vec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,12 +35,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="4581" />
+          <entry key="py" value="4627" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="4581" />
+          <entry key="Python" value="4627" />
         </counts>
       </usages-collector>
     </session>
@@ -57,10 +50,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="27" column="47" lean-forward="true" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
+            <state relative-caret-position="354">
+              <caret line="26" column="66" selection-start-line="26" selection-start-column="66" selection-end-line="26" selection-end-column="66" />
               <folding>
-                <marker date="1546643944032" expanded="true" signature="373:449" ph="..." />
+                <marker date="1546644125032" expanded="true" signature="373:449" ph="..." />
               </folding>
             </state>
           </provider>
@@ -279,10 +272,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="27" column="47" lean-forward="true" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
+        <state relative-caret-position="354">
+          <caret line="26" column="66" selection-start-line="26" selection-start-column="66" selection-end-line="26" selection-end-column="66" />
           <folding>
-            <marker date="1546643944032" expanded="true" signature="373:449" ph="..." />
+            <marker date="1546644125032" expanded="true" signature="373:449" ph="..." />
           </folding>
         </state>
       </provider>
