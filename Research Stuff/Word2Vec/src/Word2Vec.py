@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     model = Word2Vec(corpus, iter=50, min_count=15, size=300, workers=4, window=10)
 
-    print(model.wv.most_similar(positive="intelligence"))
+    print(model.wv.most_similar(positive="data"))
 
     #print(model.wv.similarity(w1="security", w2="network"))
 

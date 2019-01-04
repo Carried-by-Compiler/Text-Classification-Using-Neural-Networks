@@ -1,0 +1,163 @@
+Computer graphics is a sub-field of Computer Science which studies methods for digitally synthesizing and manipulating visual content.  Although the term often refers to the study of three-dimensional computer graphics, it also encompasses two-dimensional graphics and image processing.
+
+
+== Overview ==
+Computer graphics studies the manipulation of visual and geometric information using computational techniques.  It focuses on the mathematical and computational foundations of image generation and processing rather than purely aesthetic issues.  Computer graphics is often differentiated from the field of visualization, although the two fields have many similarities.
+Connected studies include:
+
+Applied mathematics
+Computational geometry
+Computational topology
+Computer vision
+Image processing
+Information visualization
+Scientific visualizationApplications of computer graphics include:
+
+Print design
+Digital art
+Special effects
+Video games
+Visual effects
+
+
+== History ==
+
+One of the first displays of computer animation was Futureworld (1976), which included an animation of a human face and hand—produced by Ed Catmull and Fred Parke at the University of Utah. Swedish inventor Håkan Lans applied for the first patent on color graphics in 1979.There are several international conferences and journals where the most significant results in computer graphics are published. Among them are the SIGGRAPH and Eurographics conferences and the Association for Computing Machinery (ACM) Transactions on Graphics journal. The joint Eurographics and ACM SIGGRAPH symposium series features the major venues for the more specialized sub-fields: Symposium on Geometry Processing, Symposium on Rendering, and Symposium on Computer Animation. As in the rest of computer science, conference publications in computer graphics are generally more significant than journal publications (and subsequently have lower acceptance rates).
+
+
+== Subfields ==
+A broad classification of major subfields in computer graphics might be:
+
+Geometry: studies ways to represent and process surfaces
+Animation: studies ways to represent and manipulate motion
+Rendering: studies algorithms to reproduce light transport
+Imaging: studies image acquisition or image editing
+Topology: studies the behaviour of spaces and surfaces.
+
+
+=== Geometry ===
+
+The subfield of geometry studies the representation of three-dimensional objects in a discrete digital setting.  Because the appearance of an object depends largely on its exterior, boundary representations are most commonly used.  Two dimensional surfaces are a good representation for most objects, though they may be non-manifold.  Since surfaces are not finite, discrete digital approximations are used. Polygonal meshes (and to a lesser extent subdivision surfaces) are by far the most common representation, although point-based representations have become more popular recently (see for instance the Symposium on Point-Based Graphics). These representations are Lagrangian, meaning the spatial locations of the samples are independent.  Recently, Eulerian surface descriptions (i.e., where spatial samples are fixed) such as level sets have been developed into a useful representation for deforming surfaces which undergo many topological changes (with fluids being the most notable example).
+Geometry SubfieldsImplicit surface modeling – an older subfield which examines the use of algebraic surfaces, constructive solid geometry, etc., for surface representation.
+Digital geometry processing – surface reconstruction, simplification, fairing, mesh repair, parameterization, remeshing, mesh generation, surface compression, and surface editing all fall under this heading.
+Discrete differential geometry – a nascent field which defines geometric quantities for the discrete surfaces used in computer graphics.
+Point-based graphics – a recent field which focuses on points as the fundamental representation of surfaces.
+Subdivision surfaces
+Out-of-core mesh processing – another recent field which focuses on mesh datasets that do not fit in main memory.
+
+
+=== Animation ===
+The subfield of animation studies descriptions for surfaces (and other phenomena) that move or deform over time.  Historically, most work in this field has focused on parametric and data-driven models, but recently physical simulation has become more popular as computers have become more powerful computationally.
+
+SubfieldsPerformance capture
+Character animation
+Physical simulation (e.g. cloth modeling,  animation of fluid dynamics, etc.)
+
+
+=== Rendering ===
+
+Rendering generates images from a model.  Rendering may simulate light transport to create realistic images or it may create images that have a particular artistic style in non-photorealistic rendering.  The two basic operations in realistic rendering are transport (how much light passes from one place to another) and scattering (how surfaces interact with light).  See Rendering (computer graphics) for more information.
+
+TransportTransport describes how illumination in a scene gets from one place to another. Visibility is a major component of light transport.
+
+ScatteringModels of scattering and shading are used to describe the appearance of a surface.  In graphics these problems are often studied within the context of rendering since they can substantially affect the design of rendering algorithms.  Shading can be broken down into two orthogonal issues, which are often studied independently:
+
+scattering – how light interacts with the surface at a given point
+shading – how material properties vary across the surfaceThe former problem refers to scattering, i.e., the relationship between incoming and outgoing illumination at a given point.  Descriptions of scattering are usually given in terms of a bidirectional scattering distribution function or BSDF.  The latter issue addresses how different types of scattering are distributed across the surface (i.e., which scattering function applies where).  Descriptions of this kind are typically expressed with a program called a shader.  (Note that there is some confusion since the word "shader" is sometimes used for programs that describe local geometric variation.)
+
+Other subfieldsphysically based rendering – concerned with generating images according to the laws of geometric optics
+real time rendering – focuses on rendering for interactive applications, typically using specialized hardware like GPUs
+non-photorealistic rendering
+relighting – recent area concerned with quickly re-rendering scenes
+
+
+== Notable researchers ==
+
+
+== See also ==
+
+
+== References ==
+
+
+== Further reading ==
+Foley et al. Computer Graphics: Principles and Practice.
+Shirley. Fundamentals of Computer Graphics.
+Watt. 3D Computer Graphics.
+
+
+== External links ==
+A Critical History of Computer Graphics and Animation
+History of Computer Graphics series of articles
+
+
+=== University groups ===
+Computer Graphics Usability and Visualization Group at Simon Fraser University
+Computer Graphics Group at The University of Hong Kong
+Media Technology Research Centre at the University of Bath
+Berkeley Computer Animation and Modeling Group
+Berkeley Computer Graphics
+Bristol University Computer Graphics Group
+C²G² at Columbia University
+Center for Visual Information Technology, IIIT Hyderabad
+Caltech Multi-Res Modeling Group
+Carnegie Mellon Graphics Lab
+Center for Graphics and Geometric Computing at Technion Israel Institute of Technology, Haifa, Israel
+Computer Graphics Department at Max-Planck-Institut fur Informatik
+Computer Graphics Department at Haute Ecole Albert Jacquard
+Computer Graphics Group at Brown
+Computer Graphics Group at RWTH Aachen University
+Computer Graphics at Harvard
+Computer Graphics and Immersive Technologies Laboratory at USC
+Graphics Lab of Institute for Creative Technologies at USC
+Computer Graphics Laboratory at Korea Advanced Institute of Science and Technology (KAIST)
+Computer Graphics Group at PUC-Rio
+Computer Graphics Group at University of Bonn
+Computer Graphics Group at University of Virginia
+Computer Graphics Laboratory at University of Tokyo
+Computer Graphics Laboratory at UT Austin
+Computer Graphics Laboratory at ETH Zurich
+Computer Graphics / Geometric Design Group at Rice
+Computer Graphics and User Interfaces Lab at Columbia University
+High Performance Computer Graphics Lab at Purdue University
+Computer Graphics and Visualization Lab at Purdue University
+Computer Graphics and Visualization Lab at University of Utah
+Computer Graphics and Visualization Lab at University of Wisconsin
+Cornell University Program of Computer Graphics
+Dynamic Graphics Project at University of Toronto
+Geometric Modeling and Industrial Geometry Group at Technische Universitat Wien
+The Institute of Computer Graphics and Algorithms at Technische Universitat Wien
+Graphics and Image Analysis at UNC
+Graphics and Imaging Lab at Universidad de Zaragoza
+Graphics and Geomatics Group at Universidad de Jaén
+Graphics and Geometric Computing Group at Tsinghua University
+Graphics@Illinois
+GRAIL at University of Washington
+GRAVIR at iMAGIS
+GVIL at University of Maryland, College Park
+GVU Center at Georgia Tech
+IDAV Visualization and Graphics Research Group at UC Davis
+IMAGINE Research Group at Universidad de los Andes, Bogotá, Colombia
+Imager Laboratory at University of British Columbia
+MIT Computer Graphics Group
+MRL at NYU
+Princeton Graphics and Geometry Group
+Stanford Computer Graphics Laboratory
+UCSD Computer Graphics Laboratory
+ViRVIG at Polytechnic University of Catalonia
+Vision Research Center at Vanderbilt
+INI-GraphicsNet international network
+VRVis Research Center
+
+
+=== Industry ===
+Industrial labs doing "blue sky" graphics research include:
+
+Adobe Advanced Technology Labs
+MERL
+Microsoft Research – Graphics
+Nvidia ResearchMajor film studios notable for graphics research include:
+
+ILM
+PDI/Dreamworks Animation
+Pixar

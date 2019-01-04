@@ -15,7 +15,6 @@ class FileHandler:
 
         self.__path = os.path.dirname(os.path.abspath("."))
         self.text_file_path = os.path.join(self.__path, text_file)
-        print(self.text_file_path)
         self.model_file_path = os.path.join(self.__path, saved_models)
         self.sentence_processor = SentenceProcessor(self.text_file_path)
 
