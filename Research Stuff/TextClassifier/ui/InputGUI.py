@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import Treeview
-from business_logic.controllers.InputController import InputController
+from business_logic.controllers import InputController
 
 
 class InputGUI:
@@ -34,6 +34,10 @@ class InputGUI:
         self.init_components()
 
     def init_components(self):
+        """
+        Initialise and output GUI widgets
+        :return:
+        """
 
         # Top Frame
         top_frame = Frame(master=self.root, background="blue")
@@ -69,13 +73,23 @@ class InputGUI:
         self.add_button.pack(pady=10, side=BOTTOM)
 
     def set_button_commands(self, button_listener: InputController):
+        """
+        Attach button listeners to the button widgets of the window
+        :param button_listener: The class that would handle button events.
+        """
         self.add_button.configure(command=button_listener.add_directory)
 
     def add_new_directory(self, path: str, topic: str):
+        """
+        Output the directory and the corresponding topic to the GUI
+        :param path: The file path
+        :param topic: The corresponding topic
+        :return:
+        """
         self.treeview.insert("", "end", text=path, values=topic)
 
-    def greet(self):
-        print("Greetings!")
-
     def display(self):
+        """
+        Display the window
+        """
         self.root.mainloop()
