@@ -75,7 +75,7 @@ if __name__ == "__main__":
     classifier = TopicClassifier()
     classifier.train(np.array(docs, ndmin=2), np.array(labels, ndmin=2))
 
-    document = file_handler.read_preprocessed("Networking.txt")
+    document = file_handler.read_preprocessed("Accounting.txt")
     new_document = np.array(model.infer_vector(document), ndmin=2)
     ret = classifier.predict(new_document)
     print(ret)

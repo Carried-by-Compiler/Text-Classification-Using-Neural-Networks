@@ -24,6 +24,6 @@ class TopicClassifier:
         :param x: A document vector
         :return: The topic predicted
         """
-        val = self.clf.predict(x)
+        val = self.clf.predict_proba(x)
 
         return val
