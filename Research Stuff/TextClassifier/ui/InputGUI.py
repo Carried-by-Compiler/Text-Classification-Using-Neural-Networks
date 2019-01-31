@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter.ttk import Treeview
+from tkinter.ttk import * #Treeview, Notebook, Style
 from business_logic.controllers import InputController
 
 
@@ -19,17 +19,17 @@ class InputGUI:
     def __init__(self):
         self.root = Tk()
         self.root.title("Input GUI")
-        #self.root.geometry('500x500')
+        self.root.geometry('700x500')
 
         # Class members
-        self.controller = None
-
-        self.greet_button = None
-        self.close_button = None
         self.add_button = None
+        self.start_doc2vec = None
+        self.confirm_dirs = None
         self.message = None
         self.treeview = None
+        self.tab = None
 
+        self.file_counter = 0
         # Operations
         self.init_components()
 
@@ -38,10 +38,20 @@ class InputGUI:
         Initialise and output GUI widgets
         :return:
         """
+        self.tab = Notebook(master=self.root)
+        self.tab.pack(fill=BOTH, expand=1, padx=15, pady=15)
+
+        doc2vec_frame = Frame()
+        doc2vec_frame.pack()
+        word2vec_frame = Frame()
+        self.tab.add(doc2vec_frame, text="Doc2Vec")
+        self.tab.add(word2vec_frame, text="Word2Vec")
 
         # Top Frame
-        top_frame = Frame(master=self.root, background="blue")
+        top_frame = Frame(master=doc2vec_frame)
         top_frame.pack(fill=X, padx=15, pady=20)
+
+
 
         m = "Please provide the file path to the directories containing the training documents. " \
             "The name of the directory will be the TOPIC/SUBJECT associated with the documents " \
@@ -51,9 +61,12 @@ class InputGUI:
         self.message.pack(fill=X)
 
         # Middle Frame
-        middle_frame = Frame(master=self.root)
-        middle_frame.pack(fill=X, padx=15)
 
+        training_frame = LabelFrame(master=doc2vec_frame, text="Training")
+        training_frame.pack(fill=X, padx=15)
+
+        middle_frame = Frame(master=training_frame)
+        middle_frame.pack(fill=BOTH, padx=10, pady=5)
         # Construct the tree view
         # https://stackoverflow.com/questions/22456445/how-to-imitate-this-table-using-tkinter
         self.treeview = Treeview(master=middle_frame)
@@ -63,14 +76,21 @@ class InputGUI:
         self.treeview.heading("topic", text="Topic/Subject")
         self.treeview.column("topic", anchor="center")
 
-        self.treeview.pack(fill=X, side=LEFT)
+        self.treeview.pack(fill=X, side=LEFT, expand=1)
 
         vsb = Scrollbar(master=middle_frame, orient="vertical", command=self.treeview.yview)
-        vsb.pack(side="right", fill=Y)
+        vsb.pack(side=RIGHT, fill=Y)
         self.treeview.configure(yscrollcommand=vsb.set)
 
-        self.add_button = Button(master=self.root, text="Add directory")
-        self.add_button.pack(pady=10, side=BOTTOM)
+        bottom_frame = Frame(master=training_frame)
+        bottom_frame.pack(padx=10, pady=10, fill=X, expand=0)
+
+        self.add_button = Button(master=bottom_frame, text="Add directory")
+        self.add_button.pack(side=LEFT)
+        self.confirm_dirs = Button(master=bottom_frame, text="Load documents")
+        self.confirm_dirs.pack(side=LEFT, padx=5)
+        self.start_doc2vec = Button(master=bottom_frame, state=DISABLED, text="Train Doc2Vec")
+        self.start_doc2vec.pack(side=LEFT)
 
     def set_button_commands(self, button_listener: InputController):
         """
@@ -78,15 +98,24 @@ class InputGUI:
         :param button_listener: The class that would handle button events.
         """
         self.add_button.configure(command=button_listener.add_directory)
+        self.confirm_dirs.configure(command=button_listener.confirm_selection)
 
-    def add_new_directory(self, path: str, topic: str):
+    def add_new_directory(self, path: str, topic: str, files: list):
         """
         Output the directory and the corresponding topic to the GUI
         :param path: The file path
         :param topic: The corresponding topic
+        :param files: The file names in that directory
         :return:
         """
-        self.treeview.insert("", "end", text=path, values=topic)
+        self.file_counter = self.file_counter + 1
+        self.treeview.insert("", "end", iid=self.file_counter, text=path, values=topic)
+
+        for file in files:
+            self.treeview.insert(self.file_counter, "end", text=file, values=topic)
+
+    def enable_training_button(self):
+        self.start_doc2vec['state'] = 'normal'
 
     def display(self):
         """

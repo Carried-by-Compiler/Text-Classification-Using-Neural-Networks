@@ -17,3 +17,11 @@ class IReader(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def print_paths(self):
         pass
+
+    @abc.abstractmethod
+    def clear_paths(self):
+        pass
+
+    @abc.abstractmethod
+    def load_documents(self):
+        pass

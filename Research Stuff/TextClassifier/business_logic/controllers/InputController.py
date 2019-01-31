@@ -1,7 +1,7 @@
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from os.path import splitdrive, split
 from ui import InputGUI
-from business_logic.Readers.IReader import IReader
+from business_logic.readers.IReader import IReader
 
 
 class InputController:
@@ -31,5 +31,17 @@ class InputController:
             drive, path_and_file = splitdrive(filename)
             path, file = split(path_and_file)
 
-            self.input_gui.add_new_directory(path=filename, topic=file)
-            self.reader.add_path(filename, file)
+            files = self.reader.add_path(filename, file)
+            if len(files) != 0:
+                self.input_gui.add_new_directory(path=filename, topic=file, files=files)
+
+    def confirm_selection(self):
+        try:
+
+            if self.reader.load_documents() is True:
+                messagebox.showinfo("Loaded Documents", "Successfully loaded documents")
+                self.input_gui.enable_training_button()
+            else:
+                messagebox.showwarning("No Documents", "You have not added any directories!")
+        except BaseException:
+            messagebox.showerror("Loading Documents Error", "Error occurred while loading documents")

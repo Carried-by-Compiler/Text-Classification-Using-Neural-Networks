@@ -1,6 +1,6 @@
 from ui.InputGUI import InputGUI
 from business_logic.controllers.InputController import InputController
-from business_logic.Readers.TxtReader import TxtReader
+from business_logic.readers.TxtReader import TxtReader
 
 
 if __name__ == "__main__":

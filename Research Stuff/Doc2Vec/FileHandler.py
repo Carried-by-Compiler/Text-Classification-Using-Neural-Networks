@@ -64,6 +64,7 @@ class FileHandler:
         files = listdir(self.__path)
         for i, document in enumerate(files):
             content = self.read_preprocessed(document)
+            print(type(content))
             yield doc2vec.TaggedDocument(content, [document])
 
     def read_as_tagged_document(self, filename):

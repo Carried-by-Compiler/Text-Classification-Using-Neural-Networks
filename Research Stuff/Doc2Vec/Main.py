@@ -64,6 +64,7 @@ if __name__ == "__main__":
               [0, 0, 0, 1],
               [0, 1, 0, 0]]  # 39
 
+    
     file_handler = FileHandler()
     file_handler.update_path(folder="Test")
     model = gensim.models.Doc2Vec.load(file_handler.get_models_folder() + "\\exampleEPOCH600.d2v")
@@ -79,20 +80,16 @@ if __name__ == "__main__":
     new_document = np.array(model.infer_vector(document), ndmin=2)
     ret = classifier.predict(new_document)
     print(ret)
-    """ 
     
     """
-
-"""
     # Building the Doc2Vec model
     file_handler = FileHandler()
     file_handler.update_path("All")
     documents = list(file_handler.read_corpus())
-    
+
     model = gensim.models.Doc2Vec(vector_size=3, min_count=2, epochs=600)
     model.build_vocab(documents)
     model.train(documents, total_examples=model.corpus_count, epochs=model.epochs)
     model.save(file_handler.get_models_folder() + "\\exampleEPOCH600.d2v")
-"""
-
+    """
 
