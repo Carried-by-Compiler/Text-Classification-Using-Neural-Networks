@@ -2,6 +2,7 @@ from tkinter import filedialog, messagebox
 from os.path import splitdrive, split
 from ui import InputGUI
 from business_logic.readers.IReader import IReader
+from business_logic.Doc2Vec import D2V
 
 
 class InputController:
@@ -9,13 +10,16 @@ class InputController:
     def __init__(self, input_gui: InputGUI, reader: IReader):
 
         # Class members
-        self.input_gui = input_gui
-        self.reader = reader
+        self.__input_gui = input_gui
+        self.__reader = reader
+
+        self.__d2v = D2V()
+        self.__tagged_documents = None
 
         # Operations
-        self.input_gui.set_button_commands(self)
+        self.__input_gui.set_button_commands(self)
 
-        self.input_gui.display()
+        self.__input_gui.display()
 
     def add_directory(self):
         """
@@ -31,17 +35,26 @@ class InputController:
             drive, path_and_file = splitdrive(filename)
             path, file = split(path_and_file)
 
-            files = self.reader.add_path(filename, file)
+            files = self.__reader.add_path(filename, file)
             if len(files) != 0:
-                self.input_gui.add_new_directory(path=filename, topic=file, files=files)
+                self.__input_gui.add_new_directory(path=filename, topic=file, files=files)
 
     def confirm_selection(self):
+
         try:
 
-            if self.reader.load_documents() is True:
-                messagebox.showinfo("Loaded Documents", "Successfully loaded documents")
-                self.input_gui.enable_training_button()
-            else:
+            self.__tagged_documents = list(self.__reader.load_documents())
+            print(self.__tagged_documents[0])
+            if self.__tagged_documents[0] is False:
                 messagebox.showwarning("No Documents", "You have not added any directories!")
+            else:
+                messagebox.showinfo("Loaded Documents", "Successfully loaded documents")
+                self.__input_gui.enable_training_button()
+
         except BaseException:
             messagebox.showerror("Loading Documents Error", "Error occurred while loading documents")
+
+    def start_d2v(self):
+        val = self.__d2v.train_model(self.__tagged_documents)
+        if val == 1:
+            messagebox.showinfo("Training Complete", "Successfully trained doc2vec model")

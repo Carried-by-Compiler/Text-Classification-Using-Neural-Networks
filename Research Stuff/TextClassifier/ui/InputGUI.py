@@ -99,6 +99,7 @@ class InputGUI:
         """
         self.add_button.configure(command=button_listener.add_directory)
         self.confirm_dirs.configure(command=button_listener.confirm_selection)
+        self.start_doc2vec.configure(command=button_listener.start_d2v)
 
     def add_new_directory(self, path: str, topic: str, files: list):
         """
