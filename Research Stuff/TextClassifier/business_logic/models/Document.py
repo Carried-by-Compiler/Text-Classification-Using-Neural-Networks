@@ -1,48 +1,55 @@
 import numpy as np
+from os import path
 from gensim.models.doc2vec import TaggedDocument
 
 
 class Document:
 
     def __init__(self, name: str, topic: str, path: str):
-        self._name = name
-        self._topic = topic
-        self._path = path
-        self._content = ""
-        self._content_preprocessed = ""
-        self._vector = None
+        self.__id = ""
+        self.__name = name
+        self.__topic = topic
+        self.__path = path
+        self.__content = ""
+        self.__content_preprocessed = ""
+        self.__vector = None
+
+    def get_id(self) -> str:
+        return self.__id
+
+    def set_id(self, counter: int):
+        self.__id = self.__topic + "__" + str(counter)
 
     def get_name(self) -> str:
-        return self._name
+        return self.__name
 
     def get_topic(self) -> str:
-        return self._topic
+        return self.__topic
 
     def get_path(self) -> str:
-        return self._path
+        return self.__path
+
+    def get_full_path(self) -> str:
+        return path.join(self.__path, self.__name)
 
     def set_content(self, content: str):
-        self._content = content
+        self.__content = content
 
     def set_content_preprocessed(self, content: np.array):
-        self._content_preprocessed = content
+        self.__content_preprocessed = content
+
+    def get_content_preprocessed(self) -> np.array:
+        return self.__content_preprocessed
 
     def get_content(self) -> str:
-        return self._content
+        return self.__content
 
     def set_vector(self, vector: np.array):
-        self._vector = vector
+        self.__vector = vector
 
     def get_vector(self) -> np.array:
 
-        if self._vector is not None:
-            return self._vector
+        if self.__vector is not None:
+            return self.__vector
         else:
-            print("ERROR: %s" % ("Vector for " + self._name + " is not available"))
-
-    def get_tagged_document(self):
-
-        if self._content_preprocessed != "":
-            return TaggedDocument(self._content_preprocessed, [self._name])
-        else:
-            print("document content not preprocessed!")
+            print("ERROR: %s" % ("Vector for " + self.__name + " is not available"))

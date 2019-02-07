@@ -1,4 +1,5 @@
 import abc
+from business_logic.DataStorer import DataStorer
 
 
 class IReader(metaclass=abc.ABCMeta):
@@ -7,21 +8,13 @@ class IReader(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def add_path(self, directory: str, topic: str):
+    def add_path(self, directory_path: str, topic: str, data_store: DataStorer):
         pass
 
     @abc.abstractmethod
-    def remove_path(self, directory: str):
+    def remove_path(self, directory: str, data_store: DataStorer):
         pass
 
     @abc.abstractmethod
-    def print_paths(self):
-        pass
-
-    @abc.abstractmethod
-    def clear_paths(self):
-        pass
-
-    @abc.abstractmethod
-    def load_documents(self):
+    def print_paths(self, data_store: DataStorer):
         pass

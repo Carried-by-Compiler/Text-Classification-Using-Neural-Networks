@@ -2,7 +2,7 @@ from business_logic.readers.IReader import IReader
 from business_logic.textprocessors.GensimTextProcessor import GensimTextProcessor
 from business_logic.models.Document import Document
 from gensim.models.doc2vec import TaggedDocument
-import numpy as np
+from business_logic.DataStorer import DataStorer
 from os import listdir, path
 
 
@@ -12,95 +12,79 @@ class TxtReader(IReader):
     stores the topics associated with each file path
     """
 
-    def __init__(self):
-        self.__paths = dict()
-        self.__files = dict()
-        self.__documents = list()
+    def remove_path(self, directory: str, data_store: DataStorer):
+        pass
 
-        # try to use factory method here
+    def print_paths(self, data_store: DataStorer):
+        pass
+
+    def __init__(self):
+
+        # TODO: try to use factory method here
         self.__text_processor = GensimTextProcessor()
 
-    def add_path(self, directory: str, topic: str) -> list:
+    def add_path(self, directory_path: str, topic: str, data_store: DataStorer) -> list:
+        """
+        Adds files belonging to a directory into the program.
+
+        :param directory_path: The directory path to the file
+        :param topic: The topic associated with the directory
+        :param data_store: A data store object to store the files
+        :return: A list of the file names in that directory
+        """
 
         files = []
 
-        if directory not in self.__paths:
-
-            self.__paths[directory] = topic
-            files = listdir(directory)
-
-            for file in files:
-                if directory in self.__files:
-                    self.__files[directory].append(file)
-                else:
-                    self.__files[directory] = [file]
-
+        if data_store.check_topic_exists(topic) is True:
+            print("TxtReader: File has already been added!")
         else:
-            print("Key already exists")
+            data_store.add_topic(t=topic)
+
+            files = listdir(directory_path)
+            print("Adding %s files" % topic) # TODO: remove print
+
+            for i, file in enumerate(files):
+
+                full_path = path.join(directory_path, file)
+                file_content = self.__read_file(file_path=full_path)
+                processed_text = self.__text_processor.process_text(file_content)
+
+                new_doc = Document(name=file, topic=topic, path=directory_path)
+                new_doc.set_id(counter=i)
+                new_doc.set_content(content=file_content)
+                new_doc.set_content_preprocessed(content=processed_text)
+
+                data_store.add_document(new_doc)
+                print("Added document: %s\nID: %s\n" % (new_doc.get_name(), new_doc.get_id()))  # TODO: remove print
 
         return files
 
-    def remove_path(self, directory: str):
-        del self.__paths[directory]
+    def __read_file(self, file_path: str) -> str:
+        with open(file_path, mode="r", encoding="utf-8") as f:
+            content = f.read()
 
-    def print_paths(self):
-        for d in self.__paths:
-            print(d, "=>", self.__paths[d])
+        return content
 
     def clear_paths(self):
         self.__paths.clear()
-
-    def load_documents(self):
-        """
-        Load the documents into the program
-        """
-
-        if len(self.__files) == 0:
-            yield False
-        else:
-            for directory, files in self.__files.items():
-
-                for file in files:
-
-                    full_path = path.join(directory, file)
-                    with open(full_path, mode="r", encoding="utf-8") as f:
-                        content = f.read()
-
-                    processed_text = self.__process_text(content)
-
-                    new_document = Document(name=file, topic=self.__paths[directory], path=directory)
-                    new_document.set_content(content)
-                    new_document.set_content_preprocessed(processed_text)
-                    self.__documents.append(new_document)
-
-                    yield TaggedDocument(processed_text, [file])
-
-
-        """
-        if len(self.__paths) != 0:
-
-            for directory, topic in self.__paths.items():
-                files = listdir(directory)
-
-                for file in files:
-                    file_path = path.join(directory, file)
-                    with open(file_path, mode="r", encoding="utf-8") as f:
-                        content = f.read()
-
-                    processed_text = self.__process_text(content)
-
-                    new_document = Document(name=file, topic=topic, path=directory)
-                    new_document.set_content(content)
-                    new_document.set_content_preprocessed(processed_text)
-
-                    self.__documents.append(new_document)
-
-            return True
-        else:
-            return False
-        """
 
     def __process_text(self, txt: str) -> list:
 
         processed_text = self.__text_processor.process_text(text=txt)
         return processed_text
+
+    def get_document(self, identifier: int) -> Document:
+        """
+        Get a specific document
+        :param identifier: The ID of the document
+        :return: The document object
+        """
+
+        document = None
+
+        for doc in self.__documents:
+            if doc.get_id() == identifier:
+                document = doc
+                break
+
+        return document

@@ -19,15 +19,19 @@ class InputGUI:
     def __init__(self):
         self.root = Tk()
         self.root.title("Input GUI")
-        self.root.geometry('700x500')
+        self.root.geometry('700x700')
 
         # Class members
         self.add_button = None
         self.start_doc2vec = None
+        self.start_classification = None
         self.confirm_dirs = None
         self.message = None
         self.treeview = None
         self.tab = None
+        self.input_text = None
+        self.add_doc = None
+        self.classify_doc = None
 
         self.file_counter = 0
         # Operations
@@ -82,15 +86,19 @@ class InputGUI:
         vsb.pack(side=RIGHT, fill=Y)
         self.treeview.configure(yscrollcommand=vsb.set)
 
-        bottom_frame = Frame(master=training_frame)
-        bottom_frame.pack(padx=10, pady=10, fill=X, expand=0)
+        button_frame = Frame(master=training_frame)
+        button_frame.pack(padx=10, pady=10, fill=X, expand=0)
 
-        self.add_button = Button(master=bottom_frame, text="Add directory")
+        self.add_button = Button(master=button_frame, text="Add directory")
         self.add_button.pack(side=LEFT)
-        self.confirm_dirs = Button(master=bottom_frame, text="Load documents")
-        self.confirm_dirs.pack(side=LEFT, padx=5)
-        self.start_doc2vec = Button(master=bottom_frame, state=DISABLED, text="Train Doc2Vec")
+        self.start_doc2vec = Button(master=button_frame, state=DISABLED, text="Train Doc2Vec")
         self.start_doc2vec.pack(side=LEFT)
+        self.start_classification = Button(master=button_frame, state=DISABLED, text="Train Classifier")
+        self.start_classification.pack(side=LEFT)
+
+
+
+
 
     def set_button_commands(self, button_listener: InputController):
         """
@@ -98,8 +106,8 @@ class InputGUI:
         :param button_listener: The class that would handle button events.
         """
         self.add_button.configure(command=button_listener.add_directory)
-        self.confirm_dirs.configure(command=button_listener.confirm_selection)
         self.start_doc2vec.configure(command=button_listener.start_d2v)
+        self.start_classification.configure(command=button_listener.start_classification)
 
     def add_new_directory(self, path: str, topic: str, files: list):
         """
@@ -117,6 +125,9 @@ class InputGUI:
 
     def enable_training_button(self):
         self.start_doc2vec['state'] = 'normal'
+
+    def enable_classification_button(self):
+        self.start_classification['state'] = 'normal'
 
     def display(self):
         """
