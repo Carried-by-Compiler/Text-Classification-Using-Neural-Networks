@@ -76,6 +76,17 @@ class InputController:
             docs.append(self.__d2v.get_doc_vec(doc.get_id()))
             topics.append(self.__data_store.get_topic_vector(doc.get_topic()))
 
+        self.__classifier.train(np.array(docs, ndmin=2), np.array(topics, ndmin=2))
+        print("Classifier trained!")
 
-        for i in range(len(docs)):
-            print("%s\t->\t%s" % (docs[i], topics[i]))
+    def process_new_document(self):
+        content = self.__input_gui.get_new_document()
+        processed_content = self.__reader.process_text(txt=content)
+
+        new_doc = self.__d2v.infer_new_document(processed_content)
+        results = self.__classifier.predict(x=new_doc)
+
+        print(self.__data_store.get_topics())
+        print(results)
+
+        self.__input_gui.output_results(self.__data_store.get_topics(), results)

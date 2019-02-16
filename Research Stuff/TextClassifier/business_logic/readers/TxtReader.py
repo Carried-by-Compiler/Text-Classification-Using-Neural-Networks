@@ -68,7 +68,7 @@ class TxtReader(IReader):
     def clear_paths(self):
         self.__paths.clear()
 
-    def __process_text(self, txt: str) -> list:
+    def process_text(self, txt: str) -> list:
 
         processed_text = self.__text_processor.process_text(text=txt)
         return processed_text

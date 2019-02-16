@@ -18,3 +18,7 @@ class IReader(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def print_paths(self, data_store: DataStorer):
         pass
+
+    @abc.abstractmethod
+    def process_text(self, txt: str) -> list:
+        pass

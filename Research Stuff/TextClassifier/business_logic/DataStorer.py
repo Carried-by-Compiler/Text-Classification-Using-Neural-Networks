@@ -35,7 +35,7 @@ class DataStorer:
 
         return exists
 
-    def get_topic(self):
+    def get_topics(self):
         return self.__topics
 
     def add_document(self, doc: Document):

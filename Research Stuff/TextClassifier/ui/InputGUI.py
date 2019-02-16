@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.ttk import * #Treeview, Notebook, Style
 from business_logic.controllers import InputController
+from ui.Doc2VecResultsGUI import Doc2VecResultsGUI
+import numpy as np
 
 
 class InputGUI:
@@ -19,7 +21,8 @@ class InputGUI:
     def __init__(self):
         self.root = Tk()
         self.root.title("Input GUI")
-        self.root.geometry('700x700')
+        self.root.geometry('700x600')
+        self.root.resizable(False, False)
 
         # Class members
         self.add_button = None
@@ -35,6 +38,7 @@ class InputGUI:
 
         self.file_counter = 0
         # Operations
+        self.root.lift()
         self.init_components()
 
     def init_components(self):
@@ -96,9 +100,14 @@ class InputGUI:
         self.start_classification = Button(master=button_frame, state=DISABLED, text="Train Classifier")
         self.start_classification.pack(side=LEFT)
 
+        c_doc_frame = LabelFrame(master=doc2vec_frame, text="Document Classification")
+        c_doc_frame.pack(fill=X, padx=15, pady=15)
 
+        self.input_text = Text(master=c_doc_frame, height=3)
+        self.input_text.pack(fill=X, padx=10, pady=10)
 
-
+        self.add_doc = Button(master=c_doc_frame, text="Classify new document")
+        self.add_doc.pack(side=LEFT, padx=10, pady=10)
 
     def set_button_commands(self, button_listener: InputController):
         """
@@ -108,6 +117,7 @@ class InputGUI:
         self.add_button.configure(command=button_listener.add_directory)
         self.start_doc2vec.configure(command=button_listener.start_d2v)
         self.start_classification.configure(command=button_listener.start_classification)
+        self.add_doc.configure(command=button_listener.process_new_document)
 
     def add_new_directory(self, path: str, topic: str, files: list):
         """
@@ -123,11 +133,23 @@ class InputGUI:
         for file in files:
             self.treeview.insert(self.file_counter, "end", text=file, values=topic)
 
+    def get_new_document(self) -> str:
+        """
+        Get the input from text box
+        :return: The contents of the Text widget
+        """
+        return self.input_text.get("1.0", "end-1c")
+
     def enable_training_button(self):
         self.start_doc2vec['state'] = 'normal'
 
     def enable_classification_button(self):
         self.start_classification['state'] = 'normal'
+
+    def output_results(self, topics: list, results: np.array):
+        results_gui = Doc2VecResultsGUI()
+        results_gui.display_results(topics, results)
+        results_gui.display()
 
     def display(self):
         """
