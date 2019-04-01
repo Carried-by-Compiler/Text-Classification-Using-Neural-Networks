@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e1c632e1-d853-4211-9545-963d3a82dacd" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/data_retriever.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/managers/w2v_manager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/user_interfaces/results_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Research Stuff/Doc2Vec/FileHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Research Stuff/Doc2Vec/FileHandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Research Stuff/Doc2Vec/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Research Stuff/Doc2Vec/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Research Stuff/Word2Vec/src/Word2Vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Research Stuff/Word2Vec/src/Word2Vec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/John_Rey_Juele.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/John_Rey_Juele.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/business_logic/DataStorer.py" beforeDir="false" afterPath="$PROJECT_DIR$/business_logic/DataStorer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/business_logic/Doc2Vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/business_logic/Doc2Vec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/business_logic/Word2Vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/business_logic/Word2Vec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/business_logic/controllers/InputController.py" beforeDir="false" afterPath="$PROJECT_DIR$/business_logic/controllers/InputController.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/epochs50vector50_news_dataset.d2v" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/Doc2VecResultsGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Doc2VecResultsGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/InputGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/ui/InputGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/.idea/dictionaries/John_Rey_Juele.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/.idea/dictionaries/John_Rey_Juele.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/classifiers/classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/classifiers/classifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/classifiers/classifier_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/classifiers/classifier_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/classifiers/classifiers.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/classifiers/classifiers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/commands/command.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/commands/command.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/commands/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/commands/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/data_storer.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/data_storer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/invoker.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/invoker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/managers/d2v_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/managers/d2v_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/managers/observer_dp.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/managers/observer_dp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/models/doc2vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/models/doc2vec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/models/word2vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/models/word2vec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/readers/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/readers/reader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/readers/reader_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/readers/reader_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/readers/txt_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/readers/txt_reader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/text_processors/gensim_processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/text_processors/gensim_processor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/text_processors/processor_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/text_processors/processor_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/text_processors/text_processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/business_logic/text_processors/text_processor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/tests/test_d2VManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/tests/test_d2VManager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/user_interfaces/IGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/user_interfaces/IGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/user_interfaces/main_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../src2/DocumentClassifier/src/user_interfaces/main_gui.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/business_logic/Word2Vec.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="392">
+              <caret line="16" column="54" selection-start-line="16" selection-start-column="54" selection-end-line="16" selection-end-column="54" />
+              <folding>
+                <element signature="e#0#34#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/business_logic/Doc2Vec.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="84">
+              <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/business_logic/controllers/InputController.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1624">
+              <caret line="67" column="7" selection-start-line="67" selection-start-column="7" selection-end-line="67" selection-end-column="7" />
+              <folding>
+                <element signature="e#0#42#0" expanded="true" />
+                <marker date="1553977957011" expanded="true" signature="419:420" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/business_logic/w2v_helper.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="308">
+              <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="14" selection-end-column="45" />
+              <folding>
+                <element signature="e#0#28#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ui/InputGUI.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="5104">
+              <caret line="265" column="8" selection-start-line="265" selection-start-column="8" selection-end-line="274" selection-end-column="103" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+                <marker date="1553774851501" expanded="true" signature="592:593" ph="..." />
+                <marker date="1553774851501" expanded="true" signature="592:598" ph="..." />
+                <marker date="1553774851501" expanded="true" signature="10415:10503" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>self.controll</find>
+      <find>self.input_gui</find>
+      <find>self.d2v</find>
+      <find>self._text_processor</find>
+      <find>_id</find>
+      <find>self._id</find>
+      <find>self._name</find>
+      <find>self._topic</find>
+      <find>self._path</find>
+      <find>self._content</find>
+      <find>self._vector</find>
+      <find>print(&quot;Hi</find>
+      <find>bottom_frame</find>
+      <find>self.input_text</find>
+      <find>process_text</find>
+      <find>disa</find>
+      <find>confirm</find>
+      <find>self.confirm_dirs</find>
+      <find>join</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/business_logic/controllers/__init__.py" />
+        <option value="$PROJECT_DIR$/__init___.py" />
+        <option value="$PROJECT_DIR$/ui/__init__.py" />
+        <option value="$PROJECT_DIR$/business_logic/IReader.py" />
+        <option value="$PROJECT_DIR$/business_logic/TxtReader.py" />
+        <option value="$PROJECT_DIR$/business_logic/Readers/IReader.py" />
+        <option value="$PROJECT_DIR$/business_logic/Models/Document.py" />
+        <option value="$PROJECT_DIR$/business_logic/Readers/TxtReader.py" />
+        <option value="$PROJECT_DIR$/business_logic/textprocessors/ITextProcessor.py" />
+        <option value="$PROJECT_DIR$/business_logic/textprocessors/__init__.py" />
+        <option value="$PROJECT_DIR$/business_logic/readers/__init__.py" />
+        <option value="$PROJECT_DIR$/business_logic/textprocessors/GensimTextProcessor.py" />
+        <option value="$PROJECT_DIR$/ui/dialogs/SimplePopup.py" />
+        <option value="$PROJECT_DIR$/business_logic/classifiers/__init__.py" />
+        <option value="$PROJECT_DIR$/business_logic/models/Document.py" />
+        <option value="$PROJECT_DIR$/business_logic/classifiers/IClassifier.py" />
+        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/business_logic/classifiers/NeuralNetwork.py" />
+        <option value="$PROJECT_DIR$/business_logic/readers/TxtReader.py" />
+        <option value="$PROJECT_DIR$/business_logic/readers/IReader.py" />
+        <option value="$PROJECT_DIR$/business_logic/w2v_helper.py" />
+        <option value="$PROJECT_DIR$/business_logic/DataStorer.py" />
+        <option value="$PROJECT_DIR$/ui/Doc2VecResultsGUI.py" />
+        <option value="$PROJECT_DIR$/ui/InputGUI.py" />
+        <option value="$PROJECT_DIR$/business_logic/Doc2Vec.py" />
+        <option value="$PROJECT_DIR$/business_logic/Word2Vec.py" />
+        <option value="$PROJECT_DIR$/business_logic/controllers/InputController.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-10" />
+    <option name="y" value="-10" />
+    <option name="width" value="1939" />
+    <option name="height" value="1099" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="business_logic" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="business_logic" type="462c0819:PsiDirectoryNode" />
+              <item name="classifiers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="business_logic" type="462c0819:PsiDirectoryNode" />
+              <item name="controllers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="business_logic" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="business_logic" type="462c0819:PsiDirectoryNode" />
+              <item name="readers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="business_logic" type="462c0819:PsiDirectoryNode" />
+              <item name="textprocessors" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TextClassifier" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TextClassifier" type="462c0819:PsiDirectoryNode" />
+              <item name="ui" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../src2/DocumentClassifier" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\workspace\Text-Classification-Using-Neural-Networks\Research Stuff\TextClassifier\business_logic\Readers" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TextClassifier" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e1c632e1-d853-4211-9545-963d3a82dacd" name="Default Changelist" comment="" />
+      <created>1548664723071</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1548664723071</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-7" y="-7" width="1550" height="878" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18638466" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.32916668" />
+      <window_info anchor="bottom" x="-25" y="84" width="1513" height="239" id="Run" maximized="true" order="2" sideWeight="0.49947312" type="WINDOWED" weight="0.33194444" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39807898" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50052685" side_tool="true" weight="0.3276414" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/tkintertable/Tables.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="59" selection-start-line="59" selection-end-line="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/kivy/modules/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="123" column="8" selection-start-line="123" selection-start-column="8" selection-end-line="123" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/tkinter/ttk.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="845" selection-start-line="845" selection-end-line="845" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="52" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/textprocessors/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/readers/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/dialogs/SimplePopup.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/gensim/models/doc2vec.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="396" selection-start-line="396" selection-end-line="396" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/tkinter/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="603">
+          <caret line="1701" selection-start-line="1701" selection-end-line="1701" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/classifiers/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/readers/IReader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="11" column="12" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <marker date="1552344875642" expanded="true" signature="181:182" ph="..." />
+            <marker date="1552344875642" expanded="true" signature="181:187" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/controllers/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/textprocessors/ITextProcessor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="53" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/textprocessors/GensimTextProcessor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#42#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/classifiers/NeuralNetwork.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="19" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#48#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="12" column="7" selection-start-line="12" selection-start-column="7" selection-end-line="12" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/models/Document.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="280">
+          <caret line="12" column="20" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1549537187054" expanded="true" signature="105:106" ph="..." />
+            <marker date="1549537187054" expanded="true" signature="105:111" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/DataStorer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1036">
+          <caret line="38" column="4" selection-start-line="38" selection-start-column="4" selection-end-line="39" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#48#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/classifiers/IClassifier.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="28">
+          <caret line="1" column="18" selection-start-line="1" selection-start-column="18" selection-end-line="1" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/readers/TxtReader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1260">
+          <caret line="50" selection-start-line="50" selection-end-line="50" />
+          <folding>
+            <element signature="e#0#50#0" expanded="true" />
+            <marker date="1552344870483" expanded="true" signature="623:624" ph="..." />
+            <marker date="1552344870483" expanded="true" signature="2353:2359" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/Doc2VecResultsGUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="603">
+          <caret line="55" column="28" selection-start-line="55" selection-start-column="28" selection-end-line="55" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/Word2Vec.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="392">
+          <caret line="16" column="54" selection-start-line="16" selection-start-column="54" selection-end-line="16" selection-end-column="54" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/Doc2Vec.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/controllers/InputController.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1624">
+          <caret line="67" column="7" selection-start-line="67" selection-start-column="7" selection-end-line="67" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#42#0" expanded="true" />
+            <marker date="1553977957011" expanded="true" signature="419:420" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business_logic/w2v_helper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="14" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/InputGUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5104">
+          <caret line="265" column="8" selection-start-line="265" selection-start-column="8" selection-end-line="274" selection-end-column="103" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+            <marker date="1553774851501" expanded="true" signature="592:593" ph="..." />
+            <marker date="1553774851501" expanded="true" signature="592:598" ph="..." />
+            <marker date="1553774851501" expanded="true" signature="10415:10503" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
