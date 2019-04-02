@@ -10,7 +10,7 @@ class FileHandler:
     def __init__(self):
         self.__path = path.dirname(path.abspath(__file__))
         self.__models = path.join(self.__path, "Models")
-        print(self.__models)
+
 
     def update_path(self, folder=""):
         """
@@ -18,7 +18,6 @@ class FileHandler:
         :param folder: the name of the folder
         """
         self.__path = path.join(self.__path, folder)
-        print(self.__path)
 
     def write(self, content, filename):
         """
@@ -64,7 +63,6 @@ class FileHandler:
         files = listdir(self.__path)
         for i, document in enumerate(files):
             content = self.read_preprocessed(document)
-            print(type(content))
             yield doc2vec.TaggedDocument(content, [document])
 
     def read_as_tagged_document(self, filename):

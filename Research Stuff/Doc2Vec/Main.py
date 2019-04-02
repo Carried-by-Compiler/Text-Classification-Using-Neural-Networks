@@ -6,6 +6,7 @@ from FileHandler import FileHandler
 from TopicClassifier import TopicClassifier
 import gensim
 import numpy as np
+import sys
 
 
 def fill_data(name=""):
@@ -64,10 +65,18 @@ if __name__ == "__main__":
               [0, 0, 0, 1],
               [0, 1, 0, 0]]  # 39
 
-    
+    in_text = input("Enter files (Comma separated): ")
+    texts = in_text.split(",")
+        
     file_handler = FileHandler()
     file_handler.update_path(folder="Test")
     model = gensim.models.Doc2Vec.load(file_handler.get_models_folder() + "\\exampleEPOCH600.d2v")
+    print("\n")
+    for text in texts:
+        print("{:<50}{}".format(text + ":", model.docvecs[text]))
+    
+
+    """
     for i in range(len(model.docvecs)):
         docs.append(model.docvecs[i])
 
@@ -80,6 +89,7 @@ if __name__ == "__main__":
     new_document = np.array(model.infer_vector(document), ndmin=2)
     ret = classifier.predict(new_document)
     print(ret)
+    """
     
     """
     # Building the Doc2Vec model
