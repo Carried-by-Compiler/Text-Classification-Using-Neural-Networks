@@ -12,5 +12,7 @@ class ClassifierFactory:
 
         if classifier_type == "NEURAL_NETWORK":
             classifier = NeuralNetwork()
+        elif classifier_type == "KNN":
+            classifier = KNearestNeighbour()
 
         return classifier

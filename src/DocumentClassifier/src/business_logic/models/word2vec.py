@@ -9,7 +9,7 @@ class W2V:
 
     def __init__(self):
         cores = multiprocessing.cpu_count()
-        self.__model = Word2Vec(iter=5, min_count=10, size=300, workers=cores - 1, window=10)
+        self.__model = Word2Vec(iter=500, min_count=10, size=300, workers=cores - 1, window=10)
 
     def train_model(self, sentences):
         try:

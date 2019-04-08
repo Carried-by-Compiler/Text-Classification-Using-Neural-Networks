@@ -10,7 +10,7 @@ class D2V:
 
     def __init__(self):
         cores = multiprocessing.cpu_count()
-        self.__model = Doc2Vec(vector_size=3, min_count=2, epochs=50, workers=cores - 1)
+        self.__model = Doc2Vec(vector_size=300, min_count=2, epochs=70, workers=cores - 1)
 
     def train_model(self, documents):
         try:
@@ -37,6 +37,9 @@ class D2V:
 
     def load_model(self, load_path):
         self.__model = Doc2Vec.load(load_path)
+        print("Loaded model:\n-------------")
+        print("Vector size:\t" + str(self.__model.vector_size))
+        print("Epochs:\t" + str(self.__model.epochs))
 
     def refresh(self):
         del self.__model

@@ -6,7 +6,7 @@ from sklearn.neighbors import KNeighborsClassifier
 class NeuralNetwork(Classifier):
 
     def __init__(self):
-        self.__model = MLPClassifier(activation='relu', learning_rate="constant", learning_rate_init=0.001)
+        self.__model = MLPClassifier(activation='logistic', learning_rate="constant", learning_rate_init=0.001)
 
     def train(self, x, y):
         self.__model.fit(x, y)
