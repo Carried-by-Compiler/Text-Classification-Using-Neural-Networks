@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="28631b3a-8411-4276-9432-8e84ff940f46" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/notebooks/TestFYP.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/notebooks/TestFYP.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/business_logic/classifiers/classifier_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/business_logic/classifiers/classifier_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/business_logic/classifiers/classifiers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/business_logic/classifiers/classifiers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/business_logic/models/doc2vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/business_logic/models/doc2vec.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/business_logic/models/word2vec.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/business_logic/models/word2vec.py" afterDir="false" />
-    </list>
+    <list default="true" id="28631b3a-8411-4276-9432-8e84ff940f46" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -340,7 +333,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.35972223" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.35972223" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.28611112" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
